@@ -526,61 +526,14 @@ footer{
     <div class="doc-wrap">
       <aside class="glass doc-side">
         <div class="doc-side-title">文档目录</div>
-        <a class="doc-cat active" onclick="toast('打开：快速开始')">快速开始</a>
-        <a class="doc-cat" onclick="toast('打开：API 参考')">API 参考</a>
-        <a class="doc-cat" onclick="toast('打开：设计规范')">设计规范</a>
-        <a class="doc-cat" onclick="toast('打开：OTA 接入')">OTA 接入</a>
-        <a class="doc-cat" onclick="toast('打开：调试工具')">调试工具</a>
-        <a class="doc-cat" onclick="toast('打开：上架审核')">上架审核</a>
+        <a class="doc-cat active" data-cat="start">快速开始</a>
+        <a class="doc-cat" data-cat="api">API 参考</a>
+        <a class="doc-cat" data-cat="design">设计规范</a>
+        <a class="doc-cat" data-cat="ota">OTA 接入</a>
+        <a class="doc-cat" data-cat="debug">调试工具</a>
+        <a class="doc-cat" data-cat="review">上架审核</a>
       </aside>
-      <div class="doc-main">
-        <div class="glass doc-item" onclick="toast('阅读：环境搭建与首次工程创建')">
-          <div class="doc-item-body">
-            <div class="doc-title">环境搭建与首次工程创建</div>
-            <div class="doc-desc">安装 Android Studio、Wear SDK，创建第一个手表工程，连接 vivo Watch 调试。</div>
-          </div>
-          <div class="doc-item-meta">
-            <span class="doc-time">约 10 分钟</span>
-            <span class="doc-updated">更新于 2026-09-20</span>
-          </div>
-        </div>
-        <div class="glass doc-item" onclick="toast('阅读：表盘开发入门')">
-          <div class="doc-item-body">
-            <div class="doc-title">表盘开发入门</div>
-            <div class="doc-desc">使用 Canvas 绘制表盘，低功耗模式（Ambient Mode）适配，发布到工坊表盘区。</div>
-          </div>
-          <div class="doc-item-meta">
-            <span class="doc-time">约 25 分钟</span>
-            <span class="doc-updated">更新于 2026-09-18</span>
-          </div>
-        </div>
-        <div class="glass doc-item" onclick="toast('阅读：传感器与权限申请')">
-          <div class="doc-item-body">
-            <div class="doc-title">传感器与权限申请</div>
-            <div class="doc-desc">心率、加速度、GPS 传感器调用规范，权限申请最佳实践与合规要求。</div>
-          </div>
-          <div class="doc-item-meta">
-            <span class="doc-time">约 15 分钟</span>
-            <span class="doc-updated">更新于 2026-09-15</span>
-          </div>
-        </div>
-        <div class="glass doc-code">
-          <div class="doc-code-head">
-            <span>示例：读取心率传感器</span>
-            <span class="doc-lang">Kotlin</span>
-          </div>
-<pre>class HeartRateViewModel(app: Application) : AndroidViewModel(app) {
-    private val sensorManager = app.getSystemService(SENSOR_SERVICE)
-            as SensorManager
-    private val heartRate = sensorManager.getDefaultSensor(SENSOR_TYPE_HEART_RATE)
-
-    fun start() {
-        sensorManager.registerListener(listener, heartRate, 3)
-    }
-    fun stop() = sensorManager.unregisterListener(listener)
-}</pre>
-        </div>
-      </div>
+      <div class="doc-main" id="doc-list"><!-- JS 渲染 --></div>
     </div>
   </section>
 
@@ -746,6 +699,86 @@ function showHome(){
   document.getElementById('view-home').style.display='block';
   window.scrollTo({top:0});
 }
+
+/* ===== 文档分类数据 ===== */
+const DOCS = {
+  start: [
+    {t:"环境搭建与首次工程创建", d:"安装 Android Studio、Wear SDK，创建第一个手表工程，连接 vivo Watch 调试。", time:"约 10 分钟", date:"2026-09-20", code:null},
+    {t:"表盘开发入门", d:"使用 Canvas 绘制表盘，低功耗模式（Ambient Mode）适配，发布到工坊表盘区。", time:"约 25 分钟", date:"2026-09-18", code:null},
+    {t:"传感器与权限申请", d:"心率、加速度、GPS 传感器调用规范，权限申请最佳实践与合规要求。", time:"约 15 分钟", date:"2026-09-15", code:{lang:"Kotlin", title:"示例：读取心率传感器", body:`class HeartRateViewModel(app: Application) : AndroidViewModel(app) {
+    private val sensorManager = app.getSystemService(SENSOR_SERVICE)
+            as SensorManager
+    private val heartRate = sensorManager.getDefaultSensor(SENSOR_TYPE_HEART_RATE)
+
+    fun start() {
+        sensorManager.registerListener(listener, heartRate, 3)
+    }
+    fun stop() = sensorManager.unregisterListener(listener)
+}`}},
+  ],
+  api: [
+    {t:"Wear Data Layer API", d:"手表与手机间双向数据同步，跨设备通信通道配置与消息监听。", time:"约 20 分钟", date:"2026-09-19", code:null},
+    {t:"通知与提醒 API", d:"在手表端推送通知、震动提醒，渠道配置与用户点击回调处理。", time:"约 12 分钟", date:"2026-09-17", code:null},
+    {t:"健康数据接入", d:"读取步数、心率、睡眠等健康数据，Health Connect 权限对接。", time:"约 30 分钟", date:"2026-09-12", code:null},
+  ],
+  design: [
+    {t:"表盘设计规范", d:"圆形/方形屏幕安全区、信息密度、低功耗模式对比度要求。", time:"约 15 分钟", date:"2026-09-16", code:null},
+    {t:"图标与视觉样式", d:"应用图标尺寸、圆角、主色规范，适配 vivo / iQOO / Redmi 手表桌面。", time:"约 10 分钟", date:"2026-09-14", code:null},
+    {t:"交互与动效", d:"手表端手势、侧边按键、抬起唤醒等交互模式的设计原则。", time:"约 18 分钟", date:"2026-09-10", code:null},
+  ],
+  ota: [
+    {t:"OTA 服务端接入", d:"对接栈序 OTA 后台，设备注册、版本查询、差分包下载协议说明。", time:"约 40 分钟", date:"2026-09-21", code:null},
+    {t:"差分包制作与签名", d:"生成增量更新包，APK 签名与版本号校验规则。", time:"约 25 分钟", date:"2026-09-19", code:null},
+    {t:"灰度发布与回滚", d:"按设备比例灰度推送，失败自动回滚与强制升级策略配置。", time:"约 20 分钟", date:"2026-09-11", code:null},
+  ],
+  debug: [
+    {t:"ADB 无线调试", d:"手表端开启无线调试，通过 WiFi 连接 ADB 安装与日志抓取。", time:"约 8 分钟", date:"2026-09-22", code:null},
+    {t:"栈序调试 App 使用", d:"实时查看传感器、日志、CPU/内存占用，辅助性能优化。", time:"约 10 分钟", date:"2026-09-20", code:null},
+    {t:"日志抓取与分析", d:"logcat 过滤规则、ANR 与崩溃堆栈收集，常见问题排查流程。", time:"约 15 分钟", date:"2026-09-08", code:null},
+  ],
+  review: [
+    {t:"上架材料清单", d:"应用包、截图、隐私政策、权限说明等提审所需材料准备。", time:"约 10 分钟", date:"2026-09-21", code:null},
+    {t:"审核常见驳回原因", d:"权限滥用、UI 超出安全区、崩溃率过高等高频驳回点与修复建议。", time:"约 12 分钟", date:"2026-09-18", code:null},
+    {t:"版本更新与灰度", d:"新版本提审流程、灰度比例设置、用户评分与评论运营。", time:"约 10 分钟", date:"2026-09-05", code:null},
+  ],
+};
+
+function renderDocs(cat){
+  const list = document.getElementById('doc-list');
+  const items = DOCS[cat] || [];
+  let html = '';
+  items.forEach(d=>{
+    html += `<div class="glass doc-item" onclick="toast('阅读：${d.t}')">
+      <div class="doc-item-body">
+        <div class="doc-title">${d.t}</div>
+        <div class="doc-desc">${d.d}</div>
+      </div>
+      <div class="doc-item-meta">
+        <span class="doc-time">${d.time}</span>
+        <span class="doc-updated">更新于 ${d.date}</span>
+      </div>
+    </div>`;
+    if(d.code){
+      html += `<div class="glass doc-code">
+        <div class="doc-code-head">
+          <span>${d.code.title}</span>
+          <span class="doc-lang">${d.code.lang}</span>
+        </div>
+<pre>${d.code.body}</pre>
+      </div>`;
+    }
+  });
+  list.innerHTML = html;
+}
+document.querySelectorAll('.doc-cat').forEach(a=>{
+  a.addEventListener('click',()=>{
+    document.querySelectorAll('.doc-cat').forEach(x=>x.classList.remove('active'));
+    a.classList.add('active');
+    renderDocs(a.dataset.cat);
+  });
+});
+renderDocs('start');
+
 document.querySelectorAll('.nav-links a[data-nav]').forEach(a=>{
   a.addEventListener('click',()=>toast('「'+a.textContent+'」模块建设中'));
 });
