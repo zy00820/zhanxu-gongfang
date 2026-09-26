@@ -684,7 +684,7 @@ footer{
 
   <footer>
     <div>© 2026 栈序工坊 · 宿迁市宿城区栈序软件开发工作室</div>
-    <div>基于 AOSP 构建 · 面向行业终端 · 联系：<a href="mailto:zy291817@outlook.com" style="color:var(--accent-2);text-decoration:none">zy291817@outlook.com</a></div>
+    <div>基于 AOSP 构建 · 面向行业终端 · <a onclick="showPrivacy()" style="color:var(--accent-2);text-decoration:none;cursor:pointer">隐私政策</a> · 联系：<a href="mailto:zy291817@outlook.com" style="color:var(--accent-2);text-decoration:none">zy291817@outlook.com</a></div>
   </footer>
 
 </div><!-- /view-home -->
@@ -796,6 +796,50 @@ footer{
   </footer>
 </div>
 
+<!-- ===== 视图：隐私政策 ===== -->
+<div id="view-privacy" style="display:none">
+  <div class="console-head">
+    <div>
+      <h1 style="font-size:28px;margin-bottom:6px">隐私政策</h1>
+      <p style="color:var(--text-2);font-size:14px">最近更新：2026 年 9 月 26 日</p>
+    </div>
+    <button class="btn" onclick="showHome()">返回首页</button>
+  </div>
+
+  <div class="glass" style="padding:32px 36px;margin-top:24px;line-height:1.9;font-size:14.5px;color:var(--text-2)">
+    <p style="margin-bottom:18px">栈序工坊（以下简称"我们"）由宿迁市宿城区栈序软件开发工作室运营。本政策说明我们在你使用栈序工坊网站、安卓客户端及配套手表应用时，如何收集、使用、存储和保护你的个人信息。</p>
+
+    <h3 style="color:var(--text);font-size:16px;margin:22px 0 10px">一、我们收集的信息</h3>
+    <p style="margin-bottom:10px">1. <b style="color:var(--text)">设备信息</b>：设备型号、操作系统版本、唯一设备标识符（用于 OTA 升级与崩溃统计）。</p>
+    <p style="margin-bottom:10px">2. <b style="color:var(--text)">传感器数据</b>：在你明确授权后，手表应用可读取心率、步数、睡眠、加速度等健康与运动数据。这些数据默认仅在你的设备本地处理，除非你主动选择上传。</p>
+    <p style="margin-bottom:10px">3. <b style="color:var(--text)">日志信息</b>：崩溃堆栈、应用使用时长、错误日志，用于排查问题和改进稳定性。</p>
+    <p style="margin-bottom:10px">4. <b style="color:var(--text)">开发者信息</b>：若你注册开发者账号，我们会收集邮箱、应用包名、签名指纹。</p>
+
+    <h3 style="color:var(--text);font-size:16px;margin:22px 0 10px">二、信息如何使用</h3>
+    <p style="margin-bottom:10px">· 提供应用分发、表盘安装、OTA 升级服务；</p>
+    <p style="margin-bottom:10px">· 统计应用下载量与崩溃率，优化产品稳定性；</p>
+    <p style="margin-bottom:10px">· 在你授权后，展示个性化的运动与健康统计；</p>
+    <p style="margin-bottom:10px">· 不会将你的个人信息出售给任何第三方。</p>
+
+    <h3 style="color:var(--text);font-size:16px;margin:22px 0 10px">三、第三方 SDK</h3>
+    <p style="margin-bottom:10px">我们目前不接入任何广告 SDK。崩溃统计通过自研日志通道上报，不包含广告标识符。后续若引入第三方服务，会在本政策中更新说明。</p>
+
+    <h3 style="color:var(--text);font-size:16px;margin:22px 0 10px">四、数据存储与安全</h3>
+    <p style="margin-bottom:10px">数据存储于国内服务器，传输采用加密通道。健康类敏感数据优先本地存储，上传需你单独授权。我们保留日志不超过 90 天，到期自动删除。</p>
+
+    <h3 style="color:var(--text);font-size:16px;margin:22px 0 10px">五、你的权利</h3>
+    <p style="margin-bottom:10px">你可以随时：在手表应用设置中关闭传感器权限；删除已安装的应用与表盘；通过邮件联系我们导出或删除你的账号数据。</p>
+
+    <h3 style="color:var(--text);font-size:16px;margin:22px 0 10px">六、联系我们</h3>
+    <p style="margin-bottom:10px">如有任何隐私相关问题，请邮件至 <a href="mailto:zy291817@outlook.com" style="color:var(--accent-2)">zy291817@outlook.com</a>，我们会在 7 个工作日内回复。</p>
+  </div>
+
+  <footer style="margin-top:32px">
+    <div>© 2026 栈序工坊</div>
+    <div>隐私政策 · 最近更新 2026-09-26</div>
+  </footer>
+</div>
+
 </main>
 
 <div class="toast" id="toast"></div>
@@ -818,7 +862,14 @@ function showConsole(){
 }
 function showHome(){
   document.getElementById('view-console').style.display='none';
+  document.getElementById('view-privacy').style.display='none';
   document.getElementById('view-home').style.display='block';
+  window.scrollTo({top:0});
+}
+function showPrivacy(){
+  document.getElementById('view-home').style.display='none';
+  document.getElementById('view-console').style.display='none';
+  document.getElementById('view-privacy').style.display='block';
   window.scrollTo({top:0});
 }
 
