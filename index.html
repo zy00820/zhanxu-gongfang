@@ -672,7 +672,7 @@ footer{
       <div class="glass" style="padding:16px 18px;font-size:13.5px;color:var(--text-2);line-height:2">
         <div>· 栈序调试 v0.5.2 待审核反馈</div>
         <div>· 极简表盘 v2.1 待提交</div>
-        <div>· 8 月开发者结算单待确认</div>
+        <div>· 10月开发者结算单待确认</div>
       </div>
     </aside>
   </div>
@@ -696,6 +696,9 @@ function toast(msg){
   window._toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
 }
 function showConsole(){
+  const pwd = prompt('请输入管理员密码：');
+  if(pwd === null) return;
+  if(pwd !== 'xdf195458'){ toast('密码错误'); return; }
   document.getElementById('view-home').style.display='none';
   document.getElementById('view-console').style.display='block';
   window.scrollTo({top:0});
