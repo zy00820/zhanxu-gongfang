@@ -186,6 +186,8 @@ header{
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   font-size:13px;line-height:1.7;color:#c8d8ee;
 }
+.doc-article{padding:28px 30px}
+.doc-article h2{margin-bottom:6px}
 
 /* 控制台 */
 .console-head{
@@ -276,6 +278,10 @@ footer{
     <div class="hero-actions">
       <button class="btn btn-primary" onclick="document.getElementById('apps').scrollIntoView({behavior:'smooth'})">浏览应用库</button>
       <button class="btn" onclick="document.getElementById('docs').scrollIntoView({behavior:'smooth'})">查看开发文档</button>
+      <a class="btn" href="https://github.com/zy00820/zhanxu-gongfang/releases/latest" target="_blank" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载安卓版 APK
+      </a>
     </div>
   </section>
 
@@ -703,8 +709,18 @@ function showHome(){
 /* ===== 文档分类数据 ===== */
 const DOCS = {
   start: [
-    {t:"环境搭建与首次工程创建", d:"安装 Android Studio、Wear SDK，创建第一个手表工程，连接 vivo Watch 调试。", time:"约 10 分钟", date:"2026-09-20", code:null},
-    {t:"表盘开发入门", d:"使用 Canvas 绘制表盘，低功耗模式（Ambient Mode）适配，发布到工坊表盘区。", time:"约 25 分钟", date:"2026-09-18", code:null},
+    {t:"环境搭建与首次工程创建", d:"安装 Android Studio、Wear SDK，创建第一个手表工程，连接 vivo Watch 调试。", time:"约 10 分钟", date:"2026-09-20",
+     body:[
+       "栈序工坊支持 Android Studio Hedgehog 及以上版本。新建工程时选择「Wear OS Empty Activity」，最低 SDK 配置为 26（对应 Wear OS 3.0），可兼容 vivo Watch 2/3、iQOO Watch、Redmi Watch 系列。",
+       "连接手表前，先在手表「设置 → 关于」连续点击版本号开启开发者选项，再进入「开发者选项」打开「ADB 调试」与「无线调试」。手机与手表连同一 WiFi，在 Android Studio 的 Pair Devices 中输入手表屏幕上的配对码即可。",
+       "工程同步完成后，运行按钮选择目标手表设备，即可把第一个 Hello World 推送到表盘上。"
+     ]},
+    {t:"表盘开发入门", d:"使用 Canvas 绘制表盘，低功耗模式（Ambient Mode）适配，发布到工坊表盘区。", time:"约 25 分钟", date:"2026-09-18",
+     body:[
+       "表盘服务继承 WearableFaceService，在 onDraw 中用 Canvas 绘制时分针、刻度与数据层。圆形屏幕需在直径 80% 安全区内布局，避免关键信息被圆角裁切。",
+       "Ambient Mode 是手表续航的关键。进入环境模式后需降低刷新率至 1 帧/秒、关闭抗锯齿与阴影、只用白/灰/黑三色，否则一晚上掉电超过 15%。",
+       "完成绘制后在工作台「表盘」分类提交预览图，审核通过即上架到工坊表盘区，用户可一键应用。"
+     ]},
     {t:"传感器与权限申请", d:"心率、加速度、GPS 传感器调用规范，权限申请最佳实践与合规要求。", time:"约 15 分钟", date:"2026-09-15", code:{lang:"Kotlin", title:"示例：读取心率传感器", body:`class HeartRateViewModel(app: Application) : AndroidViewModel(app) {
     private val sensorManager = app.getSystemService(SENSOR_SERVICE)
             as SensorManager
@@ -714,41 +730,107 @@ const DOCS = {
         sensorManager.registerListener(listener, heartRate, 3)
     }
     fun stop() = sensorManager.unregisterListener(listener)
-}`}},
+}`},
+     body:[
+       "心率、加速度、GPS 均需在 AndroidManifest 中声明对应权限，并在运行时动态申请。健康类权限（BODY_SENSORS）必须向用户说明用途，否则审核会被驳回。",
+       "传感器采样率建议：心率 3 秒一次、加速度 200ms，过密采样会显著增加功耗。"
+     ]},
   ],
   api: [
-    {t:"Wear Data Layer API", d:"手表与手机间双向数据同步，跨设备通信通道配置与消息监听。", time:"约 20 分钟", date:"2026-09-19", code:null},
-    {t:"通知与提醒 API", d:"在手表端推送通知、震动提醒，渠道配置与用户点击回调处理。", time:"约 12 分钟", date:"2026-09-17", code:null},
-    {t:"健康数据接入", d:"读取步数、心率、睡眠等健康数据，Health Connect 权限对接。", time:"约 30 分钟", date:"2026-09-12", code:null},
+    {t:"Wear Data Layer API", d:"手表与手机间双向数据同步，跨设备通信通道配置与消息监听。", time:"约 20 分钟", date:"2026-09-19",
+     body:[
+       "Data Layer 用于手表与配对手机间的数据同步。通过 putDataItem 写入数据，在另一端实现 DataClient.OnDataChangedListener 监听变化。",
+       "同步数据建议不超过 100KB，大文件请改用 Channel API 传输，并在手机端做缓存。"
+     ]},
+    {t:"通知与提醒 API", d:"在手表端推送通知、震动提醒，渠道配置与用户点击回调处理。", time:"约 12 分钟", date:"2026-09-17",
+     body:[
+       "手表端通知由手机系统转发，需在手机端 App 创建 NotificationChannel 并设置 importance。手表端通过 setContentIntent 处理点击回调。",
+       "震动提醒建议使用 DEFAULT_VIBRATE，不要自定义长震动模式，避免用户反感。"
+     ]},
+    {t:"健康数据接入", d:"读取步数、心率、睡眠等健康数据，Health Connect 权限对接。", time:"约 30 分钟", date:"2026-09-12",
+     body:[
+       "栈序工坊统一对接 Health Connect，请求权限后可读取步数、心率、睡眠、距离等聚合数据。不需要分别适配各品牌私有 SDK。",
+       "数据读取建议按天聚合，避免高频查询导致电池消耗。"
+     ]},
   ],
   design: [
-    {t:"表盘设计规范", d:"圆形/方形屏幕安全区、信息密度、低功耗模式对比度要求。", time:"约 15 分钟", date:"2026-09-16", code:null},
-    {t:"图标与视觉样式", d:"应用图标尺寸、圆角、主色规范，适配 vivo / iQOO / Redmi 手表桌面。", time:"约 10 分钟", date:"2026-09-14", code:null},
-    {t:"交互与动效", d:"手表端手势、侧边按键、抬起唤醒等交互模式的设计原则。", time:"约 18 分钟", date:"2026-09-10", code:null},
+    {t:"表盘设计规范", d:"圆形/方形屏幕安全区、信息密度、低功耗模式对比度要求。", time:"约 15 分钟", date:"2026-09-16",
+     body:[
+       "圆形屏幕关键信息须放在直径 80% 的内圈；方形屏幕则留出 8dp 边距。环境模式下文字对比度至少 4.5:1。",
+       "一款表盘建议只保留时间 + 1~2 个数据项，信息过多会降低抬腕可读性。"
+     ]},
+    {t:"图标与视觉样式", d:"应用图标尺寸、圆角、主色规范，适配 vivo / iQOO / Redmi 手表桌面。", time:"约 10 分钟", date:"2026-09-14",
+     body:[
+       "手表应用图标建议 48×48dp，圆角半径 10dp。主色不要超过两种，背景尽量深色以匹配手表 OLED 熄屏特性。",
+       "提交前在圆形与方形两种模拟器上分别预览，避免图标被系统圆形遮罩裁掉关键元素。"
+     ]},
+    {t:"交互与动效", d:"手表端手势、侧边按键、抬起唤醒等交互模式的设计原则。", time:"约 18 分钟", date:"2026-09-10",
+     body:[
+       "手表屏幕小，交互优先使用上下滑动与侧边按键，避免依赖长按和多点触控。",
+       "动效时长控制在 150ms 以内，过长会让手表显得卡顿。"
+     ]},
   ],
   ota: [
-    {t:"OTA 服务端接入", d:"对接栈序 OTA 后台，设备注册、版本查询、差分包下载协议说明。", time:"约 40 分钟", date:"2026-09-21", code:null},
-    {t:"差分包制作与签名", d:"生成增量更新包，APK 签名与版本号校验规则。", time:"约 25 分钟", date:"2026-09-19", code:null},
-    {t:"灰度发布与回滚", d:"按设备比例灰度推送，失败自动回滚与强制升级策略配置。", time:"约 20 分钟", date:"2026-09-11", code:null},
+    {t:"OTA 服务端接入", d:"对接栈序 OTA 后台，设备注册、版本查询、差分包下载协议说明。", time:"约 40 分钟", date:"2026-09-21",
+     body:[
+       "设备首次开机时向 OTA 后台上报机型、当前版本、序列号，后台返回是否有更新。推送地址为 https://ota.zhanxu.dev/api/check。",
+       "请求须带设备签名，防止伪造更新包。下载支持断点续传，建议在 WiFi 环境下自动下载。"
+     ]},
+    {t:"差分包制作与签名", d:"生成增量更新包，APK 签名与版本号校验规则。", time:"约 25 分钟", date:"2026-09-19",
+     body:[
+       "使用栈序提供的差分包工具，输入旧版 APK 与新版 APK，生成 .patch 文件。差分包体积约为全量包的 20%~40%。",
+       "所有发布包必须使用栈序工坊提供的正式签名，调试签名包无法通过 OTA 升级。"
+     ]},
+    {t:"灰度发布与回滚", d:"按设备比例灰度推送，失败自动回滚与强制升级策略配置。", time:"约 20 分钟", date:"2026-09-11",
+     body:[
+       "新上线版本可先推送给 1% 设备，观察 24 小时崩溃率，无异常再逐步放大到 10%、50%、100%。",
+       "升级失败率超过 5% 时系统自动暂停推送并回滚到上一稳定版本。"
+     ]},
   ],
   debug: [
-    {t:"ADB 无线调试", d:"手表端开启无线调试，通过 WiFi 连接 ADB 安装与日志抓取。", time:"约 8 分钟", date:"2026-09-22", code:null},
-    {t:"栈序调试 App 使用", d:"实时查看传感器、日志、CPU/内存占用，辅助性能优化。", time:"约 10 分钟", date:"2026-09-20", code:null},
-    {t:"日志抓取与分析", d:"logcat 过滤规则、ANR 与崩溃堆栈收集，常见问题排查流程。", time:"约 15 分钟", date:"2026-09-08", code:null},
+    {t:"ADB 无线调试", d:"手表端开启无线调试，通过 WiFi 连接 ADB 安装与日志抓取。", time:"约 8 分钟", date:"2026-09-22",
+     body:[
+       "手表「开发者选项」→「无线调试」开启后，选择「使用配对码配对设备」，在电脑端执行 adb pair <ip:port>，输入 6 位配对码。",
+       "配对成功后执行 adb connect <ip:port> 即可无线安装 APK。"
+     ]},
+    {t:"栈序调试 App 使用", d:"实时查看传感器、日志、CPU/内存占用，辅助性能优化。", time:"约 10 分钟", date:"2026-09-20",
+     body:[
+       "栈序调试 App 内置传感器实时曲线、日志过滤、CPU/内存监控面板，开发者可直接在手表上查看，无需连电脑。",
+       "日志可通过蓝牙发送到手机端导出，便于复盘问题。"
+     ]},
+    {t:"日志抓取与分析", d:"logcat 过滤规则、ANR 与崩溃堆栈收集，常见问题排查流程。", time:"约 15 分钟", date:"2026-09-08",
+     body:[
+       "使用 adb logcat -s YourApp:V 过滤本应用日志。崩溃堆栈会自动上传到工坊后台，在控制台「我的应用 → 数据」中查看。",
+       "ANR 通常由主线程耗时操作导致，建议网络、数据库操作全部放到协程或子线程。"
+     ]},
   ],
   review: [
-    {t:"上架材料清单", d:"应用包、截图、隐私政策、权限说明等提审所需材料准备。", time:"约 10 分钟", date:"2026-09-21", code:null},
-    {t:"审核常见驳回原因", d:"权限滥用、UI 超出安全区、崩溃率过高等高频驳回点与修复建议。", time:"约 12 分钟", date:"2026-09-18", code:null},
-    {t:"版本更新与灰度", d:"新版本提审流程、灰度比例设置、用户评分与评论运营。", time:"约 10 分钟", date:"2026-09-05", code:null},
+    {t:"上架材料清单", d:"应用包、截图、隐私政策、权限说明等提审所需材料准备。", time:"约 10 分钟", date:"2026-09-21",
+     body:[
+       "提审需要：APK 包、至少 2 张手表截图、应用简介、隐私政策链接、权限用途说明。",
+       "涉及健康数据的应用须额外提供数据合规说明，否则无法通过审核。"
+     ]},
+    {t:"审核常见驳回原因", d:"权限滥用、UI 超出安全区、崩溃率过高等高频驳回点与修复建议。", time:"约 12 分钟", date:"2026-09-18",
+     body:[
+       "高频驳回：申请了与功能无关的权限、UI 被圆形屏裁切、启动崩溃率 > 1%、隐私政策链接失效。",
+       "审核周期一般 1~3 个工作日，驳回后按提示修改重新提交即可。"
+     ]},
+    {t:"版本更新与灰度", d:"新版本提审流程、灰度比例设置、用户评分与评论运营。", time:"约 10 分钟", date:"2026-09-05",
+     body:[
+       "版本更新同样需要提审，但已过审的小版本通常 1 个工作日内通过。",
+       "在控制台可设置灰度比例，新版本先推给老用户，避免一次性影响全部设备。"
+     ]},
   ],
 };
+
+const APK_URL = "https://github.com/zy00820/zhanxu-gongfang/releases/download/v1.0.0/zhanxu-gongfang.apk";
 
 function renderDocs(cat){
   const list = document.getElementById('doc-list');
   const items = DOCS[cat] || [];
   let html = '';
-  items.forEach(d=>{
-    html += `<div class="glass doc-item" onclick="toast('阅读：${d.t}')">
+  items.forEach((d,i)=>{
+    html += `<div class="glass doc-item" onclick="openDoc('${cat}',${i})">
       <div class="doc-item-body">
         <div class="doc-title">${d.t}</div>
         <div class="doc-desc">${d.d}</div>
@@ -758,18 +840,28 @@ function renderDocs(cat){
         <span class="doc-updated">更新于 ${d.date}</span>
       </div>
     </div>`;
-    if(d.code){
-      html += `<div class="glass doc-code">
-        <div class="doc-code-head">
-          <span>${d.code.title}</span>
-          <span class="doc-lang">${d.code.lang}</span>
-        </div>
-<pre>${d.code.body}</pre>
-      </div>`;
-    }
   });
   list.innerHTML = html;
 }
+
+function openDoc(cat, idx){
+  const d = DOCS[cat][idx];
+  const list = document.getElementById('doc-list');
+  let html = `<button class="btn" style="margin-bottom:14px;padding:6px 14px;font-size:13px" onclick="renderDocs('${cat}')">← 返回文档列表</button>
+    <div class="glass doc-article">
+      <h2 style="font-size:22px;margin-bottom:6px">${d.t}</h2>
+      <div style="font-size:12.5px;color:var(--text-3);margin-bottom:20px">${d.time} · 更新于 ${d.date}</div>`;
+  d.body.forEach(p=>{ html += `<p style="color:var(--text-2);font-size:14.5px;line-height:1.8;margin-bottom:14px">${p}</p>`; });
+  if(d.code){
+    html += `<div class="glass doc-code" style="margin-top:8px">
+      <div class="doc-code-head"><span>${d.code.title}</span><span class="doc-lang">${d.code.lang}</span></div>
+<pre>${d.code.body}</pre></div>`;
+  }
+  html += `</div>`;
+  list.innerHTML = html;
+  document.getElementById('docs').scrollIntoView({behavior:'smooth'});
+}
+
 document.querySelectorAll('.doc-cat').forEach(a=>{
   a.addEventListener('click',()=>{
     document.querySelectorAll('.doc-cat').forEach(x=>x.classList.remove('active'));
