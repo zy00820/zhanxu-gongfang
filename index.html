@@ -151,6 +151,38 @@ header{
 .stat-num{font-size:26px;font-weight:700;color:var(--accent-2);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .stat-label{font-size:12.5px;color:var(--text-3);margin-top:4px}
 
+/* 表盘专区 */
+.face-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.face-card{padding:20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:16px}
+.face-preview{
+  width:160px;height:160px;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  border:1px solid var(--border);
+}
+.face-minimal{background:#0f141c}
+.face-time{font-size:28px;font-weight:600;color:#e6edf7;font-family:ui-monospace,Menlo,monospace;letter-spacing:1px}
+.face-time-small{font-size:18px;font-weight:600;color:#e6edf7;font-family:ui-monospace,Menlo,monospace;margin-bottom:8px}
+.face-sub{font-size:11px;color:#64748b;margin-top:6px}
+.face-classic{background:radial-gradient(circle at 30% 30%,#1a2234,#0a0e14)}
+.hand{position:absolute;left:50%;bottom:50%;transform-origin:bottom center;border-radius:2px}
+.hand-hour{width:3px;height:38px;background:#e6edf7}
+.hand-minute{width:2px;height:56px;background:#4a9eff}
+.face-center{position:absolute;width:6px;height:6px;border-radius:50%;background:#e6edf7}
+.face-sport{background:#0f1f1a}
+.face-stats{display:flex;gap:14px;margin-top:4px}
+.face-stats div{text-align:center}
+.face-stats b{display:block;font-size:15px;color:#34d399;font-family:ui-monospace,Menlo,monospace}
+.face-stats small{font-size:9px;color:#64748b}
+.face-cyber{background:#0a0e1a}
+.face-business{background:#141821}
+.face-night{background:#000}
+.face-info{text-align:center}
+.face-name{font-size:15px;font-weight:600;margin-bottom:4px}
+.face-meta{font-size:12px;color:var(--text-3)}
+@media (max-width:900px){.face-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.face-grid{grid-template-columns:1fr}}
+
 /* 开发文档 */
 .doc-wrap{display:grid;grid-template-columns:200px 1fr;gap:16px}
 .doc-side{padding:18px 14px;align-self:start}
@@ -257,7 +289,7 @@ footer{
     <nav class="nav-links">
       <a onclick="window.scrollTo({top:0,behavior:'smooth'})">首页</a>
       <a onclick="document.getElementById('apps').scrollIntoView({behavior:'smooth'})">应用库</a>
-      <a onclick="toast('表盘板块建设中')">表盘</a>
+      <a onclick="document.getElementById('faces').scrollIntoView({behavior:'smooth'})">表盘</a>
       <a onclick="toast('栈序OS 模块建设中')">栈序OS</a>
       <a onclick="document.getElementById('docs').scrollIntoView({behavior:'smooth'})">开发者</a>
     </nav>
@@ -517,6 +549,87 @@ footer{
         <div class="app-meta">
           <span class="ver">v1.4.2</span>
           <span>4.7 · 2.6k 安装</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 表盘专区 -->
+  <section class="section" id="faces">
+    <div class="section-head">
+      <h2>表盘专区</h2>
+      <p>社区自制表盘，适配 vivo / iQOO / Redmi Watch 圆形与方形屏幕</p>
+    </div>
+    <div class="face-grid">
+
+      <div class="glass face-card" onclick="toast('查看表盘：极简数字')">
+        <div class="face-preview face-minimal">
+          <span class="face-time">10:09</span>
+          <span class="face-sub">周三 · 8,234 步</span>
+        </div>
+        <div class="face-info">
+          <div class="face-name">极简数字</div>
+          <div class="face-meta">栈序 · 12.4k 下载</div>
+        </div>
+      </div>
+
+      <div class="glass face-card" onclick="toast('查看表盘：经典指针')">
+        <div class="face-preview face-classic">
+          <div class="hand hand-hour" style="transform:rotate(305deg)"></div>
+          <div class="hand hand-minute" style="transform:rotate(54deg)"></div>
+          <div class="face-center"></div>
+        </div>
+        <div class="face-info">
+          <div class="face-name">经典指针</div>
+          <div class="face-meta">林深 · 8.1k 下载</div>
+        </div>
+      </div>
+
+      <div class="glass face-card" onclick="toast('查看表盘：运动数据')">
+        <div class="face-preview face-sport">
+          <span class="face-time-small">09:41</span>
+          <div class="face-stats">
+            <div><b>62</b><small>bpm</small></div>
+            <div><b>4.2</b><small>km</small></div>
+          </div>
+        </div>
+        <div class="face-info">
+          <div class="face-name">运动数据</div>
+          <div class="face-meta">栈序 · 6.7k 下载</div>
+        </div>
+      </div>
+
+      <div class="glass face-card" onclick="toast('查看表盘：荧光赛博')">
+        <div class="face-preview face-cyber">
+          <span class="face-time" style="color:#4a9eff;text-shadow:0 0 8px #4a9eff">21:07</span>
+          <span class="face-sub" style="color:#6db5ff">CYBER</span>
+        </div>
+        <div class="face-info">
+          <div class="face-name">荧光赛博</div>
+          <div class="face-meta">夜航 · 5.3k 下载</div>
+        </div>
+      </div>
+
+      <div class="glass face-card" onclick="toast('查看表盘：商务日程')">
+        <div class="face-preview face-business">
+          <span class="face-time" style="color:#e6edf7">08:30</span>
+          <span class="face-sub">产品评审 · 14:00</span>
+        </div>
+        <div class="face-info">
+          <div class="face-name">商务日程</div>
+          <div class="face-meta">栈序 · 3.9k 下载</div>
+        </div>
+      </div>
+
+      <div class="glass face-card" onclick="toast('查看表盘：夜光黑底')">
+        <div class="face-preview face-night">
+          <span class="face-time" style="color:#fbbf24">02:14</span>
+          <span class="face-sub" style="color:#64748b">低功耗模式</span>
+        </div>
+        <div class="face-info">
+          <div class="face-name">夜光黑底</div>
+          <div class="face-meta">佚名 · 9.8k 下载</div>
         </div>
       </div>
 
