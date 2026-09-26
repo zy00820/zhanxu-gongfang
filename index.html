@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>栈序工坊 · 穿戴应用开发者平台</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0e14'/%3E%3Cpath d='M8 10h16M8 16h16M8 22h10' stroke='%234a9eff' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0a0e14;
+  --bg-2:#0f141c;
+  --surface:rgba(255,255,255,0.04);
+  --surface-hover:rgba(255,255,255,0.07);
+  --border:rgba(120,170,230,0.14);
+  --border-strong:rgba(120,170,230,0.28);
+  --text:#e6edf7;
+  --text-2:#9fb0c7;
+  --text-3:#64748b;
+  --accent:#4a9eff;
+  --accent-2:#6db5ff;
+  --accent-dim:rgba(74,158,255,0.12);
+  --success:#34d399;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height:1.6;-webkit-font-smoothing:antialiased}
+body{
+  background-image:
+    radial-gradient(ellipse 800px 400px at 20% -10%, rgba(74,158,255,0.08), transparent 60%),
+    radial-gradient(ellipse 600px 300px at 90% 10%, rgba(74,158,255,0.05), transparent 60%);
+  min-height:100vh;
+}
+.container{max-width:1180px;margin:0 auto;padding:0 28px}
+
+/* ===== 顶部导航 ===== */
+header{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:rgba(10,14,20,0.75);
+  border-bottom:1px solid var(--border);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;letter-spacing:0.5px}
+.brand-mark{
+  width:30px;height:30px;border-radius:7px;
+  background:linear-gradient(135deg,var(--accent),#2b6cb0);
+  display:grid;place-items:center;
+}
+.brand-mark svg{width:18px;height:18px}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{
+  color:var(--text-2);text-decoration:none;font-size:14px;
+  transition:color .15s;cursor:pointer;background:none;border:none;
+  font-family:inherit;
+}
+.nav-links a:hover{color:var(--text)}
+.btn{
+  padding:8px 18px;border-radius:8px;font-size:14px;cursor:pointer;
+  border:1px solid var(--border);background:var(--surface);color:var(--text);
+  transition:all .15s;font-family:inherit;
+}
+.btn:hover{background:var(--surface-hover);border-color:var(--border-strong)}
+.btn-primary{
+  background:var(--accent);border-color:var(--accent);color:#fff;
+}
+.btn-primary:hover{background:var(--accent-2);border-color:var(--accent-2)}
+
+/* ===== Hero ===== */
+.hero{padding:80px 0 56px}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 12px;border-radius:99px;
+  background:var(--accent-dim);color:var(--accent-2);
+  font-size:12.5px;border:1px solid rgba(74,158,255,0.2);
+  margin-bottom:22px;
+}
+.hero-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success)}
+.hero h1{
+  font-size:46px;line-height:1.2;font-weight:700;
+  letter-spacing:-0.5px;margin-bottom:18px;
+}
+.hero h1 .accent{color:var(--accent)}
+.hero p{
+  color:var(--text-2);font-size:16.5px;max-width:620px;
+  line-height:1.75;margin-bottom:32px;
+}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.hero-actions .btn{padding:11px 22px;font-size:14.5px}
+
+/* ===== 区块标题 ===== */
+.section{padding:48px 0}
+.section-head{margin-bottom:28px}
+.section-head h2{font-size:24px;font-weight:600;margin-bottom:8px}
+.section-head p{color:var(--text-2);font-size:14.5px}
+
+/* ===== 玻璃卡片 ===== */
+.glass{
+  background:var(--surface);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--border);
+  border-radius:14px;
+  transition:all .2s ease;
+}
+.glass:hover{
+  background:var(--surface-hover);
+  border-color:var(--border-strong);
+}
+
+/* 功能四宫格 */
+.features{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+}
+.feature{padding:24px 22px;cursor:pointer}
+.feature-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--accent-dim);
+  display:grid;place-items:center;margin-bottom:16px;
+  color:var(--accent-2);
+}
+.feature-icon svg{width:20px;height:20px}
+.feature h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.feature p{font-size:13.5px;color:var(--text-2);line-height:1.65}
+
+/* 应用列表 */
+.app-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+}
+.app{padding:20px;cursor:pointer;display:flex;flex-direction:column;gap:12px}
+.app-top{display:flex;align-items:center;gap:12px}
+.app-icon{
+  width:46px;height:46px;border-radius:11px;flex-shrink:0;
+  display:grid;place-items:center;color:#fff;
+  font-weight:700;font-size:17px;
+}
+.app-name{font-size:15px;font-weight:600}
+.app-cat{font-size:12px;color:var(--text-3)}
+.app-desc{font-size:13.5px;color:var(--text-2);line-height:1.6;flex:1}
+.app-meta{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:12px;border-top:1px solid var(--border);
+  font-size:12px;color:var(--text-3);
+}
+.app-meta .ver{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+/* 状态栏条 */
+.status-bar{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px;
+}
+.stat{padding:18px 22px}
+.stat-num{font-size:26px;font-weight:700;color:var(--accent-2);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.stat-label{font-size:12.5px;color:var(--text-3);margin-top:4px}
+
+/* 开发文档 */
+.doc-wrap{display:grid;grid-template-columns:200px 1fr;gap:16px}
+.doc-side{padding:18px 14px;align-self:start}
+.doc-side-title{font-size:12px;color:var(--text-3);padding:4px 10px 12px;letter-spacing:1px}
+.doc-cat{
+  display:block;padding:9px 12px;border-radius:8px;
+  font-size:14px;color:var(--text-2);cursor:pointer;
+  transition:all .15s;
+}
+.doc-cat:hover{background:var(--surface-hover);color:var(--text)}
+.doc-cat.active{background:var(--accent-dim);color:var(--accent-2)}
+.doc-main{display:flex;flex-direction:column;gap:14px}
+.doc-item{
+  padding:18px 20px;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;gap:16px;
+}
+.doc-title{font-size:15px;font-weight:600;margin-bottom:5px}
+.doc-desc{font-size:13.5px;color:var(--text-2);line-height:1.6}
+.doc-item-meta{text-align:right;flex-shrink:0;font-size:12px;color:var(--text-3);line-height:1.8}
+.doc-code{padding:0;overflow:hidden}
+.doc-code-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:11px 18px;border-bottom:1px solid var(--border);
+  font-size:13px;color:var(--text-2);
+}
+.doc-lang{
+  font-size:11px;padding:2px 8px;border-radius:5px;
+  background:var(--accent-dim);color:var(--accent-2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+.doc-code pre{
+  padding:18px 20px;overflow-x:auto;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:13px;line-height:1.7;color:#c8d8ee;
+}
+
+/* 控制台 */
+.console-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:32px;flex-wrap:wrap;gap:16px;
+}
+.console-cols{
+  display:grid;grid-template-columns:1fr 280px;gap:16px;
+}
+.console-main .app{margin-bottom:12px}
+@media (max-width:900px){
+  .console-cols{grid-template-columns:1fr}
+}
+
+/* footer */
+footer{
+  margin-top:60px;padding:32px 0;
+  border-top:1px solid var(--border);
+  color:var(--text-3);font-size:13px;
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+
+/* toast */
+.toast{
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:rgba(20,28,40,0.95);border:1px solid var(--border-strong);
+  color:var(--text);padding:10px 20px;border-radius:10px;font-size:14px;
+  opacity:0;pointer-events:none;transition:all .25s;z-index:100;
+  backdrop-filter:blur(10px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 响应式 */
+@media (max-width:900px){
+  .features{grid-template-columns:repeat(2,1fr)}
+  .app-grid{grid-template-columns:repeat(2,1fr)}
+  .status-bar{grid-template-columns:repeat(2,1fr)}
+  .hero h1{font-size:34px}
+  .nav-links{display:none}
+  .doc-wrap{grid-template-columns:1fr}
+  .doc-side{display:flex;flex-wrap:wrap;gap:4px}
+  .doc-side-title{width:100%}
+  .doc-item{flex-direction:column;align-items:flex-start}
+  .doc-item-meta{text-align:left}
+}
+@media (max-width:560px){
+  .features{grid-template-columns:1fr}
+  .app-grid{grid-template-columns:1fr}
+  .hero{padding:48px 0 32px}
+  .hero h1{font-size:28px}
+  .container{padding:0 18px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h10"/>
+        </svg>
+      </div>
+      栈序工坊
+    </div>
+    <nav class="nav-links">
+      <a onclick="window.scrollTo({top:0,behavior:'smooth'})">首页</a>
+      <a onclick="document.getElementById('apps').scrollIntoView({behavior:'smooth'})">应用库</a>
+      <a onclick="toast('表盘板块建设中')">表盘</a>
+      <a onclick="toast('栈序OS 模块建设中')">栈序OS</a>
+      <a onclick="document.getElementById('docs').scrollIntoView({behavior:'smooth'})">开发者</a>
+    </nav>
+    <button class="btn btn-primary" onclick="showConsole()">进入控制台</button>
+  </div>
+</header>
+
+<main class="container">
+
+<!-- ===== 视图：首页 ===== -->
+<div id="view-home">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-tag"><span class="dot"></span> v0.3 · 穿戴开发者内测中</div>
+    <h1>为智能手表打造的<br><span class="accent">轻量应用工坊</span></h1>
+    <p>栈序工坊是面向 vivo Watch、iQOO Watch、Redmi Watch 全系列的穿戴应用开发者平台，提供应用分发、表盘资源、调试工具与自研栈序OS的 OTA 支持。专注稳定、低功耗与原生体验。</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="document.getElementById('apps').scrollIntoView({behavior:'smooth'})">浏览应用库</button>
+      <button class="btn" onclick="document.getElementById('docs').scrollIntoView({behavior:'smooth'})">查看开发文档</button>
+    </div>
+  </section>
+
+  <!-- 功能四宫格 -->
+  <section class="section">
+    <div class="section-head">
+      <h2>平台能力</h2>
+      <p>围绕穿戴设备全链路，从开发到分发一站式完成</p>
+    </div>
+    <div class="features">
+      <div class="glass feature" onclick="toast('应用库模块')">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </div>
+        <h3>应用库</h3>
+        <p>手表端工具、效率小程序，适配 vivo Watch、iQOO Watch、Redmi Watch 全系列，支持侧载与平台分发。</p>
+      </div>
+      <div class="glass feature" onclick="toast('表盘资源模块')">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+          </svg>
+        </div>
+        <h3>表盘资源</h3>
+        <p>社区自制表盘，简约数据向、低功耗款式，适配圆形与方形屏幕。</p>
+      </div>
+      <div class="glass feature" onclick="toast('栈序OS 模块')">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/>
+          </svg>
+        </div>
+        <h3>栈序OS</h3>
+        <p>基于 AOSP 的行业终端定制系统，配套 OTA 升级与设备管控后台。</p>
+      </div>
+      <div class="glass feature" onclick="toast('开发者中心')">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/>
+          </svg>
+        </div>
+        <h3>开发者中心</h3>
+        <p>调试工具、打包指南、提交审核，把你的穿戴作品发布到工坊。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 精选应用 -->
+  <section class="section" id="apps">
+    <div class="section-head">
+      <h2>精选作品</h2>
+      <p>来自栈序工坊内测开发者的首批作品</p>
+    </div>
+    <div class="app-grid">
+
+      <div class="glass app" onclick="toast('查看：腕上便签')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#4a9eff,#2b6cb0)">记</div>
+          <div>
+            <div class="app-name">腕上便签</div>
+            <div class="app-cat">效率工具</div>
+          </div>
+        </div>
+        <div class="app-desc">抬腕快速记录，语音转文字，支持与手机端同步草稿。</div>
+        <div class="app-meta">
+          <span class="ver">v1.2.0</span>
+          <span>4.8 · 1.2k 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：心率日志')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#f56565,#c53030)">心</div>
+          <div>
+            <div class="app-name">心率日志</div>
+            <div class="app-cat">健康</div>
+          </div>
+        </div>
+        <div class="app-desc">全天心率曲线记录，异常波动提醒，导出 CSV 报告。</div>
+        <div class="app-meta">
+          <span class="ver">v0.9.3</span>
+          <span>4.6 · 860 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：极简表盘')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#34d399,#047857)">盘</div>
+          <div>
+            <div class="app-name">极简表盘</div>
+            <div class="app-cat">表盘</div>
+          </div>
+        </div>
+        <div class="app-desc">单指针低功耗表盘，仅显示时间与步数，续航延长 20%。</div>
+        <div class="app-meta">
+          <span class="ver">v2.0.1</span>
+          <span>4.9 · 3.4k 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：离线词典')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#a78bfa,#6d28d9)">词</div>
+          <div>
+            <div class="app-name">离线词典</div>
+            <div class="app-cat">学习</div>
+          </div>
+        </div>
+        <div class="app-desc">中英英汉本地词库，不联网即可查询，通勤抬腕即用。</div>
+        <div class="app-meta">
+          <span class="ver">v1.0.4</span>
+          <span>4.5 · 520 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：专注计时')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#fbbf24,#b45309)">专</div>
+          <div>
+            <div class="app-name">专注计时</div>
+            <div class="app-cat">效率</div>
+          </div>
+        </div>
+        <div class="app-desc">番茄钟模式，震动提醒，每日专注时长统计。</div>
+        <div class="app-meta">
+          <span class="ver">v1.1.0</span>
+          <span>4.7 · 1.1k 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：栈序调试')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#475569,#1e293b)">D</div>
+          <div>
+            <div class="app-name">栈序调试</div>
+            <div class="app-cat">开发者工具</div>
+          </div>
+        </div>
+        <div class="app-desc">实时查看设备日志、传感器数据，辅助栈序OS开发调试。</div>
+        <div class="app-meta">
+          <span class="ver">v0.5.2</span>
+          <span>4.9 · 128 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：天气手环')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#38bdf8,#0369a1)">天</div>
+          <div>
+            <div class="app-name">天气手环</div>
+            <div class="app-cat">生活</div>
+          </div>
+        </div>
+        <div class="app-desc">当前天气、逐小时预报与降水提醒，抬腕即看，无需掏手机。</div>
+        <div class="app-meta">
+          <span class="ver">v1.3.0</span>
+          <span>4.6 · 2.1k 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：音乐控制')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#ec4899,#9d174d)">乐</div>
+          <div>
+            <div class="app-name">音乐控制</div>
+            <div class="app-cat">工具</div>
+          </div>
+        </div>
+        <div class="app-desc">暂停、切歌、音量调节，支持系统播放器与第三方 App 联动。</div>
+        <div class="app-meta">
+          <span class="ver">v1.0.8</span>
+          <span>4.5 · 980 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：跑步轨迹')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#22c55e,#15803d)">跑</div>
+          <div>
+            <div class="app-name">跑步轨迹</div>
+            <div class="app-cat">运动</div>
+          </div>
+        </div>
+        <div class="app-desc">GPS 跑步记录，配速、距离、卡路里统计，路线导出 GPX。</div>
+        <div class="app-meta">
+          <span class="ver">v2.1.3</span>
+          <span>4.7 · 3.8k 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：查找手机')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#f97316,#c2410c)">找</div>
+          <div>
+            <div class="app-name">查找手机</div>
+            <div class="app-cat">工具</div>
+          </div>
+        </div>
+        <div class="app-desc">手表一键让手机响铃，嘈杂环境也能快速定位，蓝牙断连提醒。</div>
+        <div class="app-meta">
+          <span class="ver">v1.1.5</span>
+          <span>4.8 · 1.5k 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：日程提醒')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#eab308,#a16207)">程</div>
+          <div>
+            <div class="app-name">日程提醒</div>
+            <div class="app-cat">效率</div>
+          </div>
+        </div>
+        <div class="app-desc">同步手机日历，下一个会议、日程震动提醒，支持快速完成标记。</div>
+        <div class="app-meta">
+          <span class="ver">v0.9.7</span>
+          <span>4.4 · 640 安装</span>
+        </div>
+      </div>
+
+      <div class="glass app" onclick="toast('查看：睡眠分析')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#8b5cf6,#5b21b6)">眠</div>
+          <div>
+            <div class="app-name">睡眠分析</div>
+            <div class="app-cat">健康</div>
+          </div>
+        </div>
+        <div class="app-desc">深睡、浅睡、快速眼动分期记录，周报趋势与改善建议。</div>
+        <div class="app-meta">
+          <span class="ver">v1.4.2</span>
+          <span>4.7 · 2.6k 安装</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 开发文档 -->
+  <section class="section" id="docs">
+    <div class="section-head">
+      <h2>开发文档</h2>
+      <p>从环境搭建到上架审核，面向 vivo / iQOO / Redmi Watch 的穿戴开发指南</p>
+    </div>
+    <div class="doc-wrap">
+      <aside class="glass doc-side">
+        <div class="doc-side-title">文档目录</div>
+        <a class="doc-cat active" onclick="toast('打开：快速开始')">快速开始</a>
+        <a class="doc-cat" onclick="toast('打开：API 参考')">API 参考</a>
+        <a class="doc-cat" onclick="toast('打开：设计规范')">设计规范</a>
+        <a class="doc-cat" onclick="toast('打开：OTA 接入')">OTA 接入</a>
+        <a class="doc-cat" onclick="toast('打开：调试工具')">调试工具</a>
+        <a class="doc-cat" onclick="toast('打开：上架审核')">上架审核</a>
+      </aside>
+      <div class="doc-main">
+        <div class="glass doc-item" onclick="toast('阅读：环境搭建与首次工程创建')">
+          <div class="doc-item-body">
+            <div class="doc-title">环境搭建与首次工程创建</div>
+            <div class="doc-desc">安装 Android Studio、Wear SDK，创建第一个手表工程，连接 vivo Watch 调试。</div>
+          </div>
+          <div class="doc-item-meta">
+            <span class="doc-time">约 10 分钟</span>
+            <span class="doc-updated">更新于 2026-09-20</span>
+          </div>
+        </div>
+        <div class="glass doc-item" onclick="toast('阅读：表盘开发入门')">
+          <div class="doc-item-body">
+            <div class="doc-title">表盘开发入门</div>
+            <div class="doc-desc">使用 Canvas 绘制表盘，低功耗模式（Ambient Mode）适配，发布到工坊表盘区。</div>
+          </div>
+          <div class="doc-item-meta">
+            <span class="doc-time">约 25 分钟</span>
+            <span class="doc-updated">更新于 2026-09-18</span>
+          </div>
+        </div>
+        <div class="glass doc-item" onclick="toast('阅读：传感器与权限申请')">
+          <div class="doc-item-body">
+            <div class="doc-title">传感器与权限申请</div>
+            <div class="doc-desc">心率、加速度、GPS 传感器调用规范，权限申请最佳实践与合规要求。</div>
+          </div>
+          <div class="doc-item-meta">
+            <span class="doc-time">约 15 分钟</span>
+            <span class="doc-updated">更新于 2026-09-15</span>
+          </div>
+        </div>
+        <div class="glass doc-code">
+          <div class="doc-code-head">
+            <span>示例：读取心率传感器</span>
+            <span class="doc-lang">Kotlin</span>
+          </div>
+<pre>class HeartRateViewModel(app: Application) : AndroidViewModel(app) {
+    private val sensorManager = app.getSystemService(SENSOR_SERVICE)
+            as SensorManager
+    private val heartRate = sensorManager.getDefaultSensor(SENSOR_TYPE_HEART_RATE)
+
+    fun start() {
+        sensorManager.registerListener(listener, heartRate, 3)
+    }
+    fun stop() = sensorManager.unregisterListener(listener)
+}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 平台数据 -->
+  <section class="section">
+    <div class="section-head">
+      <h2>运行状态</h2>
+      <p>工坊内测期间的实时数据（示例）</p>
+    </div>
+    <div class="status-bar">
+      <div class="glass stat">
+        <div class="stat-num">18</div>
+        <div class="stat-label">已上架应用</div>
+      </div>
+      <div class="glass stat">
+        <div class="stat-num">47</div>
+        <div class="stat-label">社区表盘</div>
+      </div>
+      <div class="glass stat">
+        <div class="stat-num">96.2%</div>
+        <div class="stat-label">OTA 成功率</div>
+      </div>
+      <div class="glass stat">
+        <div class="stat-num">v0.3.1</div>
+        <div class="stat-label">栈序OS 当前版本</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>© 2026 栈序工坊 · 宿迁市宿城区栈序软件开发工作室</div>
+    <div>基于 AOSP 构建 · 面向行业终端</div>
+  </footer>
+
+</div><!-- /view-home -->
+
+<!-- ===== 视图：开发者控制台 ===== -->
+<div id="view-console" style="display:none">
+  <div class="console-head">
+    <div>
+      <h1 style="font-size:28px;margin-bottom:6px">开发者控制台</h1>
+      <p style="color:var(--text-2);font-size:14px">欢迎回来，栈序工作室 · 内测账号</p>
+    </div>
+    <button class="btn" onclick="showHome()">返回首页</button>
+  </div>
+
+  <div class="status-bar" style="margin-top:24px">
+    <div class="glass stat">
+      <div class="stat-num">18</div>
+      <div class="stat-label">我的应用</div>
+    </div>
+    <div class="glass stat">
+      <div class="stat-num">4,832</div>
+      <div class="stat-label">累计安装</div>
+    </div>
+    <div class="glass stat">
+      <div class="stat-num">1,204</div>
+      <div class="stat-label">活跃设备</div>
+    </div>
+    <div class="glass stat">
+      <div class="stat-num">96.2%</div>
+      <div class="stat-label">OTA 成功率</div>
+    </div>
+  </div>
+
+  <div class="console-cols">
+    <div class="console-main">
+      <div class="section-head" style="margin:28px 0 14px">
+        <h2 style="font-size:18px">我的应用</h2>
+      </div>
+      <div class="glass app" onclick="toast('进入：腕上便签 管理')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#4a9eff,#2b6cb0)">记</div>
+          <div>
+            <div class="app-name">腕上便签</div>
+            <div class="app-cat">v1.2.0 · 已发布</div>
+          </div>
+        </div>
+        <div class="app-meta">
+          <span>1.2k 安装</span>
+          <button class="btn" style="padding:5px 12px;font-size:12px" onclick="event.stopPropagation();toast('打开版本管理')">版本管理</button>
+        </div>
+      </div>
+      <div class="glass app" onclick="toast('进入：极简表盘 管理')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#34d399,#047857)">盘</div>
+          <div>
+            <div class="app-name">极简表盘</div>
+            <div class="app-cat">v2.0.1 · 已发布</div>
+          </div>
+        </div>
+        <div class="app-meta">
+          <span>3.4k 安装</span>
+          <button class="btn" style="padding:5px 12px;font-size:12px" onclick="event.stopPropagation();toast('打开版本管理')">版本管理</button>
+        </div>
+      </div>
+      <div class="glass app" onclick="toast('进入：栈序调试 管理')">
+        <div class="app-top">
+          <div class="app-icon" style="background:linear-gradient(135deg,#475569,#1e293b)">D</div>
+          <div>
+            <div class="app-name">栈序调试</div>
+            <div class="app-cat">v0.5.2 · 审核中</div>
+          </div>
+        </div>
+        <div class="app-meta">
+          <span>128 安装</span>
+          <button class="btn btn-primary" style="padding:5px 12px;font-size:12px" onclick="event.stopPropagation();toast('提交新版本')">提交新版本</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="console-side">
+      <div class="section-head" style="margin:28px 0 14px">
+        <h2 style="font-size:18px">OTA 推送</h2>
+      </div>
+      <div class="glass" style="padding:18px">
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:12px">当前最新栈序OS版本</div>
+        <div style="font-size:22px;font-weight:700;color:var(--accent-2);font-family:ui-monospace,Menlo,monospace;margin-bottom:14px">v0.3.1</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.8">
+          推送设备：1,204 台<br>
+          已升级：1,158 台<br>
+          待升级：46 台
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="toast('新建 OTA 任务')">新建 OTA 任务</button>
+      </div>
+
+      <div class="section-head" style="margin:24px 0 14px">
+        <h2 style="font-size:18px">待办</h2>
+      </div>
+      <div class="glass" style="padding:16px 18px;font-size:13.5px;color:var(--text-2);line-height:2">
+        <div>· 栈序调试 v0.5.2 待审核反馈</div>
+        <div>· 极简表盘 v2.1 待提交</div>
+        <div>· 8 月开发者结算单待确认</div>
+      </div>
+    </aside>
+  </div>
+
+  <footer style="margin-top:48px">
+    <div>© 2026 栈序工坊 · 开发者控制台（演示）</div>
+    <div>数据为示例</div>
+  </footer>
+</div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
+}
+function showConsole(){
+  document.getElementById('view-home').style.display='none';
+  document.getElementById('view-console').style.display='block';
+  window.scrollTo({top:0});
+}
+function showHome(){
+  document.getElementById('view-console').style.display='none';
+  document.getElementById('view-home').style.display='block';
+  window.scrollTo({top:0});
+}
+document.querySelectorAll('.nav-links a[data-nav]').forEach(a=>{
+  a.addEventListener('click',()=>toast('「'+a.textContent+'」模块建设中'));
+});
+</script>
+</body>
+</html>
