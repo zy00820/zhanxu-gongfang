@@ -653,6 +653,16 @@ footer{
         <a class="doc-cat" data-cat="review">上架审核</a>
       </aside>
       <div class="doc-main" id="doc-list"><!-- JS 渲染 --></div>
+      <div class="glass" id="doc-lock" style="padding:48px 32px;text-align:center">
+        <div style="font-size:32px;margin-bottom:12px">🔒</div>
+        <div style="font-size:17px;font-weight:600;margin-bottom:8px">开发文档已加密</div>
+        <div style="color:var(--text-2);font-size:13.5px;margin-bottom:20px">请输入访问密码以查看栈序工坊开发文档</div>
+        <form id="doc-lock-form" style="display:flex;gap:10px;justify-content:center;max-width:360px;margin:0 auto">
+          <input type="password" id="doc-pwd" placeholder="请输入密码" autocomplete="off"
+            style="flex:1;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-size:14px;font-family:inherit;outline:none">
+          <button type="submit" class="btn btn-primary">解锁</button>
+        </form>
+      </div>
     </div>
   </section>
 
@@ -684,7 +694,7 @@ footer{
 
   <footer>
     <div>© 2026 栈序工坊 · 宿迁市宿城区栈序软件开发工作室</div>
-    <div>基于 AOSP 构建 · 面向行业终端 · <a onclick="showPrivacy()" style="color:var(--accent-2);text-decoration:none;cursor:pointer">隐私政策</a> · 联系：<a href="mailto:zy291817@outlook.com" style="color:var(--accent-2);text-decoration:none">zy291817@outlook.com</a></div>
+    <div>基于 AOSP 构建 · 面向行业终端 · <a onclick="showPrivacy()" style="color:var(--accent-2);text-decoration:none;cursor:pointer">隐私政策</a> · 联系：<a href="mailto:zy291817@outlook.com" style="color:var(--accent-2);text-decoration:none">zy291817@outlook.com</a> · QQ：<a href="tencent://message/?uin=156356679&Menu=yes" style="color:var(--accent-2);text-decoration:none">156356679</a></div>
   </footer>
 
 </div><!-- /view-home -->
@@ -792,7 +802,7 @@ footer{
 
   <footer style="margin-top:48px">
     <div>© 2026 栈序工坊 · 开发者控制台</div>
-    <div>实时数据 · <a href="mailto:zy291817@outlook.com" style="color:var(--accent-2);text-decoration:none">zy291817@outlook.com</a></div>
+    <div>实时数据 · <a href="mailto:zy291817@outlook.com" style="color:var(--accent-2);text-decoration:none">zy291817@outlook.com</a> · QQ：<a href="tencent://message/?uin=156356679&Menu=yes" style="color:var(--accent-2);text-decoration:none">156356679</a></div>
   </footer>
 </div>
 
@@ -992,7 +1002,34 @@ const DOCS = {
 
 const APK_URL = "https://github.com/zy00820/zhanxu-gongfang/releases/download/v1.0.0/zhanxu-gongfang.apk";
 
+/* ===== 文档访问密码 ===== */
+const DOC_PASSWORD = 'xdf195458';
+let docsAuthed = false;
+let currentDocCat = 'start';
+
+function lockDocs(){
+  docsAuthed = false;
+  document.getElementById('doc-list').style.display = 'none';
+  document.getElementById('doc-lock').style.display = 'block';
+}
+function unlockDocs(){
+  docsAuthed = true;
+  document.getElementById('doc-lock').style.display = 'none';
+  document.getElementById('doc-list').style.display = 'flex';
+  renderDocs(currentDocCat);
+}
+function requireDocsAuth(){
+  if(!docsAuthed){
+    document.getElementById('docs').scrollIntoView({behavior:'smooth'});
+    document.getElementById('doc-pwd').focus();
+    return false;
+  }
+  return true;
+}
+
 function renderDocs(cat){
+  if(!docsAuthed){ lockDocs(); return; }
+  currentDocCat = cat;
   const list = document.getElementById('doc-list');
   const items = DOCS[cat] || [];
   let html = '';
@@ -1012,6 +1049,8 @@ function renderDocs(cat){
 }
 
 function openDoc(cat, idx){
+  if(!requireDocsAuth()) return;
+  currentDocCat = cat;
   const d = DOCS[cat][idx];
   const list = document.getElementById('doc-list');
   let html = `<button class="btn" style="margin-bottom:14px;padding:6px 14px;font-size:13px" onclick="renderDocs('${cat}')">← 返回文档列表</button>
@@ -1031,12 +1070,26 @@ function openDoc(cat, idx){
 
 document.querySelectorAll('.doc-cat').forEach(a=>{
   a.addEventListener('click',()=>{
+    if(!requireDocsAuth()) return;
     document.querySelectorAll('.doc-cat').forEach(x=>x.classList.remove('active'));
     a.classList.add('active');
     renderDocs(a.dataset.cat);
   });
 });
-renderDocs('start');
+
+document.getElementById('doc-lock-form').addEventListener('submit',(e)=>{
+  e.preventDefault();
+  const pwd = document.getElementById('doc-pwd').value;
+  if(pwd === DOC_PASSWORD){
+    unlockDocs();
+  } else {
+    toast('密码错误');
+    document.getElementById('doc-pwd').value='';
+    document.getElementById('doc-pwd').focus();
+  }
+});
+
+lockDocs();
 
 document.querySelectorAll('.nav-links a[data-nav]').forEach(a=>{
   a.addEventListener('click',()=>toast('「'+a.textContent+'」模块建设中'));
