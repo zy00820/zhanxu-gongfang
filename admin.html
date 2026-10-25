@@ -360,6 +360,9 @@ body{
         <div style="font-size:14px;color:#d4e4fb;font-weight:500">会议安排</div>
         <button class="btn-send" id="btnAddMeeting" onclick="addMeeting()">+ 新建会议</button>
       </div>
+      <div id="meetingLock" style="display:none" class="card" style="text-align:center;color:#607494;font-size:13px;padding:20px">
+        仅超级管理员可管理会议
+      </div>
       <div id="meetingList"></div>
     </div>
   </div>
@@ -406,6 +409,9 @@ function showApp(u){
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').classList.add('logged-in');
   renderStaff(acc);
+  currentIsSuper = acc.level === '超级管理员';
+  document.getElementById('btnAddMeeting').style.display = currentIsSuper ? '' : 'none';
+  document.getElementById('meetingLock').style.display = currentIsSuper ? 'none' : 'block';
   renderMeetings();
 }
 function renderStaff(currentAcc){
@@ -483,6 +489,7 @@ function toastMsg(txt){
 
 // ===== 会议管理 =====
 let meetingData = [];
+let currentIsSuper = false;
 function initMeetings(){
   meetingData = [
     { title: '栈序OS 1.2 版本评审', time: '2026-10-25 14:00', attendees: '张岳、陆宇、周天浩', status: '待开始' },
@@ -504,8 +511,8 @@ function renderMeetings(){
         <div>参会：${m.attendees}</div>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px">
-        ${m.status !== '已结束' ? `<button onclick="endMeeting(${idx})" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">结束</button>` : ''}
-        <button onclick="delMeeting(${idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">取消会议</button>
+        ${currentIsSuper && m.status !== '已结束' ? `<button onclick="endMeeting(${idx})" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">结束</button>` : ''}
+        ${currentIsSuper ? `<button onclick="delMeeting(${idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">取消会议</button>` : ''}
       </div>
     </div>
   `).join('');
