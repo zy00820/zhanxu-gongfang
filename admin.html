@@ -16,6 +16,57 @@ body{
   color:#e8edf7;
   padding:0 0 80px;
 }
+/* ===== 登录页 ===== */
+.login-page{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.login-box{
+  width:100%;max-width:380px;
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(115,184,255,0.2);
+  border-radius:18px;
+  padding:32px 26px;
+}
+.login-logo{
+  text-align:center;margin-bottom:24px;
+}
+.login-logo .mark{
+  width:48px;height:48px;border-radius:12px;
+  background:linear-gradient(135deg,#73b8ff,#a78bfa);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;color:#080b12;margin-bottom:12px;
+}
+.login-logo h1{font-size:20px;color:#f0f5ff;font-weight:600}
+.login-logo p{font-size:12px;color:#607494;margin-top:4px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:#94a8c7;margin-bottom:6px}
+.field input{
+  width:100%;padding:12px 14px;
+  background:rgba(0,0,0,0.25);
+  border:1px solid rgba(115,184,255,0.2);
+  border-radius:10px;color:#e8edf7;font-size:15px;
+  outline:none;transition:border-color .2s;
+}
+.field input:focus{border-color:#73b8ff}
+.field input::placeholder{color:#4a5a75}
+.btn-login{
+  width:100%;padding:13px;margin-top:8px;
+  background:linear-gradient(135deg,#73b8ff,#5b8def);
+  color:#080b12;border:none;border-radius:10px;
+  font-size:15px;font-weight:600;cursor:pointer;
+  transition:opacity .2s;
+}
+.btn-login:active{opacity:0.85}
+.login-err{
+  color:#f87171;font-size:12px;text-align:center;
+  min-height:18px;margin-top:10px;
+}
+.login-foot{
+  text-align:center;font-size:11px;color:#4a5a75;margin-top:18px;
+}
 /* ===== 顶部栏 ===== */
 .topbar{
   position:sticky;top:0;z-index:100;
@@ -23,21 +74,35 @@ body{
   backdrop-filter:blur(16px);
   -webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid rgba(115,184,255,0.15);
-  padding:14px 18px;
+  padding:12px 18px;
   display:flex;align-items:center;justify-content:space-between;
 }
-.topbar .logo{
-  font-size:18px;font-weight:600;color:#73b8ff;letter-spacing:1px;
+.topbar .logo{font-size:17px;font-weight:600;color:#73b8ff;letter-spacing:1px}
+.topbar .logo small{font-size:11px;color:#607494;font-weight:400;margin-left:6px;letter-spacing:0}
+.user-area{display:flex;align-items:center;gap:10px}
+.user-chip{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(115,184,255,0.1);
+  border:1px solid rgba(115,184,255,0.2);
+  padding:5px 12px 5px 5px;border-radius:99px;
 }
-.topbar .logo small{
-  font-size:11px;color:#607494;font-weight:400;margin-left:6px;letter-spacing:0;
-}
-.topbar .avatar{
-  width:32px;height:32px;border-radius:50%;
+.user-chip .avatar{
+  width:28px;height:28px;border-radius:50%;
   background:linear-gradient(135deg,#73b8ff,#a78bfa);
   display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:600;color:#080b12;
+  font-size:12px;font-weight:600;color:#080b12;
 }
+.user-chip .uname{font-size:13px;color:#d4e4fb}
+.user-chip .ulevel{
+  font-size:10px;padding:2px 7px;border-radius:5px;
+  background:rgba(251,191,36,0.18);color:#fbbf24;margin-left:2px;
+}
+.btn-logout{
+  background:transparent;border:1px solid rgba(248,113,113,0.35);
+  color:#f87171;padding:6px 12px;border-radius:8px;
+  font-size:12px;cursor:pointer;
+}
+.btn-logout:active{background:rgba(248,113,113,0.12)}
 /* ===== 容器 ===== */
 .container{max-width:720px;margin:0 auto;padding:18px;}
 /* ===== Tab切换 ===== */
@@ -52,11 +117,7 @@ body{
   color:#94a8c7;border-radius:9px;cursor:pointer;
   transition:all .2s;user-select:none;
 }
-.tab.active{
-  background:rgba(115,184,255,0.15);
-  color:#73b8ff;
-  font-weight:500;
-}
+.tab.active{background:rgba(115,184,255,0.15);color:#73b8ff;font-weight:500}
 /* ===== 视图 ===== */
 .view{display:none}
 .view.active{display:block}
@@ -65,49 +126,26 @@ body{
   background:rgba(255,255,255,0.06);
   backdrop-filter:blur(12px);
   border:1px solid rgba(115,184,255,0.18);
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:12px;
-  transition:border-color .2s,background .2s;
+  border-radius:14px;padding:16px;margin-bottom:12px;
 }
-.card:hover{border-color:rgba(115,184,255,0.35);background:rgba(255,255,255,0.08)}
-/* ===== 公告列表 ===== */
-.ann-meta{
-  display:flex;align-items:center;gap:8px;
-  font-size:12px;color:#607494;margin-bottom:8px;
-}
-.ann-meta .badge{
-  background:rgba(239,68,68,0.15);color:#f87171;
-  padding:2px 8px;border-radius:6px;font-size:11px;
-}
+.ann-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:#607494;margin-bottom:8px;flex-wrap:wrap}
+.ann-meta .badge{background:rgba(239,68,68,0.15);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px}
 .ann-meta .badge.blue{background:rgba(115,184,255,0.15);color:#73b8ff}
-.ann-title{
-  font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:6px;
-}
-.ann-body{
-  font-size:13.5px;color:#a0b4d2;line-height:1.7;
-}
+.ann-title{font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:6px}
+.ann-body{font-size:14px;color:#a0b4d2;line-height:1.7}
 /* ===== 发帖区 ===== */
 .compose-box{
   background:rgba(255,255,255,0.06);
   border:1px solid rgba(115,184,255,0.18);
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:16px;
+  border-radius:14px;padding:16px;margin-bottom:16px;
 }
-.compose-box .row{
-  display:flex;gap:10px;align-items:center;
-}
-.compose-box .placeholder{
-  flex:1;color:#607494;font-size:14px;
-}
+.compose-box .row{display:flex;gap:10px;align-items:center}
+.compose-box .placeholder{flex:1;color:#607494;font-size:14px}
 .compose-box .btn-send{
-  background:rgba(115,184,255,0.18);
-  color:#73b8ff;border:1px solid rgba(115,184,255,0.35);
-  padding:8px 18px;border-radius:8px;font-size:13px;
-  cursor:pointer;transition:all .2s;
+  background:rgba(115,184,255,0.18);color:#73b8ff;
+  border:1px solid rgba(115,184,255,0.35);
+  padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;
 }
-.compose-box .btn-send:active{background:rgba(115,184,255,0.3)}
 /* ===== 帖子卡片 ===== */
 .post-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .post-avatar{
@@ -119,36 +157,23 @@ body{
 .post-info{flex:1}
 .post-name{font-size:14px;color:#d4e4fb;font-weight:500}
 .post-time{font-size:11px;color:#607494;margin-top:2px}
-.post-tag{
-  font-size:11px;padding:3px 8px;border-radius:6px;
-  background:rgba(167,139,250,0.15);color:#c4b5fd;
-}
+.post-tag{font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(167,139,250,0.15);color:#c4b5fd}
 .post-content{font-size:14px;color:#c5d3ea;line-height:1.7;margin-bottom:10px}
-.post-actions{
-  display:flex;gap:18px;font-size:12px;color:#607494;
-}
+.post-actions{display:flex;gap:18px;font-size:12px;color:#607494}
 .post-actions span{display:flex;align-items:center;gap:4px;cursor:pointer}
 .post-actions svg{width:14px;height:14px}
-/* ===== 空状态 ===== */
-.empty{
-  text-align:center;padding:40px 20px;color:#607494;font-size:13px;
-}
 /* ===== Toast ===== */
 .toast{
   position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
-  background:rgba(20,28,45,0.95);
-  border:1px solid rgba(115,184,255,0.3);
+  background:rgba(20,28,45,0.95);border:1px solid rgba(115,184,255,0.3);
   color:#e8edf7;padding:12px 22px;border-radius:10px;
   font-size:13px;opacity:0;pointer-events:none;
-  transition:all .3s;z-index:999;
-  max-width:80%;text-align:center;line-height:1.5;
+  transition:all .3s;z-index:999;max-width:80%;text-align:center;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast .icon{color:#fbbf24;margin-right:6px}
-/* ===== 底部统计条 ===== */
-.stats{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;
-}
+/* ===== 统计条 ===== */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
 .stat{
   background:rgba(255,255,255,0.06);
   border:1px solid rgba(115,184,255,0.15);
@@ -156,152 +181,192 @@ body{
 }
 .stat .num{font-size:22px;font-weight:600;color:#73b8ff}
 .stat .label{font-size:11px;color:#607494;margin-top:4px}
-/* ===== FAB 发布按钮 ===== */
+/* ===== FAB ===== */
 .fab{
   position:fixed;right:18px;bottom:24px;z-index:100;
   background:linear-gradient(135deg,#73b8ff,#5b8def);
   color:#080b12;width:52px;height:52px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-size:24px;font-weight:300;cursor:pointer;
-  box-shadow:0 6px 20px rgba(115,184,255,0.35);
-  border:none;
+  box-shadow:0 6px 20px rgba(115,184,255,0.35);border:none;
 }
+/* 后台主体默认隐藏 */
+#app{display:none}
+#app.logged-in{display:block}
 </style>
 </head>
 <body>
 
-<!-- ===== 顶部栏 ===== -->
-<div class="topbar">
-  <div class="logo">栈序云<small>管理员版</small></div>
-  <div class="avatar">张</div>
-</div>
-
-<div class="container">
-
-  <!-- 统计 -->
-  <div class="stats">
-    <div class="stat"><div class="num">3</div><div class="label">待审公告</div></div>
-    <div class="stat"><div class="num">12</div><div class="label">社区帖子</div></div>
-    <div class="stat"><div class="num">876</div><div class="label">活跃用户</div></div>
-  </div>
-
-  <!-- Tab -->
-  <div class="tabs">
-    <div class="tab active" data-view="ann">员工公告</div>
-    <div class="tab" data-view="post">社区发帖</div>
-  </div>
-
-  <!-- ===== 视图：公告 ===== -->
-  <div class="view active" id="view-ann">
-    <div class="card">
-      <div class="ann-meta">
-        <span class="badge">置顶</span>
-        <span class="badge blue">全员</span>
-        <span>栈序管理组 · 2026-10-22</span>
-      </div>
-      <div class="ann-title">关于栈序OS 1.2 版本灰度推送的通知</div>
-      <div class="ann-body">本次灰度覆盖 Vivo T1x、iQOO Z9 共约 200 台设备。OTA 差分包大小约 180MB，升级前请确保电量 ≥ 60%。升级完成后如遇 NFC 异常，可在「设置-系统-重置NFC服务」一键恢复。</div>
+<!-- ===== 登录页 ===== -->
+<div class="login-page" id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="mark">栈</div>
+      <h1>栈序云 · 管理后台</h1>
+      <p>请使用管理员账号登录</p>
     </div>
-
-    <div class="card">
-      <div class="ann-meta">
-        <span class="badge blue">部门</span>
-        <span>技术部 · 2026-10-20</span>
-      </div>
-      <div class="ann-title">智腕社区 APK 3.1 内部测试计划</div>
-      <div class="ann-body">本周内完成 3.1 版本内测：新增手表查找双向呼叫、心率数据导出 CSV。参与内测人员请于周五前在「栈序联动」App 内勾选「参与内测」。</div>
+    <div class="field">
+      <label>账号</label>
+      <input type="text" id="inpUser" placeholder="请输入管理员账号" autocomplete="off">
     </div>
-
-    <div class="card">
-      <div class="ann-meta">
-        <span>运营部 · 2026-10-18</span>
-      </div>
-      <div class="ann-title">10月开发者结算单已生成</div>
-      <div class="ann-body">10月分成结算单已推送至各位开发者的邮箱，请在 10 月 31 日前确认。逾期未确认将按默认账单执行打款。如有异议联系邮箱 zy291817@outlook.com。</div>
+    <div class="field">
+      <label>密码</label>
+      <input type="password" id="inpPwd" placeholder="请输入密码">
     </div>
-
-    <div class="card">
-      <div class="ann-meta">
-        <span>行政 · 2026-10-15</span>
-      </div>
-      <div class="ann-title">国庆后远程办公安排</div>
-      <div class="ann-body">10月剩余工作日，技术部支持每周最多 2 天远程。其余人员正常坐班。远程期间需保持飞书在线响应。</div>
-    </div>
-  </div>
-
-  <!-- ===== 视图：发帖 ===== -->
-  <div class="view" id="view-post">
-
-    <div class="compose-box">
-      <div class="row">
-        <div class="post-avatar">张</div>
-        <div class="placeholder">分享你的想法…</div>
-        <button class="btn-send" onclick="showMaint()">发布</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="post-head">
-        <div class="post-avatar" style="background:linear-gradient(135deg,#34d399,#10b981)">林</div>
-        <div class="post-info">
-          <div class="post-name">林工</div>
-          <div class="post-time">2 小时前 · 来自 智腕社区</div>
-        </div>
-        <div class="post-tag">固件讨论</div>
-      </div>
-      <div class="post-content">栈序OS 1.2 的温控阈值是不是调激进了？游戏半小时机身温度从 38 升到 46，帧率也锁了。能不能在设置里加个「自定义温控曲线」开关？</div>
-      <div class="post-actions">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>128</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>23</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>收藏</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="post-head">
-        <div class="post-avatar" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">陈</div>
-        <div class="post-info">
-          <div class="post-name">陈同学</div>
-          <div class="post-time">昨天 21:30 · 来自 智腕社区</div>
-        </div>
-        <div class="post-tag">表盘分享</div>
-      </div>
-      <div class="post-content">新做的「荧光赛博 2.0」表盘已上传到社区，AOD 单独做了低功耗版本，GT2 实测一晚掉电 3%。欢迎大家试装反馈。</div>
-      <div class="post-actions">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>86</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>41</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>收藏</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="post-head">
-        <div class="post-avatar" style="background:linear-gradient(135deg,#f472b6,#ec4899)">王</div>
-        <div class="post-info">
-          <div class="post-name">王师傅</div>
-          <div class="post-time">2 天前 · 来自 智腕社区</div>
-        </div>
-        <div class="post-tag">求助</div>
-      </div>
-      <div class="post-content">刷了栈序OS 1.1 之后，蓝牙有时候会自动断开，重连也连不上，重启手机就好。有没有人遇到同样的问题？日志已经贴在附件里了。</div>
-      <div class="post-actions">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>35</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>18</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>收藏</span>
-      </div>
-    </div>
-
+    <div class="login-err" id="loginErr"></div>
+    <button class="btn-login" onclick="doLogin()">登 录</button>
+    <div class="login-foot">仅限授权管理员访问 · 无注册入口</div>
   </div>
 </div>
 
-<!-- FAB -->
-<button class="fab" onclick="showMaint()">+</button>
+<!-- ===== 管理后台 ===== -->
+<div id="app">
+  <div class="topbar">
+    <div class="logo">栈序云<small>管理员版</small></div>
+    <div class="user-area">
+      <div class="user-chip">
+        <div class="avatar">张</div>
+        <div class="uname">张岳</div>
+        <div class="ulevel">超级管理员</div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">退出</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats">
+      <div class="stat"><div class="num">3</div><div class="label">待审公告</div></div>
+      <div class="stat"><div class="num">12</div><div class="label">社区帖子</div></div>
+      <div class="stat"><div class="num">876</div><div class="label">活跃用户</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-view="ann">员工公告</div>
+      <div class="tab" data-view="post">社区发帖</div>
+    </div>
+
+    <!-- 公告 -->
+    <div class="view active" id="view-ann">
+      <div class="card">
+        <div class="ann-meta">
+          <span class="badge">置顶</span>
+          <span class="badge blue">全员</span>
+          <span>栈序管理组 · 2026-10-22</span>
+        </div>
+        <div class="ann-title">关于栈序OS 1.2 版本灰度推送的通知</div>
+        <div class="ann-body">本次灰度覆盖 Vivo T1x、iQOO Z9 共约 200 台设备。OTA 差分包大小约 180MB，升级前请确保电量 ≥ 60%。升级完成后如遇 NFC 异常，可在「设置-系统-重置NFC服务」一键恢复。</div>
+      </div>
+      <div class="card">
+        <div class="ann-meta">
+          <span class="badge blue">部门</span>
+          <span>技术部 · 2026-10-20</span>
+        </div>
+        <div class="ann-title">智腕社区 APK 3.1 内部测试计划</div>
+        <div class="ann-body">本周内完成 3.1 版本内测：新增手表查找双向呼叫、心率数据导出 CSV。参与内测人员请于周五前在「栈序联动」App 内勾选「参与内测」。</div>
+      </div>
+      <div class="card">
+        <div class="ann-meta"><span>运营部 · 2026-10-18</span></div>
+        <div class="ann-title">10月开发者结算单已生成</div>
+        <div class="ann-body">10月分成结算单已推送至各位开发者的邮箱，请在 10 月 31 日前确认。逾期未确认将按默认账单执行打款。如有异议联系邮箱 zy291817@outlook.com。</div>
+      </div>
+      <div class="card">
+        <div class="ann-meta"><span>行政 · 2026-10-15</span></div>
+        <div class="ann-title">国庆后远程办公安排</div>
+        <div class="ann-body">10月剩余工作日，技术部支持每周最多 2 天远程。其余人员正常坐班。远程期间需保持飞书在线响应。</div>
+      </div>
+    </div>
+
+    <!-- 发帖 -->
+    <div class="view" id="view-post">
+      <div class="compose-box">
+        <div class="row">
+          <div class="post-avatar">张</div>
+          <div class="placeholder">分享你的想法…</div>
+          <button class="btn-send" onclick="showMaint()">发布</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="post-head">
+          <div class="post-avatar" style="background:linear-gradient(135deg,#34d399,#10b981)">林</div>
+          <div class="post-info"><div class="post-name">林工</div><div class="post-time">2 小时前 · 来自 智腕社区</div></div>
+          <div class="post-tag">固件讨论</div>
+        </div>
+        <div class="post-content">栈序OS 1.2 的温控阈值是不是调激进了？游戏半小时机身温度从 38 升到 46，帧率也锁了。能不能在设置里加个「自定义温控曲线」开关？</div>
+        <div class="post-actions">
+          <span>128 赞</span><span>23 评论</span><span>收藏</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="post-head">
+          <div class="post-avatar" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">陈</div>
+          <div class="post-info"><div class="post-name">陈同学</div><div class="post-time">昨天 21:30 · 来自 智腕社区</div></div>
+          <div class="post-tag">表盘分享</div>
+        </div>
+        <div class="post-content">新做的「荧光赛博 2.0」表盘已上传到社区，AOD 单独做了低功耗版本，GT2 实测一晚掉电 3%。欢迎大家试装反馈。</div>
+        <div class="post-actions"><span>86 赞</span><span>41 评论</span><span>收藏</span></div>
+      </div>
+      <div class="card">
+        <div class="post-head">
+          <div class="post-avatar" style="background:linear-gradient(135deg,#f472b6,#ec4899)">王</div>
+          <div class="post-info"><div class="post-name">王师傅</div><div class="post-time">2 天前 · 来自 智腕社区</div></div>
+          <div class="post-tag">求助</div>
+        </div>
+        <div class="post-content">刷了栈序OS 1.1 之后，蓝牙有时候会自动断开，重连也连不上，重启手机就好。有没有人遇到同样的问题？日志已经贴在附件里了。</div>
+        <div class="post-actions"><span>35 赞</span><span>18 评论</span><span>收藏</span></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="fab" onclick="showMaint()">+</button>
+</div>
 
 <!-- Toast -->
 <div class="toast" id="toast"><span class="icon">⚠</span><span id="toastText"></span></div>
 
 <script>
-// Tab 切换
+// 账号配置
+const ACCOUNTS = {
+  "100000000": { pwd: "xdf195458", name: "张岳", level: "超级管理员" }
+};
+
+// 登录态
+function checkAuth(){
+  const ok = sessionStorage.getItem('zx_admin') === '1';
+  if(ok){ showApp(); } else { showLogin(); }
+}
+function showLogin(){
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('app').classList.remove('logged-in');
+}
+function showApp(){
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').classList.add('logged-in');
+}
+function doLogin(){
+  const u = document.getElementById('inpUser').value.trim();
+  const p = document.getElementById('inpPwd').value;
+  const err = document.getElementById('loginErr');
+  if(!u || !p){ err.textContent = '请输入账号和密码'; return; }
+  const acc = ACCOUNTS[u];
+  if(!acc || acc.pwd !== p){
+    err.textContent = '账号或密码错误';
+    return;
+  }
+  sessionStorage.setItem('zx_admin','1');
+  err.textContent = '';
+  showApp();
+}
+function doLogout(){
+  sessionStorage.removeItem('zx_admin');
+  document.getElementById('inpPwd').value = '';
+  showLogin();
+}
+
+// 回车登录
+document.getElementById('inpPwd').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('inpUser').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('inpPwd').focus(); });
+
+// Tab
 document.querySelectorAll('.tab').forEach(t=>{
   t.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -311,7 +376,7 @@ document.querySelectorAll('.tab').forEach(t=>{
   }
 });
 
-// 维护中提示
+// 维护中
 function showMaint(){
   const t=document.getElementById('toast');
   document.getElementById('toastText').textContent='发帖功能维护中，敬请期待';
@@ -319,6 +384,9 @@ function showMaint(){
   clearTimeout(window._tt);
   window._tt=setTimeout(()=>t.classList.remove('show'),2200);
 }
+
+// 启动
+checkAuth();
 </script>
 </body>
 </html>
