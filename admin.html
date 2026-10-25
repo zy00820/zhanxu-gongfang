@@ -267,6 +267,7 @@ body{
     <div class="tabs">
       <div class="tab active" data-view="ann">员工公告</div>
       <div class="tab" data-view="post">社区发帖</div>
+      <div class="tab" data-view="staff">员工管理</div>
     </div>
 
     <!-- 公告 -->
@@ -285,7 +286,7 @@ body{
           <span class="badge blue">部门</span>
           <span>技术部 · 2026-10-20</span>
         </div>
-        <div class="ann-title">智腕社区 APK 3.1 内部测试计划</div>
+        <div class="ann-title">栈序工坊 APK 3.1 内部测试计划</div>
         <div class="ann-body">本周内完成 3.1 版本内测：新增手表查找双向呼叫、心率数据导出 CSV。参与内测人员请于周五前在「栈序联动」App 内勾选「参与内测」。</div>
       </div>
       <div class="card">
@@ -312,7 +313,7 @@ body{
       <div class="card">
         <div class="post-head">
           <div class="post-avatar" style="background:linear-gradient(135deg,#34d399,#10b981)">林</div>
-          <div class="post-info"><div class="post-name">林工</div><div class="post-time">2 小时前 · 来自 智腕社区</div></div>
+          <div class="post-info"><div class="post-name">林工</div><div class="post-time">2 小时前 · 来自 栈序工坊</div></div>
           <div class="post-tag">固件讨论</div>
         </div>
         <div class="post-content">栈序OS 1.2 的温控阈值是不是调激进了？游戏半小时机身温度从 38 升到 46，帧率也锁了。能不能在设置里加个「自定义温控曲线」开关？</div>
@@ -323,7 +324,7 @@ body{
       <div class="card">
         <div class="post-head">
           <div class="post-avatar" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">陈</div>
-          <div class="post-info"><div class="post-name">陈同学</div><div class="post-time">昨天 21:30 · 来自 智腕社区</div></div>
+          <div class="post-info"><div class="post-name">陈同学</div><div class="post-time">昨天 21:30 · 来自 栈序工坊</div></div>
           <div class="post-tag">表盘分享</div>
         </div>
         <div class="post-content">新做的「荧光赛博 2.0」表盘已上传到社区，AOD 单独做了低功耗版本，GT2 实测一晚掉电 3%。欢迎大家试装反馈。</div>
@@ -332,11 +333,23 @@ body{
       <div class="card">
         <div class="post-head">
           <div class="post-avatar" style="background:linear-gradient(135deg,#f472b6,#ec4899)">王</div>
-          <div class="post-info"><div class="post-name">王师傅</div><div class="post-time">2 天前 · 来自 智腕社区</div></div>
+          <div class="post-info"><div class="post-name">王师傅</div><div class="post-time">2 天前 · 来自 栈序工坊</div></div>
           <div class="post-tag">求助</div>
         </div>
         <div class="post-content">刷了栈序OS 1.1 之后，蓝牙有时候会自动断开，重连也连不上，重启手机就好。有没有人遇到同样的问题？日志已经贴在附件里了。</div>
         <div class="post-actions"><span>35 赞</span><span>18 评论</span><span>收藏</span></div>
+      </div>
+    </div>
+
+    <!-- 员工管理 -->
+    <div class="view" id="view-staff">
+      <div class="compose-box" style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:14px;color:#d4e4fb;font-weight:500">员工列表</div>
+        <button class="btn-send" id="btnAddStaff" onclick="showMaint()">+ 添加员工</button>
+      </div>
+      <div id="staffList"></div>
+      <div class="card" id="staffLock" style="display:none;text-align:center;color:#607494;font-size:13px;padding:30px 16px">
+        仅超级管理员可管理员工账号
       </div>
     </div>
   </div>
@@ -381,6 +394,26 @@ function showApp(u){
   }
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').classList.add('logged-in');
+  renderStaff(acc);
+}
+function renderStaff(currentAcc){
+  const isSuper = currentAcc.level === '超级管理员';
+  const list = document.getElementById('staffList');
+  const btnAdd = document.getElementById('btnAddStaff');
+  const lock = document.getElementById('staffLock');
+  btnAdd.style.display = isSuper ? '' : 'none';
+  lock.style.display = isSuper ? 'none' : 'block';
+  list.innerHTML = Object.entries(ACCOUNTS).map(([uid, a])=>{
+    const lvColor = a.level === '超级管理员' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(115,184,255,0.18);color:#73b8ff';
+    return `<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div class="post-avatar">${a.name.charAt(0)}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;color:#d4e4fb;font-weight:500">${a.name} <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:${lvColor};margin-left:4px">${a.level}</span></div>
+        <div style="font-size:11px;color:#607494;margin-top:2px">账号：${uid}</div>
+      </div>
+      ${isSuper ? `<button onclick="showMaint()" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">编辑</button>` : ''}
+    </div>`;
+  }).join('');
 }
 function doLogin(){
   const u = document.getElementById('inpUser').value.trim();
