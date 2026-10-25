@@ -153,6 +153,28 @@ body{
 .ann-meta .badge.blue{background:rgba(115,184,255,0.15);color:#73b8ff}
 .ann-title{font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:6px}
 .ann-body{font-size:14px;color:#a0b4d2;line-height:1.7}
+/* 公告可展开液态玻璃 */
+.ann-card{cursor:pointer;overflow:hidden;transition:all .3s}
+.ann-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.ann-arrow{
+  flex-shrink:0;width:24px;height:24px;border-radius:50%;
+  background:rgba(115,184,255,0.12);color:#73b8ff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;transition:transform .3s;margin-top:2px;
+}
+.ann-card.open .ann-arrow{transform:rotate(180deg)}
+.ann-card.open{
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border-color:rgba(115,184,255,0.4);
+  box-shadow:0 8px 32px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.ann-card .ann-body{
+  max-height:0;opacity:0;overflow:hidden;margin-top:0;
+  transition:max-height .35s ease,opacity .3s ease,margin-top .3s ease;
+}
+.ann-card.open .ann-body{max-height:300px;opacity:1;margin-top:10px}
 /* ===== 发帖区 ===== */
 .compose-box{
   background:rgba(255,255,255,0.06);
@@ -273,31 +295,51 @@ body{
 
     <!-- 公告 -->
     <div class="view active" id="view-ann">
-      <div class="card">
-        <div class="ann-meta">
-          <span class="badge">置顶</span>
-          <span class="badge blue">全员</span>
-          <span>栈序管理组 · 2026-10-22</span>
+      <div class="card ann-card" onclick="this.classList.toggle('open')">
+        <div class="ann-head">
+          <div style="flex:1">
+            <div class="ann-meta">
+              <span class="badge">置顶</span>
+              <span class="badge blue">全员</span>
+              <span>栈序管理组 · 2026-10-22</span>
+            </div>
+            <div class="ann-title">关于栈序OS 1.2 版本灰度推送的通知</div>
+          </div>
+          <div class="ann-arrow">▼</div>
         </div>
-        <div class="ann-title">关于栈序OS 1.2 版本灰度推送的通知</div>
         <div class="ann-body">本次灰度覆盖 Vivo T1x、iQOO Z9 共约 200 台设备。OTA 差分包大小约 180MB，升级前请确保电量 ≥ 60%。升级完成后如遇 NFC 异常，可在「设置-系统-重置NFC服务」一键恢复。</div>
       </div>
-      <div class="card">
-        <div class="ann-meta">
-          <span class="badge blue">部门</span>
-          <span>技术部 · 2026-10-20</span>
+      <div class="card ann-card" onclick="this.classList.toggle('open')">
+        <div class="ann-head">
+          <div style="flex:1">
+            <div class="ann-meta">
+              <span class="badge blue">部门</span>
+              <span>技术部 · 2026-10-20</span>
+            </div>
+            <div class="ann-title">栈序工坊 APK 3.1 内部测试计划</div>
+          </div>
+          <div class="ann-arrow">▼</div>
         </div>
-        <div class="ann-title">栈序工坊 APK 3.1 内部测试计划</div>
         <div class="ann-body">本周内完成 3.1 版本内测：新增手表查找双向呼叫、心率数据导出 CSV。参与内测人员请于周五前在「栈序联动」App 内勾选「参与内测」。</div>
       </div>
-      <div class="card">
-        <div class="ann-meta"><span>运营部 · 2026-10-18</span></div>
-        <div class="ann-title">10月开发者结算单已生成</div>
+      <div class="card ann-card" onclick="this.classList.toggle('open')">
+        <div class="ann-head">
+          <div style="flex:1">
+            <div class="ann-meta"><span>运营部 · 2026-10-18</span></div>
+            <div class="ann-title">10月开发者结算单已生成</div>
+          </div>
+          <div class="ann-arrow">▼</div>
+        </div>
         <div class="ann-body">10月分成结算单已推送至各位开发者的邮箱，请在 10 月 31 日前确认。逾期未确认将按默认账单执行打款。如有异议联系邮箱 zy291817@outlook.com。</div>
       </div>
-      <div class="card">
-        <div class="ann-meta"><span>行政 · 2026-10-15</span></div>
-        <div class="ann-title">国庆后远程办公安排</div>
+      <div class="card ann-card" onclick="this.classList.toggle('open')">
+        <div class="ann-head">
+          <div style="flex:1">
+            <div class="ann-meta"><span>行政 · 2026-10-15</span></div>
+            <div class="ann-title">国庆后远程办公安排</div>
+          </div>
+          <div class="ann-arrow">▼</div>
+        </div>
         <div class="ann-body">10月剩余工作日，技术部支持每周最多 2 天远程。其余人员正常坐班。远程期间需保持飞书在线响应。</div>
       </div>
     </div>
