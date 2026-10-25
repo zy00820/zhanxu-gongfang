@@ -225,9 +225,9 @@ body{
     <div class="logo">栈序云<small>管理员版</small></div>
     <div class="user-area">
       <div class="user-chip">
-        <div class="avatar">张</div>
-        <div class="uname">张岳</div>
-        <div class="ulevel">超级管理员</div>
+        <div class="avatar" id="avatarText">张</div>
+        <div class="uname" id="unameText">张岳</div>
+        <div class="ulevel" id="ulevelText">超级管理员</div>
       </div>
       <button class="btn-logout" onclick="doLogout()">退出</button>
     </div>
@@ -326,19 +326,34 @@ body{
 <script>
 // 账号配置
 const ACCOUNTS = {
-  "100000000": { pwd: "xdf195458", name: "张岳", level: "超级管理员" }
+  "100000000": { pwd: "xdf195458", name: "张岳", level: "超级管理员" },
+  "100000020": { pwd: "110820ly", name: "陆宇", level: "管理员" }
 };
 
 // 登录态
 function checkAuth(){
-  const ok = sessionStorage.getItem('zx_admin') === '1';
-  if(ok){ showApp(); } else { showLogin(); }
+  const u = sessionStorage.getItem('zx_user');
+  if(u && ACCOUNTS[u]){ showApp(u); } else { showLogin(); }
 }
 function showLogin(){
   document.getElementById('loginPage').style.display = 'flex';
   document.getElementById('app').classList.remove('logged-in');
 }
-function showApp(){
+function showApp(u){
+  const acc = ACCOUNTS[u];
+  // 顶部栏动态渲染用户
+  document.getElementById('avatarText').textContent = acc.name.charAt(0);
+  document.getElementById('unameText').textContent = acc.name;
+  const lv = document.getElementById('ulevelText');
+  lv.textContent = acc.level;
+  // 超级管理员金色，管理员蓝色
+  if(acc.level === '超级管理员'){
+    lv.style.background = 'rgba(251,191,36,0.18)';
+    lv.style.color = '#fbbf24';
+  } else {
+    lv.style.background = 'rgba(115,184,255,0.18)';
+    lv.style.color = '#73b8ff';
+  }
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').classList.add('logged-in');
 }
@@ -352,12 +367,12 @@ function doLogin(){
     err.textContent = '账号或密码错误';
     return;
   }
-  sessionStorage.setItem('zx_admin','1');
+  sessionStorage.setItem('zx_user', u);
   err.textContent = '';
-  showApp();
+  showApp(u);
 }
 function doLogout(){
-  sessionStorage.removeItem('zx_admin');
+  sessionStorage.removeItem('zx_user');
   document.getElementById('inpPwd').value = '';
   showLogin();
 }
