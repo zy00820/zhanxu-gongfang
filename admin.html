@@ -268,6 +268,7 @@ body{
       <div class="tab active" data-view="ann">员工公告</div>
       <div class="tab" data-view="post">社区发帖</div>
       <div class="tab" data-view="staff">员工管理</div>
+      <div class="tab" data-view="meeting">会议管理</div>
     </div>
 
     <!-- 公告 -->
@@ -352,6 +353,15 @@ body{
         仅超级管理员可管理员工账号
       </div>
     </div>
+
+    <!-- 会议管理 -->
+    <div class="view" id="view-meeting">
+      <div class="compose-box" style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:14px;color:#d4e4fb;font-weight:500">会议安排</div>
+        <button class="btn-send" id="btnAddMeeting" onclick="addMeeting()">+ 新建会议</button>
+      </div>
+      <div id="meetingList"></div>
+    </div>
   </div>
 
   <button class="fab" onclick="showMaint()">+</button>
@@ -370,7 +380,7 @@ const ACCOUNTS = {
 
 // 登录态
 function checkAuth(){
-  if(!window._staffInit){ initStaffData(); window._staffInit = true; }
+  if(!window._staffInit){ initStaffData(); initMeetings(); window._staffInit = true; }
   const u = sessionStorage.getItem('zx_user');
   if(u && ACCOUNTS[u]){ showApp(u); } else { showLogin(); }
 }
@@ -396,6 +406,7 @@ function showApp(u){
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').classList.add('logged-in');
   renderStaff(acc);
+  renderMeetings();
 }
 function renderStaff(currentAcc){
   const isSuper = currentAcc.level === '超级管理员';
@@ -468,6 +479,56 @@ function toastMsg(txt){
   t.classList.add('show');
   clearTimeout(window._tt);
   window._tt=setTimeout(()=>t.classList.remove('show'),1500);
+}
+
+// ===== 会议管理 =====
+let meetingData = [];
+function initMeetings(){
+  meetingData = [
+    { title: '栈序OS 1.2 版本评审', time: '2026-10-25 14:00', attendees: '张岳、陆宇、周天浩', status: '待开始' },
+    { title: '智腕社区 3.1 内测复盘', time: '2026-10-24 10:30', attendees: '技术部全员', status: '进行中' },
+    { title: '10月开发者结算沟通会', time: '2026-10-20 16:00', attendees: '运营部、张岳', status: '已结束' },
+  ];
+}
+function renderMeetings(){
+  const list = document.getElementById('meetingList');
+  const statusColor = s => s==='进行中' ? 'rgba(52,211,153,0.18);color:#34d399' : s==='待开始' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(100,116,139,0.18);color:#94a8c7';
+  list.innerHTML = meetingData.map((m, idx)=>`
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:15px;color:#f0f5ff;font-weight:600">${m.title}</div>
+        <span style="font-size:11px;padding:2px 8px;border-radius:6px;background:${statusColor(m.status)}">${m.status}</span>
+      </div>
+      <div style="font-size:12px;color:#94a8c7;line-height:1.8">
+        <div>时间：${m.time}</div>
+        <div>参会：${m.attendees}</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        ${m.status !== '已结束' ? `<button onclick="endMeeting(${idx})" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">结束</button>` : ''}
+        <button onclick="delMeeting(${idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">取消会议</button>
+      </div>
+    </div>
+  `).join('');
+}
+function addMeeting(){
+  const title = prompt('会议主题：');
+  if(!title) return;
+  const time = prompt('会议时间（如 2026-10-26 15:00）：') || '待定';
+  const attendees = prompt('参会人员：') || '未指定';
+  meetingData.push({ title: title.trim(), time: time.trim(), attendees: attendees.trim(), status: '待开始' });
+  renderMeetings();
+  toastMsg('会议已创建');
+}
+function endMeeting(idx){
+  meetingData[idx].status = '已结束';
+  renderMeetings();
+  toastMsg('会议已结束');
+}
+function delMeeting(idx){
+  if(!confirm(`确认取消会议「${meetingData[idx].title}」？`)) return;
+  meetingData.splice(idx,1);
+  renderMeetings();
+  toastMsg('会议已取消');
 }
 function doLogin(){
   const u = document.getElementById('inpUser').value.trim();
