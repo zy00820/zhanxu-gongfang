@@ -345,7 +345,7 @@ body{
     <div class="view" id="view-staff">
       <div class="compose-box" style="display:flex;justify-content:space-between;align-items:center">
         <div style="font-size:14px;color:#d4e4fb;font-weight:500">员工列表</div>
-        <button class="btn-send" id="btnAddStaff" onclick="showMaint()">+ 添加员工</button>
+        <button class="btn-send" id="btnAddStaff" onclick="addStaff()">+ 添加员工</button>
       </div>
       <div id="staffList"></div>
       <div class="card" id="staffLock" style="display:none;text-align:center;color:#607494;font-size:13px;padding:30px 16px">
@@ -370,6 +370,7 @@ const ACCOUNTS = {
 
 // 登录态
 function checkAuth(){
+  if(!window._staffInit){ initStaffData(); window._staffInit = true; }
   const u = sessionStorage.getItem('zx_user');
   if(u && ACCOUNTS[u]){ showApp(u); } else { showLogin(); }
 }
@@ -403,17 +404,70 @@ function renderStaff(currentAcc){
   const lock = document.getElementById('staffLock');
   btnAdd.style.display = isSuper ? '' : 'none';
   lock.style.display = isSuper ? 'none' : 'block';
-  list.innerHTML = Object.entries(ACCOUNTS).map(([uid, a])=>{
-    const lvColor = a.level === '超级管理员' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(115,184,255,0.18);color:#73b8ff';
-    return `<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-      <div class="post-avatar">${a.name.charAt(0)}</div>
-      <div style="flex:1">
-        <div style="font-size:14px;color:#d4e4fb;font-weight:500">${a.name} <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:${lvColor};margin-left:4px">${a.level}</span></div>
-        <div style="font-size:11px;color:#607494;margin-top:2px">账号：${uid}</div>
-      </div>
-      ${isSuper ? `<button onclick="showMaint()" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">编辑</button>` : ''}
-    </div>`;
-  }).join('');
+  const render = ()=>{
+    list.innerHTML = staffData.map((s, idx)=>{
+      const lvColor = s.level === '超级管理员' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(115,184,255,0.18);color:#73b8ff';
+      const banned = s.banned;
+      return `<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;${banned?'opacity:0.5;background:rgba(248,113,113,0.06)':''}">
+        <div class="post-avatar" style="${banned?'filter:grayscale(1)':''}">${s.name.charAt(0)}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;color:#d4e4fb;font-weight:500">${s.name}
+            <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:${lvColor};margin-left:4px">${s.level}</span>
+            ${banned?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(248,113,113,0.2);color:#f87171;margin-left:4px">已封号</span>':''}
+          </div>
+          <div style="font-size:11px;color:#607494;margin-top:2px">账号：${s.uid}</div>
+        </div>
+        ${isSuper ? `<div style="display:flex;gap:6px">
+          <button onclick="editStaff(${idx})" style="background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">编辑</button>
+          <button onclick="toggleBan(${idx})" style="background:${banned?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.12)'};border:1px solid ${banned?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)'};color:${banned?'#34d399':'#f87171'};padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${banned?'解禁':'封号'}</button>
+          <button onclick="delStaff(${idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">删除</button>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+  };
+  window._staffRender = render;
+  render();
+}
+let staffData = [];
+function initStaffData(){
+  staffData = Object.entries(ACCOUNTS).map(([uid,a])=>({uid, name:a.name, level:a.level, banned:false}));
+}
+function addStaff(){
+  const uid = prompt('请输入新员工账号（数字）：');
+  if(!uid) return;
+  const name = prompt('请输入昵称：');
+  if(!name) return;
+  const level = prompt('请输入等级（超级管理员 / 管理员）：') || '管理员';
+  staffData.push({uid: uid.trim(), name: name.trim(), level, banned:false});
+  window._staffRender();
+  toastMsg('员工已添加');
+}
+function editStaff(idx){
+  const s = staffData[idx];
+  const name = prompt('修改昵称：', s.name);
+  if(name !== null) s.name = name.trim();
+  const level = prompt('修改等级（超级管理员 / 管理员）：', s.level);
+  if(level) s.level = level.trim();
+  window._staffRender();
+  toastMsg('已保存修改');
+}
+function toggleBan(idx){
+  staffData[idx].banned = !staffData[idx].banned;
+  window._staffRender();
+  toastMsg(staffData[idx].banned ? '已封号' : '已解禁');
+}
+function delStaff(idx){
+  if(!confirm(`确认删除员工「${staffData[idx].name}」？`)) return;
+  staffData.splice(idx,1);
+  window._staffRender();
+  toastMsg('已删除');
+}
+function toastMsg(txt){
+  const t=document.getElementById('toast');
+  document.getElementById('toastText').textContent=txt;
+  t.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>t.classList.remove('show'),1500);
 }
 function doLogin(){
   const u = document.getElementById('inpUser').value.trim();
