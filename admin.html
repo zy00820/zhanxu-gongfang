@@ -418,12 +418,12 @@ body{
 <script>
 // 账号配置
 const ACCOUNTS = {
-  "100000000": { hash: "b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name: "张岳", level: "超级管理员" },
-  "100000001": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "徐文桐", level: "超级管理员" },
-  "100000020": { hash: "8ca6337698a3a754baf957d8c76aa9eb484a22a76d72f1aa17ee19172fe24fee", name: "陆宇", level: "管理员" },
-  "100000013": { hash: "c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name: "周天浩", level: "管理员" },
-  "100000014": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "迪", level: "管理员" },
-  "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员" }
+  "100000000": { hash: "b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name: "张岳", level: "超级管理员", key: "aea37fe297f5a347" },
+  "100000001": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "徐文桐", level: "超级管理员", key: "e1012e6df4790fe9" },
+  "100000020": { hash: "8ca6337698a3a754baf957d8c76aa9eb484a22a76d72f1aa17ee19172fe24fee", name: "陆宇", level: "管理员", key: "871329d41f2273d2" },
+  "100000013": { hash: "c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name: "周天浩", level: "管理员", key: "b8ff92d2dee04af9" },
+  "100000014": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "迪", level: "管理员", key: "6b8cdf4fd6e9652e" },
+  "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员", key: "58d47e755d77358c" }
 };
 
 // 登录态
@@ -478,6 +478,7 @@ function renderStaff(currentAcc){
             ${banned?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(248,113,113,0.2);color:#f87171;margin-left:4px">已封号</span>':''}
           </div>
           <div style="font-size:11px;color:#607494;margin-top:2px">账号：${s.uid}</div>
+          ${isSuper ? `<div style="font-size:11px;color:#fbbf24;margin-top:2px">安全密钥：${s.key||'未设置'}</div>` : ''}
         </div>
         ${isSuper ? `<div style="display:flex;gap:6px">
           <button onclick="editStaff(${idx})" style="background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">编辑</button>
@@ -492,7 +493,7 @@ function renderStaff(currentAcc){
 }
 let staffData = [];
 function initStaffData(){
-  staffData = Object.entries(ACCOUNTS).map(([uid,a])=>({uid, name:a.name, level:a.level, banned:false}));
+  staffData = Object.entries(ACCOUNTS).map(([uid,a])=>({uid, name:a.name, level:a.level, key:a.key, banned:false}));
 }
 function addStaff(){
   const uid = prompt('请输入新员工账号（数字）：');
