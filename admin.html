@@ -261,6 +261,9 @@ body{
     </div>
     <div class="login-err" id="loginErr"></div>
     <button class="btn-login" onclick="doLogin()">登 录</button>
+    <div style="text-align:center;margin-top:12px">
+      <a onclick="forgotPwd()" style="color:rgba(115,184,255,0.7);font-size:12px;cursor:pointer;text-decoration:underline">忘记密码？使用安全密钥登录</a>
+    </div>
     <div class="login-foot"></div>
   </div>
 </div>
@@ -418,12 +421,12 @@ body{
 <script>
 // 账号配置
 const ACCOUNTS = {
-  "100000000": { hash: "b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name: "张岳", level: "超级管理员", key: "aea37fe297f5a347" },
-  "100000001": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "徐文桐", level: "超级管理员", key: "e1012e6df4790fe9" },
-  "100000020": { hash: "8ca6337698a3a754baf957d8c76aa9eb484a22a76d72f1aa17ee19172fe24fee", name: "陆宇", level: "管理员", key: "871329d41f2273d2" },
-  "100000013": { hash: "c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name: "周天浩", level: "管理员", key: "b8ff92d2dee04af9" },
-  "100000014": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "迪", level: "管理员", key: "6b8cdf4fd6e9652e" },
-  "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员", key: "58d47e755d77358c" }
+  "100000000": { hash: "b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name: "张岳", level: "超级管理员", key: "57a67bfc" },
+  "100000001": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "徐文桐", level: "超级管理员", key: "3db80897" },
+  "100000020": { hash: "8ca6337698a3a754baf957d8c76aa9eb484a22a76d72f1aa17ee19172fe24fee", name: "陆宇", level: "管理员", key: "7be2724d" },
+  "100000013": { hash: "c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name: "周天浩", level: "管理员", key: "2279d6f8" },
+  "100000014": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "迪", level: "管理员", key: "44f28222" },
+  "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员", key: "5169f1dc" }
 };
 
 // 登录态
@@ -604,6 +607,18 @@ function doLogout(){
   sessionStorage.removeItem('zx_user');
   document.getElementById('inpPwd').value = '';
   showLogin();
+}
+function forgotPwd(){
+  const u = prompt('请输入账号：');
+  if(!u) return;
+  const acc = ACCOUNTS[u];
+  if(!acc){ alert('账号不存在'); return; }
+  const k = prompt('请输入8位安全密钥：');
+  if(!k) return;
+  if(k.trim() !== acc.key){ alert('安全密钥错误'); return; }
+  sessionStorage.setItem('zx_user', u);
+  document.getElementById('loginErr').textContent = '';
+  showApp(u);
 }
 
 // 回车登录
