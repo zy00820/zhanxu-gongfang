@@ -418,12 +418,12 @@ body{
 <script>
 // 账号配置
 const ACCOUNTS = {
-  "100000000": { pwd: "xdf195458", name: "张岳", level: "超级管理员" },
-  "100000001": { pwd: "12345678", name: "徐文桐", level: "超级管理员" },
-  "100000020": { pwd: "110820ly", name: "陆宇", level: "管理员" },
-  "100000013": { pwd: "zty510681", name: "周天浩", level: "管理员" },
-  "100000014": { pwd: "12345678", name: "迪", level: "管理员" },
-  "100000022": { pwd: "czr114514", name: "蔡子润", level: "管理员" }
+  "100000000": { hash: "b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name: "张岳", level: "超级管理员" },
+  "100000001": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "徐文桐", level: "超级管理员" },
+  "100000020": { hash: "8ca6337698a3a754baf957d8c76aa9eb484a22a76d72f1aa17ee19172fe24fee", name: "陆宇", level: "管理员" },
+  "100000013": { hash: "c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name: "周天浩", level: "管理员" },
+  "100000014": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "迪", level: "管理员" },
+  "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员" }
 };
 
 // 登录态
@@ -582,16 +582,19 @@ function delMeeting(idx){
   renderMeetings();
   toastMsg('会议已取消');
 }
-function doLogin(){
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function doLogin(){
   const u = document.getElementById('inpUser').value.trim();
   const p = document.getElementById('inpPwd').value;
   const err = document.getElementById('loginErr');
   if(!u || !p){ err.textContent = '请输入账号和密码'; return; }
   const acc = ACCOUNTS[u];
-  if(!acc || acc.pwd !== p){
-    err.textContent = '账号或密码错误';
-    return;
-  }
+  if(!acc){ err.textContent = '账号或密码错误'; return; }
+  const h = await sha256(p);
+  if(h !== acc.hash){ err.textContent = '账号或密码错误'; return; }
   sessionStorage.setItem('zx_user', u);
   err.textContent = '';
   showApp(u);
