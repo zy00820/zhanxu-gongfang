@@ -278,7 +278,28 @@ body{
         <div class="uname" id="unameText">张岳</div>
         <div class="ulevel" id="ulevelText">超级管理员</div>
       </div>
-      <button class="btn-logout" onclick="doLogout()">退出</button>
+      <button class="btn-logout" onclick="openSettings()" style="font-size:16px;padding:6px 10px">⚙</button>
+    </div>
+  </div>
+
+  <!-- 设置弹窗 -->
+  <div id="settingsMask" onclick="if(event.target===this)closeSettings()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.95);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:16px">设置</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <span style="font-size:14px;color:#d4e4fb">深色模式</span>
+        <span style="font-size:12px;color:#34d399">已开启</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <span style="font-size:14px;color:#d4e4fb">消息通知</span>
+        <span style="font-size:12px;color:#34d399">已开启</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
+        <span style="font-size:12px;color:#607494">v1.0.0</span>
+      </div>
+      <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
+      <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
     </div>
   </div>
 
@@ -609,6 +630,8 @@ function doLogout(){
   document.getElementById('inpPwd').value = '';
   showLogin();
 }
+function openSettings(){ document.getElementById('settingsMask').style.display='block'; }
+function closeSettings(){ document.getElementById('settingsMask').style.display='none'; }
 function forgotPwd(){
   const u = prompt('请输入账号：');
   if(!u) return;
