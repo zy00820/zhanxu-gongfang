@@ -235,6 +235,17 @@ body{
 /* 后台主体默认隐藏 */
 #app{display:none}
 #app.logged-in{display:block}
+/* 普通界面模式 */
+body.plain .card, body.plain .compose-box, body.plain .stat{
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  background:rgba(255,255,255,0.04) !important;
+}
+body.plain .ann-card.open{
+  background:rgba(255,255,255,0.07) !important;
+  backdrop-filter:none !important;
+  box-shadow:none !important;
+}
 </style>
 </head>
 <body>
@@ -286,6 +297,14 @@ body{
   <div id="settingsMask" onclick="if(event.target===this)closeSettings()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.95);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))">
       <div style="text-align:center;font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:16px">设置</div>
+      <div onclick="toggleTheme()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
+        <span style="font-size:14px;color:#d4e4fb">界面风格</span>
+        <span id="themeLabel" style="font-size:12px;color:#73b8ff;cursor:pointer">液态玻璃</span>
+      </div>
+      <div onclick="showTeam()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
+        <span style="font-size:14px;color:#d4e4fb">栈序团队</span>
+        <span style="font-size:12px;color:#607494">查看超管名单 ›</span>
+      </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">深色模式</span>
         <span style="font-size:12px;color:#34d399">已开启</span>
@@ -632,6 +651,21 @@ function doLogout(){
 }
 function openSettings(){ document.getElementById('settingsMask').style.display='block'; }
 function closeSettings(){ document.getElementById('settingsMask').style.display='none'; }
+let isLiquid = true;
+function toggleTheme(){
+  isLiquid = !isLiquid;
+  document.body.classList.toggle('plain', !isLiquid);
+  document.getElementById('themeLabel').textContent = isLiquid ? '液态玻璃' : '普通界面';
+  document.getElementById('themeLabel').style.color = isLiquid ? '#73b8ff' : '#94a8c7';
+}
+function showTeam(){
+  const supers = Object.entries(ACCOUNTS).filter(([_,a])=>a.level==='超级管理员');
+  const list = supers.map(([uid,a])=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:flex;align-items:center;justify-content:center;color:#080b12;font-size:13px;font-weight:600">${a.name.charAt(0)}</div>
+    <div><div style="font-size:14px;color:#d4e4fb">${a.name}</div><div style="font-size:11px;color:#fbbf24">超级管理员 · ${uid}</div></div>
+  </div>`).join('');
+  alert('栈序团队（超级管理员）\n\n' + supers.map(([uid,a])=>a.name+'（'+uid+'）').join('\n'));
+}
 function forgotPwd(){
   const u = prompt('请输入账号：');
   if(!u) return;
