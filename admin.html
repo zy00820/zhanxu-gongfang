@@ -540,7 +540,9 @@ const ACCOUNTS = {
   "100000013": { hash: "c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name: "周天浩", level: "管理员", key: "2279d6f8" },
   "100000014": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "迪", level: "管理员", key: "44f28222" },
   "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员", key: "5169f1dc" },
-  "100000021": { hash: "aac8a922d7ac3a1fa25f4ac118a29ec022e245fd0195ca55bd98b64b77b53278", name: "闻浩楠", level: "管理员", key: "ea2a1b33" }
+  "100000021": { hash: "aac8a922d7ac3a1fa25f4ac118a29ec022e245fd0195ca55bd98b64b77b53278", name: "闻浩楠", level: "管理员", key: "ea2a1b33" },
+  "100000025": { hash: "c89d383ab20c398cba45862a3a2645668bddbcdc3a655a850c562f95ad8b3bac", name: "秦之俊", level: "管理员", key: "250c5704" },
+  "100000026": { hash: "5de5508b36a6a4aee8faa6a19704ddf1ffd074e4bda2b5a58921926a3e4545a7", name: "徐子俊", level: "管理员", key: "e10071f2" }
 };
 
 // 登录态
@@ -622,7 +624,7 @@ function addStaff(){
   if(!uid) return;
   const name = prompt('请输入昵称：');
   if(!name) return;
-  const level = prompt('请输入等级（超级管理员 / 管理员）：') || '管理员';
+  const level = prompt('请输入职位（超级管理员 / 管理员）：') || '管理员';
   staffData.push({uid: uid.trim(), name: name.trim(), level, banned:false});
   window._staffRender();
   toastMsg('员工已添加');
@@ -631,7 +633,7 @@ function editStaff(idx){
   const s = staffData[idx];
   const name = prompt('修改昵称：', s.name);
   if(name !== null) s.name = name.trim();
-  const level = prompt('修改等级（超级管理员 / 管理员）：', s.level);
+  const level = prompt('修改职位（超级管理员 / 管理员）：', s.level);
   if(level) s.level = level.trim();
   window._staffRender();
   toastMsg('已保存修改');
