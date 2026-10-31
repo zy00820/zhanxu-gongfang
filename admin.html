@@ -467,6 +467,17 @@ body.plain .ann-card.open{
       </div>
     </div>
 
+    <!-- 开发者中心 -->
+    <div class="card" onclick="openDevCenter()" style="cursor:pointer;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">开发者中心</div>
+          <div style="font-size:12px;color:#607494">API 文档 / 表盘 SDK / 应用发布</div>
+        </div>
+        <span id="devBadge" style="font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(167,139,250,0.18);color:#a78bfa">需超管授权</span>
+      </div>
+    </div>
+
     <div class="tabs">
       <div class="tab active" data-view="staffSvc">员工服务</div>
       <div class="tab" data-view="post">社区发帖</div>
@@ -708,6 +719,19 @@ function showApp(u){
   if(!window._ticketInit){ initTickets(); window._ticketInit = true; }
   renderTickets();
   renderChangelog();
+  // 开发者中心权限标签
+  const devBadge = document.getElementById('devBadge');
+  if(devBadge){
+    if(currentIsSuper){
+      devBadge.textContent='超管已授权';
+      devBadge.style.background='rgba(52,211,153,0.18)';
+      devBadge.style.color='#34d399';
+    } else {
+      devBadge.textContent='需超管授权';
+      devBadge.style.background='rgba(167,139,250,0.18)';
+      devBadge.style.color='#a78bfa';
+    }
+  }
   // 登录后依次提醒
   if(!sessionStorage.getItem('zx_welcomed')){
     sessionStorage.setItem('zx_welcomed','1');
@@ -966,6 +990,13 @@ function activitySignup(){
   t.classList.add('show');
   clearTimeout(window._tt);
   window._tt=setTimeout(()=>t.classList.remove('show'),2200);
+}
+function openDevCenter(){
+  if(currentIsSuper){
+    toastMsg('开发者中心（演示）：API文档 / 表盘SDK');
+  } else {
+    toastMsg('开发者中心需超管授权，请联系张岳/徐文桐');
+  }
 }
 function regMaint(){
   const t=document.getElementById('toast');
