@@ -1003,7 +1003,7 @@ function initTickets(){
   ticketData = titles.map((t,i)=>({
     id: 'WO-2026-'+String(1001+i),
     title: t,
-    from: ['林工','陈同学','王师傅','陆宇','周天浩','蔡子润'][i%6],
+    from: ['社区用户','社区用户','社区用户','社区用户','社区用户','社区用户'][i%6],
     time: '2026-10-'+String(27-(i%15)).padStart(2,'0')+' '+String(9+i%9)+':30',
     status: i<8 ? '待处理' : '已处理'
   }));
