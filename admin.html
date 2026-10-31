@@ -453,6 +453,7 @@ body.plain .ann-card.open{
       <div class="tab" data-view="post">社区发帖</div>
       <div class="tab" data-view="ticket">公单处理</div>
       <div class="tab" data-view="changelog">更新日志</div>
+      <div class="tab" data-view="users">用户列表</div>
     </div>
 
     <!-- 员工服务二级tab -->
@@ -522,6 +523,7 @@ body.plain .ann-card.open{
         <div style="font-size:14px;color:#d4e4fb;font-weight:500">员工列表</div>
         <button class="btn-send" id="btnAddStaff" onclick="addStaff()">+ 添加员工</button>
       </div>
+      <input type="text" id="staffSearch" placeholder="搜索昵称 / 账号…" style="width:100%;padding:10px 14px;margin-bottom:10px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:13px;outline:none" oninput="staffSearchKw=this.value;renderStaff(currentAcc)">
       <div id="staffList"></div>
       <div class="card" id="staffLock" style="display:none;text-align:center;color:#607494;font-size:13px;padding:30px 16px">
         仅超级管理员可管理员工账号
@@ -604,9 +606,18 @@ body.plain .ann-card.open{
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
     </div>
+
+    <!-- 用户列表 -->
+    <div class="view" id="view-users">
+      <div class="card" style="margin-bottom:12px">
+        <input type="text" id="userSearch" placeholder="搜索用户昵称 / 账号…" style="width:100%;padding:11px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" oninput="renderUsers(this.value)">
+      </div>
+      <div id="userList"></div>
+    </div>
   </div>
 
   <button class="fab" onclick="showMaint()">+</button>
+</div>
 </div>
 
 <!-- Toast -->
@@ -703,7 +714,11 @@ function renderStaff(currentAcc){
   btnAdd.style.display = isSuper ? '' : 'none';
   lock.style.display = isSuper ? 'none' : 'block';
   const render = ()=>{
-    list.innerHTML = staffData.map((s, idx)=>{
+    const kw = (window.staffSearchKw||'').trim().toLowerCase();
+    const filtered = staffData.map((s,i)=>({...s,idx:i})).filter(s=>!kw || s.name.toLowerCase().includes(kw) || s.uid.includes(kw));
+    if(filtered.length===0){ list.innerHTML='<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:24px">未找到匹配员工</div>'; return; }
+    list.innerHTML = filtered.map((s)=>{
+      const idx = s.idx;
       const lvColor = s.level === '超级管理员' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(115,184,255,0.18);color:#73b8ff';
       const banned = s.banned;
       return `<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;${banned?'opacity:0.5;background:rgba(248,113,113,0.06)':''}">
@@ -1040,6 +1055,28 @@ function renderChangelog(){
     </div>
   `).join('');
 }
+
+// ===== 用户列表（普通用户，非员工） =====
+let normalUsers = []; // 暂时为空
+function renderUsers(kw){
+  kw = (kw||'').trim().toLowerCase();
+  const list = document.getElementById('userList');
+  const filtered = normalUsers.filter(u=>!kw || u.name.toLowerCase().includes(kw) || u.uid.includes(kw));
+  if(filtered.length === 0){
+    list.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:30px 16px">'+(kw?'未找到匹配用户':'暂无用户')+'</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(u=>`
+    <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div class="post-avatar">${u.name.charAt(0)}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;color:#d4e4fb;font-weight:500">${u.name}</div>
+        <div style="font-size:11px;color:#607494">UID：${u.uid} · ${u.joinDate||'—'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+renderUsers('');
 
 // ===== 签到 & 个人信息 =====
 function getUserStats(uid){
