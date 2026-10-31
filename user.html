@@ -8,195 +8,217 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
 body{
   min-height:100vh;background:#080b12;color:#e8edf7;
-  background-image:
-    radial-gradient(ellipse 600px 300px at 20% -10%,rgba(74,158,255,0.15),transparent 60%),
-    radial-gradient(ellipse 500px 250px at 90% 20%,rgba(167,139,250,0.1),transparent 60%);
+  background-image:linear-gradient(rgba(20,40,80,0.18) 1px,transparent 1px),linear-gradient(90deg,rgba(20,40,80,0.18) 1px,transparent 1px);
+  background-size:40px 40px;padding:0 0 60px;
 }
-body.plain *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-.topbar{
-  position:sticky;top:0;z-index:50;
-  background:rgba(8,11,18,0.7);backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(115,184,255,0.12);
-  padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
-}
-.logo{font-weight:700;font-size:16px;color:#f0f5ff}
-.logo small{color:#73b8ff;font-weight:400;margin-left:6px;font-size:12px}
-.top-actions{display:flex;gap:8px;align-items:center}
-.top-btn{
-  background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);
-  color:#d4e4fb;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;
-}
-.container{max-width:480px;margin:0 auto;padding:18px}
-.welcome{
-  background:rgba(255,255,255,0.07);
-  backdrop-filter:blur(20px);
-  border:1px solid rgba(115,184,255,0.2);
-  border-radius:16px;padding:20px;margin-bottom:16px;
-}
-.welcome h2{font-size:18px;margin-bottom:4px}
-.welcome p{font-size:12px;color:#94a8c7}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-.entry{
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(115,184,255,0.15);
-  border-radius:14px;padding:18px 14px;text-align:center;cursor:pointer;
-  transition:all .2s;
-}
-.entry:active{transform:scale(0.97);background:rgba(115,184,255,0.12)}
-.entry-icon{font-size:24px;margin-bottom:8px}
-.entry-name{font-size:13px;font-weight:600}
-.card{
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(115,184,255,0.15);
-  border-radius:14px;padding:16px;margin-bottom:12px;
-}
-.card-title{font-size:14px;font-weight:600;margin-bottom:10px;color:#f0f5ff;display:flex;justify-content:space-between;align-items:center}
-.tag{font-size:10px;padding:2px 8px;border-radius:5px}
-.tag-green{background:rgba(52,211,153,0.18);color:#34d399}
-.tag-yellow{background:rgba(251,191,36,0.18);color:#fbbf24}
-.list-item{padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px}
-.list-item:last-child{border:none}
-.list-item .meta{font-size:11px;color:#607494;margin-top:3px}
-.section-title{font-size:13px;color:#94a8c7;margin:18px 0 10px;font-weight:500}
-.btn-full{
-  width:100%;padding:12px;border:none;border-radius:10px;
-  background:linear-gradient(135deg,#73b8ff,#5b8def);
-  color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;
-}
-.toast{
-  position:fixed;left:50%;bottom:80px;transform:translateX(-50%) translateY(20px);
-  background:rgba(20,28,45,0.95);border:1px solid rgba(115,184,255,0.3);
-  padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;
-  transition:all .3s;z-index:999;
-}
+/* 登录页 */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:0.55;pointer-events:none;z-index:0}
+.blob-1{width:320px;height:320px;background:#4a9eff;top:-80px;left:-60px;animation:f1 12s ease-in-out infinite}
+.blob-2{width:280px;height:280px;background:#a78bfa;bottom:-60px;right:-40px;animation:f2 14s ease-in-out infinite}
+.blob-3{width:200px;height:200px;background:#34d399;top:40%;left:30%;opacity:0.35;animation:f3 16s ease-in-out infinite}
+@keyframes f1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,30px) scale(1.15)}}
+@keyframes f2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,-40px) scale(1.1)}}
+@keyframes f3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,20px) scale(0.9)}}
+.login-box{position:relative;z-index:1;width:100%;max-width:380px;background:rgba(255,255,255,0.08);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border:1px solid rgba(255,255,255,0.18);border-radius:24px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.25)}
+.login-logo{text-align:center;margin-bottom:26px}
+.login-logo .mark{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;margin-bottom:14px;box-shadow:0 6px 20px rgba(115,184,255,0.4),inset 0 1px 0 rgba(255,255,255,0.4)}
+.login-logo h1{font-size:21px;color:#f0f5ff;font-weight:600}
+.login-logo p{font-size:12.5px;color:rgba(255,255,255,0.55);margin-top:6px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:7px}
+.field input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#fff;font-size:15px;outline:none;transition:all .25s;backdrop-filter:blur(10px)}
+.field input:focus{border-color:rgba(115,184,255,0.6);background:rgba(255,255,255,0.12);box-shadow:0 0 0 3px rgba(115,184,255,0.15)}
+.field input::placeholder{color:rgba(255,255,255,0.3)}
+.btn-login{width:100%;padding:14px;margin-top:10px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(91,141,239,0.35),inset 0 1px 0 rgba(255,255,255,0.3)}
+.login-err{color:#f87171;font-size:12px;text-align:center;min-height:18px;margin-top:10px}
+/* 顶部栏 */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(8,11,18,0.75);backdrop-filter:blur(16px);border-bottom:1px solid rgba(115,184,255,0.15);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.topbar .logo{font-size:17px;font-weight:600;color:#73b8ff}
+.topbar .logo small{font-size:11px;color:#607494;font-weight:400;margin-left:6px}
+.user-chip{display:flex;align-items:center;gap:8px;background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.2);padding:5px 12px 5px 5px;border-radius:99px}
+.user-chip .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#080b12}
+.user-chip .uname{font-size:13px;color:#d4e4fb}
+.btn-logout{background:transparent;border:1px solid rgba(248,113,113,0.35);color:#f87171;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer}
+.container{max-width:720px;margin:0 auto;padding:18px}
+.card{background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);border:1px solid rgba(115,184,255,0.18);border-radius:14px;padding:18px;margin-bottom:12px}
+/* 个人资料 */
+.profile{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+.profile .avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#080b12;flex-shrink:0}
+.profile .name{font-size:18px;font-weight:600;color:#f0f5ff}
+.profile .bio{font-size:13px;color:#94a8c7;margin-top:3px}
+.profile .uid{font-size:11px;color:#607494;margin-top:2px}
+/* 功能入口 */
+.menu-item{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:background .2s}
+.menu-item:last-child{border-bottom:none}
+.menu-item:active{background:rgba(115,184,255,0.06)}
+.menu-item .left{display:flex;align-items:center;gap:12px}
+.menu-item .icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.menu-item .title{font-size:15px;color:#f0f5ff;font-weight:500}
+.menu-item .desc{font-size:12px;color:#607494;margin-top:2px}
+.menu-item .arrow{color:#607494;font-size:14px}
+.menu-item .tag{font-size:10px;padding:2px 8px;border-radius:5px;margin-left:8px}
+/* toast */
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);background:rgba(20,28,45,0.95);border:1px solid rgba(115,184,255,0.3);color:#e8edf7;padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:all .3s;z-index:999;max-width:80%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-/* 设置弹窗 */
-#settingsMask{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;backdrop-filter:blur(4px)}
-.sheet{
-  position:absolute;bottom:0;left:0;right:0;
-  background:rgba(15,20,30,0.95);backdrop-filter:blur(28px);
-  border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;
-  padding:20px 18px calc(20px + env(safe-area-inset-bottom));
-}
-.sheet h3{text-align:center;font-size:15px;font-weight:600;margin-bottom:16px}
-.sheet-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;color:#d4e4fb;
-}
-.sheet-row span:last-child{font-size:12px;color:#73b8ff}
-.sheet button{
-  width:100%;padding:13px;margin-top:12px;border-radius:12px;font-size:15px;cursor:pointer;
-  border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:#94a8c7;
-}
+#app{display:none}
+#app.logged-in{display:block}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="logo">栈序云<small>用户版</small></div>
-  <div class="top-actions">
-    <button class="top-btn" onclick="openSettings()">⚙</button>
+<!-- 登录页 -->
+<div class="login-page" id="loginPage">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="mark">栈</div>
+      <h1>栈序云 · 用户版</h1>
+      <p>请使用用户账号登录</p>
+    </div>
+    <div class="field">
+      <label>账号</label>
+      <input type="text" id="inpUser" placeholder="请输入用户账号" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>密码</label>
+      <input type="password" id="inpPwd" placeholder="请输入密码">
+    </div>
+    <div class="login-err" id="loginErr"></div>
+    <button class="btn-login" onclick="doLogin()">登 录</button>
   </div>
 </div>
 
-<div class="container">
-
-  <div class="welcome">
-    <h2>你好，栈序用户 👋</h2>
-    <p>v1.0.1 · 今天是 <span id="dateStr"></span></p>
-  </div>
-
-  <div class="grid">
-    <div class="entry" onclick="toast('服务器压力过大，请稍后重试')">
-      <div class="entry-icon">🎁</div>
-      <div class="entry-name">有奖建议信</div>
-    </div>
-    <div class="entry" onclick="toast('服务器压力过大，请稍后重试')">
-      <div class="entry-icon">❓</div>
-      <div class="entry-name">我问你答</div>
-    </div>
-    <div class="entry" onclick="toast('工单提交入口开发中')">
-      <div class="entry-icon">📮</div>
-      <div class="entry-name">提交工单</div>
-    </div>
-    <div class="entry" onclick="location.href='checkin.html'">
-      <div class="entry-icon">✅</div>
-      <div class="entry-name">每日签到</div>
+<!-- 用户主页 -->
+<div id="app">
+  <div class="topbar">
+    <div class="logo">栈序云<small>用户版</small></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="user-chip">
+        <div class="avatar" id="avatarText">哈</div>
+        <div class="uname" id="unameText">哈哈</div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">退出</button>
     </div>
   </div>
 
-  <div class="section-title">最新公告</div>
-  <div class="card">
-    <div class="list-item">
-      栈序OS 1.0 beta 6 灰度推送
-      <div class="meta">2026-10-31 · 技术部</div>
+  <div class="container">
+    <!-- 个人资料 -->
+    <div class="card">
+      <div class="profile">
+        <div class="avatar" id="bigAvatar">哈</div>
+        <div>
+          <div class="name" id="bigName">哈哈</div>
+          <div class="bio" id="bigBio">我很懒哦</div>
+          <div class="uid" id="bigUid">UID: 100200000</div>
+        </div>
+      </div>
     </div>
-    <div class="list-item">
-      有奖建议信活动上线
-      <div class="meta">2026-10-28 · 运营部</div>
+
+    <!-- 功能菜单 -->
+    <div class="card" style="padding:0">
+      <div class="menu-item" onclick="toast('功能建设中')">
+        <div class="left">
+          <div class="icon" style="background:rgba(115,184,255,0.15);color:#73b8ff">📱</div>
+          <div>
+            <div class="title">我的应用</div>
+            <div class="desc">已安装的栈序应用</div>
+          </div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="toast('功能建设中')">
+        <div class="left">
+          <div class="icon" style="background:rgba(52,211,153,0.15);color:#34d399">⌚</div>
+          <div>
+            <div class="title">我的表盘</div>
+            <div class="desc">已下载的表盘资源</div>
+          </div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="tryDevCenter()">
+        <div class="left">
+          <div class="icon" style="background:rgba(251,191,36,0.15);color:#fbbf24">⚙️</div>
+          <div>
+            <div class="title">开发者中心<span class="tag" style="background:rgba(251,191,36,0.2);color:#fbbf24">未授权</span></div>
+            <div class="desc">上传应用、表盘、管理固件</div>
+          </div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="toast('功能建设中')">
+        <div class="left">
+          <div class="icon" style="background:rgba(167,139,250,0.15);color:#c4b5fd">📋</div>
+          <div>
+            <div class="title">我的工单</div>
+            <div class="desc">提交的反馈与处理进度</div>
+          </div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
     </div>
-    <div class="list-item">
-      栈序工坊社区规则更新
-      <div class="meta">2026-10-20 · 栈序团队</div>
-    </div>
-  </div>
-
-  <div class="section-title">活动中心</div>
-  <div class="card">
-    <div class="card-title">有奖建议信 <span class="tag tag-yellow">报名中</span></div>
-    <div style="font-size:12px;color:#94a8c7;line-height:1.7">向栈序团队提交产品建议，被采纳最高赢取666元。</div>
-    <button class="btn-full" onclick="location.href='https://v.wjx.cn/vm/P4N9I4h.aspx'">立即报名</button>
-  </div>
-  <div class="card">
-    <div class="card-title">「我问你答」栈序知识问答 <span class="tag tag-green">报名中</span></div>
-    <div style="font-size:12px;color:#94a8c7;line-height:1.7">关于栈序OS、栈序工坊的知识问答，答对最高赢取666元。</div>
-    <button class="btn-full" onclick="toast('服务器压力过大，请稍后重试')">立即报名</button>
-  </div>
-
-  <div class="section-title">开发软件</div>
-  <div class="card">
-    <div style="font-size:13px;color:#d4e4fb;line-height:2">
-      📱 <b>栈序OS</b>：AOSP深度定制手机系统<br>
-      🏪 <b>栈序工坊</b>：穿戴应用开发者平台<br>
-      ☁️ <b>栈序云</b>：团队协作与管理后台<br>
-      QQ 群：<b style="color:#73b8ff">586352356</b>
-    </div>
-  </div>
-
-</div>
-
-<!-- 设置 -->
-<div id="settingsMask" onclick="if(event.target===this)closeSettings()">
-  <div class="sheet">
-    <h3>设置</h3>
-    <div class="sheet-row" onclick="toggleTheme()"><span>界面风格</span><span id="themeLabel">液态玻璃</span></div>
-    <div class="sheet-row" onclick="showTeam()"><span>栈序团队</span><span>查看 ›</span></div>
-    <div class="sheet-row"><span>版本号</span><span>v1.0.1</span></div>
-    <button onclick="closeSettings()">关闭</button>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span id="toastText"></span></div>
 
 <script>
-const now = new Date();
-document.getElementById('dateStr').textContent = now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日';
+const USERS = {
+  "100200000": { pwd: "hb123456", name: "哈哈", bio: "我很懒哦", dev: false }
+};
+
+function checkAuth(){
+  const u = sessionStorage.getItem('zx_user_v');
+  if(u && USERS[u]){ showApp(u); } else { showLogin(); }
+}
+function showLogin(){
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('app').classList.remove('logged-in');
+}
+function showApp(u){
+  const a = USERS[u];
+  document.getElementById('avatarText').textContent = a.name.charAt(0);
+  document.getElementById('bigAvatar').textContent = a.name.charAt(0);
+  document.getElementById('unameText').textContent = a.name;
+  document.getElementById('bigName').textContent = a.name;
+  document.getElementById('bigBio').textContent = a.bio;
+  document.getElementById('bigUid').textContent = 'UID: '+u;
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('app').classList.add('logged-in');
+}
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function doLogin(){
+  const u = document.getElementById('inpUser').value.trim();
+  const p = document.getElementById('inpPwd').value;
+  const err = document.getElementById('loginErr');
+  if(!u || !p){ err.textContent='请输入账号和密码'; return; }
+  const a = USERS[u];
+  if(!a || a.pwd !== p){ err.textContent='账号或密码错误'; return; }
+  sessionStorage.setItem('zx_user_v', u);
+  showApp(u);
+}
+function doLogout(){
+  sessionStorage.removeItem('zx_user_v');
+  document.getElementById('inpPwd').value='';
+  showLogin();
+}
+function tryDevCenter(){
+  toast('开发者中心需超管授权，暂未开放');
+}
 function toast(t){
-  const el=document.getElementById('toast');
-  el.textContent=t;el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'),2000);
+  const el = document.getElementById('toast');
+  document.getElementById('toastText').textContent = t;
+  el.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt = setTimeout(()=>el.classList.remove('show'),2200);
 }
-function openSettings(){document.getElementById('settingsMask').style.display='block'}
-function closeSettings(){document.getElementById('settingsMask').style.display='none'}
-let liquid=true;
-function toggleTheme(){
-  liquid=!liquid;
-  document.body.classList.toggle('plain',!liquid);
-  document.getElementById('themeLabel').textContent=liquid?'液态玻璃':'普通界面';
-}
-function showTeam(){
-  alert('栈序团队\n\n超级管理员：张岳、徐文桐\n管理员：陆宇、周天浩、迪、蔡子润、闻浩楠、秦之俊、徐子俊');
-}
+checkAuth();
 </script>
 </body>
 </html>
