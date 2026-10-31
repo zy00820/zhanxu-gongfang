@@ -288,6 +288,10 @@ body.plain .ann-card.open{
       <div style="text-align:center;margin-top:12px">
         <a onclick="showRecover()" style="color:rgba(115,184,255,0.7);font-size:12px;cursor:pointer;text-decoration:underline">忘记密码？使用安全密钥解锁</a>
       </div>
+      <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.1 更新</div>
+        <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 新增员工服务、公单处理、活动中心<br>· 安全密钥解锁登录<br>· 新增每日签到</div>
+      </div>
     </div>
 
     <!-- 安全密钥解锁表单 -->
@@ -327,6 +331,7 @@ body.plain .ann-card.open{
       </div>
       <button onclick="toastMsg('暂无通知')" style="background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.25);color:#73b8ff;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer">🔔</button>
       <button onclick="doCheckin()" id="btnCheckin" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer">签到</button>
+      <button class="btn-logout" onclick="location.href='checkin.html'" style="font-size:13px;padding:6px 12px">签到</button>
       <button class="btn-logout" onclick="openSettings()" style="font-size:16px;padding:6px 10px">⚙</button>
     </div>
   </div>
