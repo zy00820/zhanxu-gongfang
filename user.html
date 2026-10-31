@@ -152,6 +152,47 @@ body{
       </div>
     </div>
 
+    <!-- 公告 -->
+    <div class="card">
+      <div class="liquid" style="width:100px;height:100px;background:#fbbf24;top:-20px;left:-20px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:15px;font-weight:600;color:#f0f5ff">公告</div>
+      </div>
+      <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <div style="font-size:13px;color:#d4e4fb;margin-bottom:3px">栈序OS 1.2 灰度推送中</div>
+        <div style="font-size:11px;color:#607494">2026-10-30 · 栈序团队</div>
+      </div>
+      <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <div style="font-size:13px;color:#d4e4fb;margin-bottom:3px">有奖建议信活动开启，最高赢666元</div>
+        <div style="font-size:11px;color:#607494">2026-10-28 · 栈序团队</div>
+      </div>
+      <div style="padding:8px 0">
+        <div style="font-size:13px;color:#d4e4fb;margin-bottom:3px">栈序云用户版上线</div>
+        <div style="font-size:11px;color:#607494">2026-10-25 · 栈序团队</div>
+      </div>
+    </div>
+
+    <!-- 提交工单 -->
+    <div class="card">
+      <div class="liquid" style="width:100px;height:100px;background:#f87171;bottom:-20px;right:-20px"></div>
+      <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:10px">提交工单</div>
+      <input type="text" id="ticketTitle" placeholder="工单标题" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:13px;outline:none;margin-bottom:8px">
+      <textarea id="ticketDesc" placeholder="描述遇到的问题..." rows="3" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:13px;outline:none;margin-bottom:10px;resize:none;font-family:inherit"></textarea>
+      <button onclick="submitTicket()" style="width:100%;padding:11px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.35);color:#f87171;border-radius:10px;font-size:13px;cursor:pointer">提交工单</button>
+    </div>
+
+    <!-- 开发者中心 -->
+    <div class="card" onclick="openDevCenter()" style="cursor:pointer">
+      <div class="liquid" style="width:120px;height:120px;background:#34d399;top:-30px;right:-20px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">开发者中心</div>
+          <div style="font-size:12px;color:#607494">API 文档 / 表盘 SDK / 发布应用</div>
+        </div>
+        <span style="font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(52,211,153,0.15);color:#34d399">需超管授权</span>
+      </div>
+    </div>
+
     <!-- 团队成员 -->
     <div class="card">
       <div class="liquid" style="width:100px;height:100px;background:#34d399;bottom:-30px;left:-20px"></div>
@@ -246,6 +287,22 @@ function doSign(){
   toast('签到成功 +1 天');
 }
 function signup(){toast('服务器压力过大，请稍后重试')}
+function submitTicket(){
+  const t=document.getElementById('ticketTitle').value.trim();
+  const d=document.getElementById('ticketDesc').value.trim();
+  if(!t||!d){toast('请填写标题和描述');return}
+  document.getElementById('ticketTitle').value='';
+  document.getElementById('ticketDesc').value='';
+  toast('工单已提交，等待管理员处理');
+}
+function openDevCenter(){
+  const acc = ACCOUNTS[sessionStorage.getItem('zx_user')];
+  if(acc && acc.level==='超级管理员'){
+    toast('开发者中心（演示）');
+  } else {
+    toast('开发者中心需超管授权');
+  }
+}
 function openProfile(){
   document.getElementById('editName').value=myName;
   document.getElementById('editBio').value=myBio;
