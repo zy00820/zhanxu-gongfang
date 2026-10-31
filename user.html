@@ -116,6 +116,7 @@ body{
       <div>
         <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">每日签到</div>
         <div style="font-size:12px;color:#607494">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">3</span> 天</div>
+        <div style="font-size:12px;color:#607494;margin-top:4px">账户余额 <span style="color:#34d399;font-weight:600">¥<span id="myBalance">0.00</span></span></div>
       </div>
       <button class="btn-sign" id="btnSign" onclick="doSign()">签到</button>
     </div>
@@ -161,6 +162,8 @@ body{
     <div class="avatar-grid" id="avatarGrid"></div>
     <div style="font-size:12px;color:#607494;margin-bottom:8px">昵称</div>
     <input type="text" id="editName" placeholder="输入昵称">
+    <div style="font-size:12px;color:#607494;margin-bottom:8px">个人简介</div>
+    <input type="text" id="editBio" placeholder="写一句话介绍自己">
     <button class="btn btn-primary" onclick="saveProfile()">保存</button>
     <button class="btn btn-ghost" onclick="closeProfile()">取消</button>
     <button class="btn btn-ghost" onclick="doLogout()" style="color:#f87171;border-color:rgba(248,113,113,0.3)">退出登录</button>
@@ -187,6 +190,7 @@ const ACCOUNTS = {
 };
 let myAvatarIdx = 0;
 let myName = '';
+let myBio = '';
 
 async function sha256(s){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
@@ -236,6 +240,7 @@ function doSign(){
 function signup(){toast('服务器压力过大，请稍后重试')}
 function openProfile(){
   document.getElementById('editName').value=myName;
+  document.getElementById('editBio').value=myBio;
   const grid=document.getElementById('avatarGrid');
   grid.innerHTML=AVATAR_COLORS.map((c,i)=>
     `<div class="avatar-opt ${i===myAvatarIdx?'sel':''}" style="background:linear-gradient(135deg,${c[0]},${c[1]})" onclick="selAvatar(${i})">${myName.charAt(0)}</div>`
@@ -245,7 +250,9 @@ function openProfile(){
 function selAvatar(i){myAvatarIdx=i;document.querySelectorAll('.avatar-opt').forEach((el,j)=>el.classList.toggle('sel',j===i))}
 function saveProfile(){
   const n=document.getElementById('editName').value.trim();
+  const b=document.getElementById('editBio').value.trim();
   if(n) myName=n;
+  myBio=b;
   document.getElementById('myName').textContent=myName;
   document.getElementById('myAvatar').textContent=myName.charAt(0);
   document.getElementById('myAvatar').style.background=`linear-gradient(135deg,${AVATAR_COLORS[myAvatarIdx][0]},${AVATAR_COLORS[myAvatarIdx][1]})`;
