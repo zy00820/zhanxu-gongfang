@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>栈序云 · 开发者中心</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
+body{min-height:100vh;background:#080b12;background-image:linear-gradient(rgba(20,40,80,0.18) 1px,transparent 1px),linear-gradient(90deg,rgba(20,40,80,0.18) 1px,transparent 1px);background-size:40px 40px;color:#e8edf7}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(8,11,18,0.75);backdrop-filter:blur(16px);border-bottom:1px solid rgba(115,184,255,0.15);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+.topbar .logo{font-size:17px;font-weight:600;color:#34d399}
+.topbar .logo small{font-size:11px;color:#607494;font-weight:400;margin-left:6px}
+.topbar a{color:#73b8ff;font-size:13px;text-decoration:none}
+.container{max-width:820px;margin:0 auto;padding:20px 16px 60px}
+.hero{text-align:center;padding:40px 0 30px}
+.hero h1{font-size:28px;font-weight:700;background:linear-gradient(135deg,#34d399,#73b8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:transparent}
+.hero p{color:#94a8c7;font-size:14px;margin-top:10px}
+.card{background:rgba(255,255,255,0.06);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,0.14);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.15);position:relative;overflow:hidden}
+.card h2{font-size:16px;color:#f0f5ff;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h2 .dot{width:8px;height:8px;border-radius:50%;background:#34d399}
+.api-item{padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.api-item:last-child{border-bottom:none}
+.api-method{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;margin-right:8px}
+.get{background:rgba(52,211,153,0.18);color:#34d399}
+.post{background:rgba(115,184,255,0.18);color:#73b8ff}
+.api-path{font-family:ui-monospace,monospace;font-size:13px;color:#f0f5ff}
+.api-desc{font-size:12px;color:#94a8c7;margin-top:4px;line-height:1.6}
+pre{background:rgba(0,0,0,0.4);border:1px solid rgba(115,184,255,0.15);border-radius:10px;padding:14px;overflow-x:auto;font-size:12px;line-height:1.7;color:#a0b4d2;font-family:ui-monospace,monospace;margin-top:10px}
+pre .k{color:#73b8ff}
+pre .s{color:#34d399}
+pre .c{color:#607494}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
+.feature{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px}
+.feature .icon{font-size:22px;margin-bottom:8px}
+.feature .t{font-size:13px;color:#f0f5ff;font-weight:600}
+.feature .d{font-size:11px;color:#607494;margin-top:4px;line-height:1.5}
+.version{display:inline-block;font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(167,139,250,0.18);color:#a78bfa;margin-left:8px}
+.btn{display:inline-block;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;border:none}
+.btn-green{background:linear-gradient(135deg,#34d399,#10b981);color:#080b12}
+.btn-ghost{background:rgba(255,255,255,0.06);color:#94a8c7;border:1px solid rgba(255,255,255,0.1)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">栈序云<small>开发者中心</small></div>
+  <a href="admin.html">返回管理后台</a>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>栈序开发者中心</h1>
+    <p>为栈序OS、栈序工坊提供 API 与 SDK 支持</p>
+  </div>
+
+  <!-- 概览 -->
+  <div class="card">
+    <h2><span class="dot"></span>能力总览<span class="version">v1.0.1</span></h2>
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="icon">📡</div>
+        <div class="t">云服务 API</div>
+        <div class="d">用户、签到、活动、工单接口</div>
+      </div>
+      <div class="feature">
+        <div class="icon">⌚</div>
+        <div class="t">表盘 SDK</div>
+        <div class="d">AOSP 表盘开发与预览工具</div>
+      </div>
+      <div class="feature">
+        <div class="icon">📦</div>
+        <div class="t">应用发布</div>
+        <div class="d">APK 提交审核与上架工坊</div>
+      </div>
+      <div class="feature">
+        <div class="icon">🔧</div>
+        <div class="t">OTA 升级</div>
+        <div class="d">系统差分包灰度推送</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API 文档 -->
+  <div class="card">
+    <h2><span class="dot"></span>云服务 API</h2>
+    <div class="api-item">
+      <span class="api-method get">GET</span><span class="api-path">/api/v1/user/{uid}</span>
+      <div class="api-desc">获取用户信息（昵称、等级、余额、连续签到天数）</div>
+    </div>
+    <div class="api-item">
+      <span class="api-method post">POST</span><span class="api-path">/api/v1/signin</span>
+      <div class="api-desc">每日签到，返回连续天数与奖励积分</div>
+    </div>
+    <div class="api-item">
+      <span class="api-method post">POST</span><span class="api-path">/api/v1/ticket</span>
+      <div class="api-desc">提交工单，参数 title / description</div>
+    </div>
+    <div class="api-item">
+      <span class="api-method get">GET</span><span class="api-path">/api/v1/activities</span>
+      <div class="api-desc">获取活动列表（含报名链接）</div>
+    </div>
+<pre><span class="c">// 示例：签到</span>
+<span class="k">fetch</span>(<span class="s">'https://api.zhanxu.cloud/v1/signin'</span>, {
+  method: <span class="s">'POST'</span>,
+  headers: { <span class="s">'Authorization'</span>: <span class="s">'Bearer &lt;token&gt;'</span> },
+  body: JSON.stringify({ device: <span class="s">'watch'</span> })
+}).then(r =&gt; r.json())</pre>
+  </div>
+
+  <!-- 表盘 SDK -->
+  <div class="card">
+    <h2><span class="dot"></span>表盘 SDK</h2>
+    <p style="font-size:13px;color:#a0b4d2;line-height:1.7;margin-bottom:10px">
+      基于 AOSP WatchFace 引擎，支持 466×466 圆形/方形表盘，提供 AOD 低功耗模式、心率/步数/天气数据接入。
+    </p>
+    <pre><span class="c">// 表盘示例</span>
+<span class="k">WatchFace</span>.create({
+  size: <span class="s">466</span>,
+  aod: <span class="k">true</span>,
+  layers: [
+    { type: <span class="s">'background'</span>, color: <span class="s">'#080b12'</span> },
+    { type: <span class="s">'time'</span>, font: <span class="s">'72px bold'</span>, color: <span class="s">'#73b8ff'</span> },
+    { type: <span class="s">'heart_rate'</span>, pos: [<span class="s">233</span>, <span class="s">380</span>] }
+  ]
+})</pre>
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+      <a class="btn btn-green" href="#">下载 SDK v1.2</a>
+      <a class="btn btn-ghost" href="#">表盘模板</a>
+    </div>
+  </div>
+
+  <!-- 应用发布 -->
+  <div class="card">
+    <h2><span class="dot"></span>应用发布</h2>
+    <p style="font-size:13px;color:#a0b4d2;line-height:1.7">
+      提交 APK 到栈序工坊，审核通过后上架。要求：兼容栈序OS 1.0+，包名 <code style="color:#73b8ff">cn.zhanxu.*</code>，签名使用栈序平台证书。
+    </p>
+    <div style="margin-top:14px">
+      <a class="btn btn-green" href="#">提交应用</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
