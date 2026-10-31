@@ -320,11 +320,13 @@ body.plain .ann-card.open{
   <div class="topbar">
     <div class="logo">栈序云<small>管理员版</small></div>
     <div class="user-area">
-      <div class="user-chip">
+      <div class="user-chip" onclick="openProfile()" style="cursor:pointer">
         <div class="avatar" id="avatarText">张</div>
         <div class="uname" id="unameText">张岳</div>
         <div class="ulevel" id="ulevelText">超级管理员</div>
       </div>
+      <button onclick="toastMsg('暂无通知')" style="background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.25);color:#73b8ff;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer">🔔</button>
+      <button onclick="doCheckin()" id="btnCheckin" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer">签到</button>
       <button class="btn-logout" onclick="openSettings()" style="font-size:16px;padding:6px 10px">⚙</button>
     </div>
   </div>
@@ -351,10 +353,60 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.0</span>
+        <span style="font-size:12px;color:#607494">v1.0.1</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
+    </div>
+  </div>
+
+  <!-- 个人信息弹窗 -->
+  <div id="profileMask" onclick="if(event.target===this)closeProfile()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;margin-bottom:18px">
+        <div id="pfAvatar" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#080b12;margin-bottom:10px">张</div>
+        <div style="font-size:18px;font-weight:600;color:#f0f5ff" id="pfName">张岳</div>
+        <div style="font-size:12px;margin-top:4px"><span id="pfLevel" style="color:#fbbf24">超级管理员</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;color:#fbbf24;font-weight:600" id="pfCoin">0</div>
+          <div style="font-size:11px;color:#607494;margin-top:2">金币</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;color:#73b8ff;font-weight:600" id="pfExp">0</div>
+          <div style="font-size:11px;color:#607494;margin-top:2">经验</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;color:#34d399;font-weight:600" id="pfRank">Lv.0</div>
+          <div style="font-size:11px;color:#607494;margin-top:2">等级</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#94a8c7;line-height:2">
+        <div>账号：<span id="pfUid"></span></div>
+        <div>安全密钥：<span id="pfKey" style="color:#fbbf24"></span></div>
+      </div>
+      <button onclick="closeProfile()" style="width:100%;margin-top:18px;padding:13px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:12px;font-size:15px;cursor:pointer">关闭</button>
+    </div>
+  </div>
+
+  <!-- 编辑员工弹窗 -->
+  <div id="editStaffMask" onclick="if(event.target===this)closeEditStaff()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:16px">编辑员工</div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">昵称</label>
+        <input id="editName" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none">
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">职位</label>
+        <select id="editLevel" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none">
+          <option value="管理员" style="background:#1a2030">管理员</option>
+          <option value="超级管理员" style="background:#1a2030">超级管理员</option>
+        </select>
+      </div>
+      <button onclick="saveEditStaff()" style="width:100%;margin-top:10px;padding:13px;background:linear-gradient(135deg,#73b8ff,#5b8def);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
+      <button onclick="closeEditStaff()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
     </div>
   </div>
 
@@ -377,9 +429,7 @@ body.plain .ann-card.open{
             <div style="font-size:14px;font-weight:600;color:#f0f5ff">有奖建议信</div>
             <span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(52,211,153,0.18);color:#34d399">报名中</span>
           </div>
-          <div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:10px">
-            向栈序团队提交产品建议，被采纳最高赢取666元。截止 2026-11-15。
-          </div>
+          <div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:10px">向栈序团队提交产品建议，被采纳最高赢取666元。截止 2026-11-15。</div>
           <button onclick="activitySignup()" style="width:100%;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer">立即报名</button>
         </div>
         <div class="card" style="margin-bottom:10px">
@@ -387,27 +437,17 @@ body.plain .ann-card.open{
             <div style="font-size:14px;font-weight:600;color:#f0f5ff">「我问你答」栈序知识问答</div>
             <span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(52,211,153,0.18);color:#34d399">报名中</span>
           </div>
-          <div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:10px">
-            关于栈序OS、栈序工坊的知识问答比赛，答对最高赢取666元。
-          </div>
+          <div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:10px">关于栈序OS、栈序工坊的知识问答比赛，答对最高赢取666元。</div>
           <button onclick="activitySignup()" style="width:100%;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer">立即报名</button>
         </div>
       </div>
-    </div>
-
-    <!-- 更新日志 -->
-    <div class="card" style="margin-bottom:18px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-size:15px;font-weight:600;color:#f0f5ff">更新日志</div>
-        <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.1</span>
-      </div>
-      <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
     </div>
 
     <div class="tabs">
       <div class="tab active" data-view="staffSvc">员工服务</div>
       <div class="tab" data-view="post">社区发帖</div>
       <div class="tab" data-view="ticket">公单处理</div>
+      <div class="tab" data-view="changelog">更新日志</div>
     </div>
 
     <!-- 员工服务二级tab -->
@@ -548,6 +588,17 @@ body.plain .ann-card.open{
       </div>
       <div id="ticketList"></div>
     </div>
+
+    <!-- 更新日志 -->
+    <div class="view" id="view-changelog">
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.1</span>
+        </div>
+        <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
+      </div>
+    </div>
   </div>
 
   <button class="fab" onclick="showMaint()">+</button>
@@ -607,6 +658,9 @@ function showApp(u){
   if(!window._ticketInit){ initTickets(); window._ticketInit = true; }
   renderTickets();
   renderChangelog();
+  // 签到按钮状态
+  const s = getUserStats(currentUid);
+  document.getElementById('btnCheckin').textContent = s.checkedIn ? '已签到' : '签到';
 }
 function renderStaff(currentAcc){
   const isSuper = currentAcc.level === '超级管理员';
@@ -620,7 +674,7 @@ function renderStaff(currentAcc){
       const lvColor = s.level === '超级管理员' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(115,184,255,0.18);color:#73b8ff';
       const banned = s.banned;
       return `<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;${banned?'opacity:0.5;background:rgba(248,113,113,0.06)':''}">
-        <div class="post-avatar" style="${banned?'filter:grayscale(1)':''}">${s.name.charAt(0)}</div>
+        <div class="post-avatar" style="${banned?'filter:grayscale(1)':''};cursor:pointer" onclick="openProfileFor('${s.uid}')">${s.name.charAt(0)}</div>
         <div style="flex:1">
           <div style="font-size:14px;color:#d4e4fb;font-weight:500">${s.name}
             <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:${lvColor};margin-left:4px">${s.level}</span>
@@ -654,13 +708,24 @@ function addStaff(){
   window._staffRender();
   toastMsg('员工已添加');
 }
+let _editIdx = -1;
 function editStaff(idx){
+  _editIdx = idx;
   const s = staffData[idx];
-  const name = prompt('修改昵称：', s.name);
-  if(name !== null) s.name = name.trim();
-  const level = prompt('修改职位（超级管理员 / 管理员）：', s.level);
-  if(level) s.level = level.trim();
+  document.getElementById('editName').value = s.name;
+  document.getElementById('editLevel').value = s.level;
+  document.getElementById('editStaffMask').style.display = 'block';
+}
+function closeEditStaff(){
+  document.getElementById('editStaffMask').style.display = 'none';
+}
+function saveEditStaff(){
+  if(_editIdx < 0) return;
+  const s = staffData[_editIdx];
+  s.name = document.getElementById('editName').value.trim() || s.name;
+  s.level = document.getElementById('editLevel').value;
   window._staffRender();
+  closeEditStaff();
   toastMsg('已保存修改');
 }
 function toggleBan(idx){
@@ -881,15 +946,15 @@ function resolveTicket(i){
 function renderChangelog(){
   const logs = [
     { ver: 'v1.0.1', date: '2026-10-31', items: [
-      '栈序云网页版：新增员工服务、公单处理、活动中心',
-      '栈序云网页版：登录页液态玻璃风格、安全密钥找回密码',
-      '栈序工坊：底部新增 QQ 交流群入口',
-      '栈序OS：1.2 灰度推送，修复蓝牙断开问题'
+      '新增员工服务、公单处理、活动中心、更新日志模块',
+      '登录页液态玻璃风格，安全密钥解锁改为内联界面',
+      '新增签到系统、金币经验等级、个人信息面板',
+      '员工管理编辑改为弹窗界面，支持查看个人信息',
+      '右上角新增通知铃铛与签到入口'
     ]},
     { ver: 'v1.0.0', date: '2026-10-25', items: [
-      '栈序工坊官网正式上线',
-      '栈序OS 1.0 首个公测版本发布',
-      '栈序云管理员后台初版上线'
+      '栈序云管理员后台初版上线',
+      '账号密码登录、员工公告、社区发帖基础功能'
     ]}
   ];
   document.getElementById('changelogList').innerHTML = logs.map(l=>`
@@ -901,6 +966,45 @@ function renderChangelog(){
       ${l.items.map(it=>`<div style="padding-left:12px;border-left:2px solid rgba(115,184,255,0.2);margin-bottom:4px">· ${it}</div>`).join('')}
     </div>
   `).join('');
+}
+
+// ===== 签到 & 个人信息 =====
+function getUserStats(uid){
+  const k = 'zx_stats_' + uid;
+  let s = JSON.parse(sessionStorage.getItem(k) || 'null');
+  if(!s){ s = { coin: 0, exp: 0, checkedIn: false }; sessionStorage.setItem(k, JSON.stringify(s)); }
+  return s;
+}
+function saveUserStats(uid, s){
+  sessionStorage.setItem('zx_stats_' + uid, JSON.stringify(s));
+}
+function doCheckin(){
+  if(!currentUid) return;
+  const s = getUserStats(currentUid);
+  if(s.checkedIn){ toastMsg('今日已签到'); return; }
+  s.coin += 10; s.exp += 10; s.checkedIn = true;
+  saveUserStats(currentUid, s);
+  document.getElementById('btnCheckin').textContent = '已签到';
+  toastMsg('签到成功 +10金币 +10经验');
+}
+function openProfile(){ openProfileFor(currentUid); }
+function openProfileFor(uid){
+  const acc = ACCOUNTS[uid];
+  if(!acc) return;
+  const s = getUserStats(uid);
+  const rank = Math.floor(s.exp / 100);
+  document.getElementById('pfAvatar').textContent = acc.name.charAt(0);
+  document.getElementById('pfName').textContent = acc.name;
+  document.getElementById('pfLevel').textContent = acc.level;
+  document.getElementById('pfCoin').textContent = s.coin;
+  document.getElementById('pfExp').textContent = s.exp;
+  document.getElementById('pfRank').textContent = 'Lv.' + rank;
+  document.getElementById('pfUid').textContent = uid;
+  document.getElementById('pfKey').textContent = currentIsSuper ? acc.key : '****';
+  document.getElementById('profileMask').style.display = 'block';
+}
+function closeProfile(){
+  document.getElementById('profileMask').style.display = 'none';
 }
 
 checkAuth();
