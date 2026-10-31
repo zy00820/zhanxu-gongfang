@@ -425,6 +425,15 @@ body.plain .ann-card.open{
       <div class="stat"><div class="num">876</div><div class="label">活跃用户</div></div>
     </div>
 
+    <!-- 签到中心 -->
+    <div class="card" style="margin-bottom:18px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">每日签到</div>
+        <div style="font-size:12px;color:#607494">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">0</span> 天</div>
+      </div>
+      <button id="btnSign" onclick="doSign()" style="padding:10px 22px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">签到</button>
+    </div>
+
     <!-- 活动中心 -->
     <div class="card" style="margin-bottom:18px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -447,6 +456,13 @@ body.plain .ann-card.open{
           </div>
           <div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:10px">关于栈序OS、栈序工坊的知识问答比赛，答对最高赢取666元。</div>
           <button onclick="activitySignup()" style="width:100%;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer">立即报名</button>
+        </div>
+        <div class="card" style="margin-bottom:10px;padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div style="font-size:14px;font-weight:600;color:#f0f5ff">等级步步高</div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(167,139,250,0.18);color:#a78bfa">永久</span>
+          </div>
+          <div style="font-size:12px;color:#a0b4d2;line-height:1.7">持续签到、参与活动提升账号等级，解锁专属头像框与特权。截止时间：永久。</div>
         </div>
       </div>
     </div>
