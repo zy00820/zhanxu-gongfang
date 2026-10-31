@@ -298,7 +298,7 @@ function submitTicket(){
 function openDevCenter(){
   const acc = ACCOUNTS[sessionStorage.getItem('zx_user')];
   if(acc && acc.level==='超级管理员'){
-    toast('开发者中心（演示）');
+    location.href='dev.html';
   } else {
     toast('开发者中心需超管授权');
   }
