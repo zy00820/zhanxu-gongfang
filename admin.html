@@ -268,23 +268,48 @@ body.plain .ann-card.open{
   <div class="blob blob-3"></div>
   <div class="blob blob-4"></div>
   <div class="login-box">
-    <div class="login-logo">
-      <div class="mark">栈</div>
-      <h1>栈序云 · 管理后台</h1>
-      <p>请使用管理员账号登录</p>
+    <!-- 登录表单 -->
+    <div id="loginFormView">
+      <div class="login-logo">
+        <div class="mark">栈</div>
+        <h1>栈序云 · 管理后台</h1>
+        <p>请使用管理员账号登录</p>
+      </div>
+      <div class="field">
+        <label>账号</label>
+        <input type="text" id="inpUser" placeholder="请输入管理员账号" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>密码</label>
+        <input type="password" id="inpPwd" placeholder="请输入密码">
+      </div>
+      <div class="login-err" id="loginErr"></div>
+      <button class="btn-login" onclick="doLogin()">登 录</button>
+      <div style="text-align:center;margin-top:12px">
+        <a onclick="showRecover()" style="color:rgba(115,184,255,0.7);font-size:12px;cursor:pointer;text-decoration:underline">忘记密码？使用安全密钥解锁</a>
+      </div>
     </div>
-    <div class="field">
-      <label>账号</label>
-      <input type="text" id="inpUser" placeholder="请输入管理员账号" autocomplete="off">
-    </div>
-    <div class="field">
-      <label>密码</label>
-      <input type="password" id="inpPwd" placeholder="请输入密码">
-    </div>
-    <div class="login-err" id="loginErr"></div>
-    <button class="btn-login" onclick="doLogin()">登 录</button>
-    <div style="text-align:center;margin-top:12px">
-      <a onclick="forgotPwd()" style="color:rgba(115,184,255,0.7);font-size:12px;cursor:pointer;text-decoration:underline">忘记密码？使用安全密钥登录</a>
+
+    <!-- 安全密钥解锁表单 -->
+    <div id="recoverFormView" style="display:none">
+      <div class="login-logo">
+        <div class="mark" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">钥</div>
+        <h1>安全密钥解锁</h1>
+        <p>输入账号与8位安全密钥直接登录</p>
+      </div>
+      <div class="field">
+        <label>账号</label>
+        <input type="text" id="recUser" placeholder="请输入管理员账号" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>安全密钥</label>
+        <input type="text" id="recKey" placeholder="请输入8位安全密钥" autocomplete="off">
+      </div>
+      <div class="login-err" id="recErr"></div>
+      <button class="btn-login" onclick="doRecover()" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">解 锁</button>
+      <div style="text-align:center;margin-top:12px">
+        <a onclick="showLoginView()" style="color:rgba(115,184,255,0.7);font-size:12px;cursor:pointer;text-decoration:underline">返回账号密码登录</a>
+      </div>
     </div>
     <div class="login-foot"></div>
   </div>
@@ -746,16 +771,25 @@ function showTeam(){
   </div>`).join('');
   alert('栈序团队（超级管理员）\n\n' + supers.map(([uid,a])=>a.name+'（'+uid+'）').join('\n'));
 }
-function forgotPwd(){
-  const u = prompt('请输入账号：');
-  if(!u) return;
+function showRecover(){
+  document.getElementById('loginFormView').style.display='none';
+  document.getElementById('recoverFormView').style.display='block';
+  document.getElementById('recErr').textContent='';
+}
+function showLoginView(){
+  document.getElementById('recoverFormView').style.display='none';
+  document.getElementById('loginFormView').style.display='block';
+  document.getElementById('loginErr').textContent='';
+}
+function doRecover(){
+  const u = document.getElementById('recUser').value.trim();
+  const k = document.getElementById('recKey').value.trim();
+  const err = document.getElementById('recErr');
+  if(!u || !k){ err.textContent='请输入账号和安全密钥'; return; }
   const acc = ACCOUNTS[u];
-  if(!acc){ alert('账号不存在'); return; }
-  const k = prompt('请输入8位安全密钥：');
-  if(!k) return;
-  if(k.trim() !== acc.key){ alert('安全密钥错误'); return; }
+  if(!acc){ err.textContent='账号不存在'; return; }
+  if(k !== acc.key){ err.textContent='安全密钥错误'; return; }
   sessionStorage.setItem('zx_user', u);
-  document.getElementById('loginErr').textContent = '';
   showApp(u);
 }
 
