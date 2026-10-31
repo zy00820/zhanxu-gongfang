@@ -346,7 +346,28 @@ body.plain .ann-card.open{
         <div style="font-size:15px;font-weight:600;color:#f0f5ff">活动中心</div>
         <span style="font-size:11px;color:#607494">由超管布置</span>
       </div>
-      <div id="activityList" style="text-align:center;color:#607494;font-size:13px;padding:20px 0">暂无活动</div>
+      <div id="activityList">
+        <div class="card" style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:14px;font-weight:600;color:#f0f5ff">有奖建议信</div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(251,191,36,0.18);color:#fbbf24">进行中</span>
+          </div>
+          <div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:10px">
+            向栈序团队提交产品建议，被采纳可获得周边奖励。截止 2026-11-15。
+          </div>
+          <button onclick="activitySignup()" style="width:100%;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer">立即报名</button>
+        </div>
+        <div class="card" style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:14px;font-weight:600;color:#f0f5ff">「我问你答」栈序知识问答</div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(52,211,153,0.18);color:#34d399">报名中</span>
+          </div>
+          <div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:10px">
+            关于栈序OS、栈序工坊的知识问答比赛，答对赢取限量表盘与周边。
+          </div>
+          <button onclick="activitySignup()" style="width:100%;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer">立即报名</button>
+        </div>
+      </div>
     </div>
 
     <!-- 更新日志 -->
@@ -767,6 +788,13 @@ document.querySelectorAll('.subtab').forEach(s=>{
 function showMaint(){
   const t=document.getElementById('toast');
   document.getElementById('toastText').textContent='发帖功能维护中，敬请期待';
+  t.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>t.classList.remove('show'),2200);
+}
+function activitySignup(){
+  const t=document.getElementById('toast');
+  document.getElementById('toastText').textContent='服务器压力过大，请稍后重试';
   t.classList.add('show');
   clearTimeout(window._tt);
   window._tt=setTimeout(()=>t.classList.remove('show'),2200);
