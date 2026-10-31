@@ -673,9 +673,22 @@ function showApp(u){
   if(!window._ticketInit){ initTickets(); window._ticketInit = true; }
   renderTickets();
   renderChangelog();
-  // 签到按钮状态
-  const s = getUserStats(currentUid);
-  document.getElementById('btnCheckin').textContent = s.checkedIn ? '已签到' : '签到';
+  // 登录后依次提醒
+  if(!sessionStorage.getItem('zx_welcomed')){
+    sessionStorage.setItem('zx_welcomed','1');
+    setTimeout(()=>showWelcome(acc), 400);
+  }
+}
+async function showWelcome(acc){
+  await glassAlert('更新日志', 'v1.0.1 已发布：员工服务整合、公单处理、活动中心上线。');
+  await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
+  await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
+  if(acc.level === '超级管理员'){
+    const pending = ticketData.filter(t=>t.status==='待处理').length;
+    if(pending > 0){
+      await glassAlert('工单处理', `您有 ${pending} 条待处理工单，请前往公单处理查看。`);
+    }
+  }
 }
 function renderStaff(currentAcc){
   const isSuper = currentAcc.level === '超级管理员';
