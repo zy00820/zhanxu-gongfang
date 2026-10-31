@@ -6,11 +6,7 @@
 <title>栈序云 · 用户版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
-body{
-  min-height:100vh;background:#080b12;
-  background-image:linear-gradient(rgba(20,40,80,0.18) 1px,transparent 1px),linear-gradient(90deg,rgba(20,40,80,0.18) 1px,transparent 1px);
-  background-size:40px 40px;color:#e8edf7;padding:0 0 80px;
-}
+body{min-height:100vh;background:#080b12;background-image:linear-gradient(rgba(20,40,80,0.18) 1px,transparent 1px),linear-gradient(90deg,rgba(20,40,80,0.18) 1px,transparent 1px);background-size:40px 40px;color:#e8edf7}
 /* 登录 */
 .login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
 .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:0.5;pointer-events:none;z-index:0}
@@ -37,32 +33,25 @@ body{
 .user-chip{display:flex;align-items:center;gap:10px;cursor:pointer;background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.2);padding:5px 12px 5px 5px;border-radius:99px}
 .user-chip .avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#080b12;background:linear-gradient(135deg,#73b8ff,#a78bfa)}
 .user-chip .uname{font-size:13px;color:#d4e4fb}
-.container{max-width:720px;margin:0 auto;padding:18px}
-.card{
-  background:rgba(255,255,255,0.06);
-  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
-  border:1px solid rgba(255,255,255,0.14);
-  border-radius:16px;padding:18px;margin-bottom:14px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.15);
-  position:relative;overflow:hidden;
-}
-/* 液态光斑 */
+.container{max-width:720px;margin:0 auto;padding:14px}
+/* 卡片 */
+.card{background:rgba(255,255,255,0.06);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,0.14);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 8px 32px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.15);position:relative;overflow:hidden}
 .liquid{position:absolute;border-radius:50%;filter:blur(40px);opacity:0.35;pointer-events:none;z-index:0}
 .card>*{position:relative;z-index:1}
+/* tab */
+.tabs{display:flex;gap:6px;background:rgba(255,255,255,0.03);padding:4px;border-radius:12px;border:1px solid rgba(115,184,255,0.1);margin-bottom:14px}
+.tab{flex:1;padding:9px;text-align:center;font-size:13px;color:#94a8c7;border-radius:9px;cursor:pointer;transition:all .2s}
+.tab.active{background:rgba(115,184,255,0.15);color:#73b8ff;font-weight:500}
+.view{display:none}
+.view.active{display:block}
 /* 签到 */
-.sign-card{display:flex;justify-content:space-between;align-items:center}
-.sign-card .btn-sign{padding:10px 22px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
-.sign-card .btn-sign.done{background:rgba(52,211,153,0.2);color:#34d399}
-/* 活动 */
+.sign-row{display:flex;justify-content:space-between;align-items:center}
+.btn-sign{padding:10px 20px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-sign.done{background:rgba(52,211,153,0.2);color:#34d399}
 .activity-tag{font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(52,211,153,0.18);color:#34d399}
-.btn-signup{width:100%;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer;margin-top:10px}
-/* 用户列表 */
-.user-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
-.user-row:last-child{border-bottom:none}
-.user-row .avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#080b12;flex-shrink:0}
-.user-row .name{font-size:14px;color:#d4e4fb;font-weight:500}
-.user-row .info{font-size:11px;color:#607494;margin-top:2px}
-.user-row .badge{font-size:10px;padding:2px 7px;border-radius:5px;margin-left:6px}
+.btn-signup{width:100%;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer;margin-top:8px}
+/* 工单 */
+.card input,.card textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:13px;outline:none;margin-bottom:8px;font-family:inherit}
 /* 弹窗 */
 .mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)}
 .sheet{position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.95);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
@@ -70,8 +59,8 @@ body{
 .avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
 .avatar-opt{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#080b12;cursor:pointer;border:3px solid transparent;transition:all .2s}
 .avatar-opt.sel{border-color:#73b8ff;transform:scale(1.1)}
-.sheet input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:14px;outline:none;margin-bottom:12px}
-.sheet .btn{width:100%;padding:13px;border-radius:12px;font-size:15px;cursor:pointer;border:none;margin-top:8px}
+.sheet input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:14px;outline:none;margin-bottom:10px}
+.sheet .btn{width:100%;padding:13px;border-radius:12px;font-size:15px;cursor:pointer;border:none;margin-top:6px}
 .sheet .btn-primary{background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;font-weight:600}
 .sheet .btn-ghost{background:rgba(255,255,255,0.06);color:#94a8c7}
 /* toast */
@@ -99,7 +88,7 @@ body{
   </div>
 </div>
 
-<!-- 用户版主界面 -->
+<!-- 主界面 -->
 <div id="app">
   <div class="topbar">
     <div class="logo">栈序云<small>用户版</small></div>
@@ -110,94 +99,99 @@ body{
   </div>
 
   <div class="container">
-    <!-- 签到 -->
-    <div class="card sign-card">
-      <div class="liquid" style="width:120px;height:120px;background:#73b8ff;top:-30px;right:-20px"></div>
-      <div>
-        <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">每日签到</div>
-        <div style="font-size:12px;color:#607494">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">3</span> 天</div>
-        <div style="font-size:12px;color:#607494;margin-top:4px">账户余额 <span style="color:#34d399;font-weight:600">¥<span id="myBalance">0.00</span></span></div>
-      </div>
-      <button class="btn-sign" id="btnSign" onclick="doSign()">签到</button>
+    <div class="tabs">
+      <div class="tab active" data-view="home">首页</div>
+      <div class="tab" data-view="ticket">工单</div>
+      <div class="tab" data-view="me">我的</div>
     </div>
 
-    <!-- 活动中心 -->
-    <div class="card">
-      <div class="liquid" style="width:150px;height:150px;background:#a78bfa;top:-40px;right:-30px"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:15px;font-weight:600;color:#f0f5ff">活动中心</div>
-      </div>
-      <div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:14px;font-weight:600;color:#f0f5ff">有奖建议信</div>
-          <span class="activity-tag">报名中</span>
+    <!-- 首页 -->
+    <div class="view active" id="view-home">
+      <!-- 签到 -->
+      <div class="card">
+        <div class="liquid" style="width:120px;height:120px;background:#73b8ff;top:-30px;right:-20px"></div>
+        <div class="sign-row">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">每日签到</div>
+            <div style="font-size:12px;color:#607494">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">3</span> 天 · 余额 ¥<span id="myBalance" style="color:#34d399;font-weight:600">0.00</span></div>
+          </div>
+          <button class="btn-sign" id="btnSign" onclick="doSign()">签到</button>
         </div>
-        <div style="font-size:12px;color:#a0b4d2;line-height:1.6">向栈序团队提交产品建议，被采纳最高赢取666元。截止 2026-11-15。</div>
-        <button class="btn-signup" onclick="location.href='https://v.wjx.cn/vm/P4N9I4h.aspx'">立即报名</button>
       </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:14px;font-weight:600;color:#f0f5ff">「我问你答」栈序知识问答</div>
-          <span class="activity-tag">报名中</span>
+
+      <!-- 活动中心 -->
+      <div class="card">
+        <div class="liquid" style="width:150px;height:150px;background:#a78bfa;top:-40px;right:-30px"></div>
+        <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:10px">活动中心</div>
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:13px;font-weight:600;color:#f0f5ff">有奖建议信</div>
+            <span class="activity-tag">报名中</span>
+          </div>
+          <div style="font-size:11px;color:#a0b4d2">最高赢取666元 · 截止 2026-11-15</div>
+          <button class="btn-signup" onclick="location.href='https://v.wjx.cn/vm/P4N9I4h.aspx'">立即报名</button>
         </div>
-        <div style="font-size:12px;color:#a0b4d2;line-height:1.6">栈序OS、栈序工坊知识问答，最高赢取666元。</div>
-        <button class="btn-signup" onclick="signup()">立即报名</button>
-      </div>
-      <div style="margin-top:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:14px;font-weight:600;color:#f0f5ff">等级步步高</div>
-          <span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(167,139,250,0.18);color:#a78bfa">永久</span>
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:13px;font-weight:600;color:#f0f5ff">知识问答</div>
+            <span class="activity-tag">报名中</span>
+          </div>
+          <div style="font-size:11px;color:#a0b4d2">最高赢取666元</div>
+          <button class="btn-signup" onclick="signup()">立即报名</button>
         </div>
-        <div style="font-size:12px;color:#a0b4d2;line-height:1.6">持续签到、参与活动提升账号等级，解锁专属头像框与特权。截止时间：永久。</div>
-      </div>
-    </div>
-
-    <!-- 公告 -->
-    <div class="card">
-      <div class="liquid" style="width:100px;height:100px;background:#fbbf24;top:-20px;left:-20px"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:15px;font-weight:600;color:#f0f5ff">公告</div>
-      </div>
-      <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
-        <div style="font-size:13px;color:#d4e4fb;margin-bottom:3px">栈序OS 1.2 灰度推送中</div>
-        <div style="font-size:11px;color:#607494">2026-10-30 · 栈序团队</div>
-      </div>
-      <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
-        <div style="font-size:13px;color:#d4e4fb;margin-bottom:3px">有奖建议信活动开启，最高赢666元</div>
-        <div style="font-size:11px;color:#607494">2026-10-28 · 栈序团队</div>
-      </div>
-      <div style="padding:8px 0">
-        <div style="font-size:13px;color:#d4e4fb;margin-bottom:3px">栈序云用户版上线</div>
-        <div style="font-size:11px;color:#607494">2026-10-25 · 栈序团队</div>
-      </div>
-    </div>
-
-    <!-- 提交工单 -->
-    <div class="card">
-      <div class="liquid" style="width:100px;height:100px;background:#f87171;bottom:-20px;right:-20px"></div>
-      <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:10px">提交工单</div>
-      <input type="text" id="ticketTitle" placeholder="工单标题" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:13px;outline:none;margin-bottom:8px">
-      <textarea id="ticketDesc" placeholder="描述遇到的问题..." rows="3" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:13px;outline:none;margin-bottom:10px;resize:none;font-family:inherit"></textarea>
-      <button onclick="submitTicket()" style="width:100%;padding:11px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.35);color:#f87171;border-radius:10px;font-size:13px;cursor:pointer">提交工单</button>
-    </div>
-
-    <!-- 开发者中心 -->
-    <div class="card" onclick="openDevCenter()" style="cursor:pointer">
-      <div class="liquid" style="width:120px;height:120px;background:#34d399;top:-30px;right:-20px"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">开发者中心</div>
-          <div style="font-size:12px;color:#607494">API 文档 / 表盘 SDK / 发布应用</div>
+        <div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:13px;font-weight:600;color:#f0f5ff">等级步步高</div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(167,139,250,0.18);color:#a78bfa">永久</span>
+          </div>
+          <div style="font-size:11px;color:#a0b4d2">签到升级解锁特权</div>
         </div>
-        <span style="font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(52,211,153,0.15);color:#34d399">需超管授权</span>
+      </div>
+
+      <!-- 公告 -->
+      <div class="card">
+        <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:8px">公告</div>
+        <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+          <div style="font-size:12px;color:#d4e4fb">栈序OS 1.2 灰度推送中</div>
+          <div style="font-size:10px;color:#607494;margin-top:2px">2026-10-30</div>
+        </div>
+        <div style="padding:6px 0">
+          <div style="font-size:12px;color:#d4e4fb">有奖建议信活动开启</div>
+          <div style="font-size:10px;color:#607494;margin-top:2px">2026-10-28</div>
+        </div>
       </div>
     </div>
 
-    <!-- 团队成员 -->
-    <div class="card">
-      <div class="liquid" style="width:100px;height:100px;background:#34d399;bottom:-30px;left:-20px"></div>
-      <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:10px">团队成员</div>
-      <div id="teamList"></div>
+    <!-- 工单 -->
+    <div class="view" id="view-ticket">
+      <div class="card">
+        <div class="liquid" style="width:100px;height:100px;background:#f87171;bottom:-20px;right:-20px"></div>
+        <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:10px">提交工单</div>
+        <input type="text" id="ticketTitle" placeholder="工单标题">
+        <textarea id="ticketDesc" placeholder="描述遇到的问题..." rows="3"></textarea>
+        <button onclick="submitTicket()" style="width:100%;padding:11px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.35);color:#f87171;border-radius:10px;font-size:13px;cursor:pointer">提交工单</button>
+      </div>
+    </div>
+
+    <!-- 我的 -->
+    <div class="view" id="view-me">
+      <!-- 开发者中心 -->
+      <div class="card" onclick="openDevCenter()" style="cursor:pointer">
+        <div class="liquid" style="width:120px;height:120px;background:#34d399;top:-30px;right:-20px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:3px">开发者中心</div>
+            <div style="font-size:11px;color:#607494">API / 表盘 SDK / 应用发布</div>
+          </div>
+          <span id="devBadge" style="font-size:10px;padding:3px 8px;border-radius:5px;background:rgba(167,139,250,0.18);color:#a78bfa">需超管授权</span>
+        </div>
+      </div>
+
+      <!-- 团队成员 -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:8px">团队成员</div>
+        <div id="teamList"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -237,45 +231,38 @@ const ACCOUNTS = {
   "100000026": { hash:"5de5508b36a6a4aee8faa6a19704ddf1ffd074e4bda2b5a58921926a3e4545a7", name:"徐子俊", level:"管理员" },
   "100200000": { hash:"b5c75748560b4c3c46d8c3433759f97b50869e5259f80001fc035ff74329ea40", name:"哈哈", level:"普通用户" }
 };
-let myAvatarIdx = 0;
-let myName = '';
-let myBio = '';
+let myAvatarIdx=0, myName='', myBio='';
 
-async function sha256(s){
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
+async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function doLogin(){
-  const u=document.getElementById('inpUser').value.trim(), p=document.getElementById('inpPwd').value;
+  const u=document.getElementById('inpUser').value.trim(),p=document.getElementById('inpPwd').value;
   const err=document.getElementById('loginErr');
   if(!u||!p){err.textContent='请输入账号和密码';return}
   const acc=ACCOUNTS[u];
   if(!acc){err.textContent='账号或密码错误';return}
-  const h=await sha256(p);
-  if(h!==acc.hash){err.textContent='账号或密码错误';return}
-  sessionStorage.setItem('zx_user',u);
-  myName = acc.name;
-  enterApp();
+  if(await sha256(p)!==acc.hash){err.textContent='账号或密码错误';return}
+  sessionStorage.setItem('zx_user',u);myName=acc.name;enterApp();
 }
 function enterApp(){
   document.getElementById('loginPage').style.display='none';
   document.getElementById('app').classList.add('logged-in');
   document.getElementById('myName').textContent=myName;
   document.getElementById('myAvatar').textContent=myName.charAt(0);
+  // 开发者中心标签
+  const acc=ACCOUNTS[sessionStorage.getItem('zx_user')];
+  const badge=document.getElementById('devBadge');
+  if(acc.level==='超级管理员'){
+    badge.textContent='已授权';badge.style.background='rgba(52,211,153,0.18)';badge.style.color='#34d399';
+  }
   renderTeam();
 }
 function renderTeam(){
-  document.getElementById('teamList').innerHTML = Object.entries(ACCOUNTS).map(([uid,a])=>{
-    const c = AVATAR_COLORS[uid.slice(-1)%6];
-    const badge = a.level==='超级管理员'
-      ? '<span class="badge" style="background:rgba(251,191,36,0.18);color:#fbbf24">超管</span>'
-      : '<span class="badge" style="background:rgba(115,184,255,0.18);color:#73b8ff">管理员</span>';
-    return `<div class="user-row">
-      <div class="avatar" style="background:linear-gradient(135deg,${c[0]},${c[1]})">${a.name.charAt(0)}</div>
-      <div style="flex:1">
-        <div class="name">${a.name}${badge}</div>
-        <div class="info">账号 ${uid}</div>
-      </div>
+  document.getElementById('teamList').innerHTML=Object.entries(ACCOUNTS).map(([uid,a])=>{
+    const c=AVATAR_COLORS[uid.slice(-1)%6];
+    const badge=a.level==='超级管理员'?'<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(251,191,36,0.18);color:#fbbf24;margin-left:6px">超管</span>':a.level==='管理员'?'<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(115,184,255,0.18);color:#73b8ff;margin-left:6px">管理员</span>':'';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0">
+      <div style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#080b12;background:linear-gradient(135deg,${c[0]},${c[1]})">${a.name.charAt(0)}</div>
+      <div style="flex:1"><div style="font-size:13px;color:#d4e4fb">${a.name}${badge}</div><div style="font-size:10px;color:#607494">${uid}</div></div>
     </div>`;
   }).join('');
 }
@@ -283,44 +270,35 @@ function doSign(){
   const btn=document.getElementById('btnSign');
   if(btn.classList.contains('done')){toast('今日已签到');return}
   btn.classList.add('done');btn.textContent='已签到';
-  document.getElementById('signDays').textContent = parseInt(document.getElementById('signDays').textContent)+1;
+  document.getElementById('signDays').textContent=parseInt(document.getElementById('signDays').textContent)+1;
   toast('签到成功 +1 天');
 }
 function signup(){toast('服务器压力过大，请稍后重试')}
 function submitTicket(){
-  const t=document.getElementById('ticketTitle').value.trim();
-  const d=document.getElementById('ticketDesc').value.trim();
+  const t=document.getElementById('ticketTitle').value.trim(),d=document.getElementById('ticketDesc').value.trim();
   if(!t||!d){toast('请填写标题和描述');return}
-  document.getElementById('ticketTitle').value='';
-  document.getElementById('ticketDesc').value='';
-  toast('工单已提交，等待管理员处理');
+  document.getElementById('ticketTitle').value='';document.getElementById('ticketDesc').value='';
+  toast('工单已提交');
 }
 function openDevCenter(){
-  const acc = ACCOUNTS[sessionStorage.getItem('zx_user')];
-  if(acc && acc.level==='超级管理员'){
-    location.href='dev.html';
-  } else {
-    toast('开发者中心需超管授权');
-  }
+  const acc=ACCOUNTS[sessionStorage.getItem('zx_user')];
+  if(acc.level==='超级管理员'){location.href='dev.html'}
+  else{toast('开发者中心需超管授权，请联系张岳/徐文桐')}
 }
 function openProfile(){
   document.getElementById('editName').value=myName;
   document.getElementById('editBio').value=myBio;
-  const grid=document.getElementById('avatarGrid');
-  grid.innerHTML=AVATAR_COLORS.map((c,i)=>
+  document.getElementById('avatarGrid').innerHTML=AVATAR_COLORS.map((c,i)=>
     `<div class="avatar-opt ${i===myAvatarIdx?'sel':''}" style="background:linear-gradient(135deg,${c[0]},${c[1]})" onclick="selAvatar(${i})">${myName.charAt(0)}</div>`
   ).join('');
   document.getElementById('profileMask').style.display='block';
 }
 function selAvatar(i){myAvatarIdx=i;document.querySelectorAll('.avatar-opt').forEach((el,j)=>el.classList.toggle('sel',j===i))}
 function saveProfile(){
-  const n=document.getElementById('editName').value.trim();
-  const b=document.getElementById('editBio').value.trim();
-  if(n) myName=n;
-  myBio=b;
+  const n=document.getElementById('editName').value.trim(),b=document.getElementById('editBio').value.trim();
+  if(n)myName=n;myBio=b;
   document.getElementById('myName').textContent=myName;
   document.getElementById('myAvatar').textContent=myName.charAt(0);
-  document.getElementById('myAvatar').style.background=`linear-gradient(135deg,${AVATAR_COLORS[myAvatarIdx][0]},${AVATAR_COLORS[myAvatarIdx][1]})`;
   closeProfile();toast('资料已保存');
 }
 function closeProfile(){document.getElementById('profileMask').style.display='none'}
@@ -329,9 +307,18 @@ function toast(t){
   const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');
   clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('show'),2000);
 }
+// tab 切换
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('view-'+t.dataset.view).classList.add('active');
+  }
+});
 // 启动
 const u=sessionStorage.getItem('zx_user');
-if(u&&ACCOUNTS[u]){myName=ACCOUNTS[u].name;enterApp();}
+if(u&&ACCOUNTS[u]){myName=ACCOUNTS[u].name;enterApp()}
 </script>
 </body>
 </html>
