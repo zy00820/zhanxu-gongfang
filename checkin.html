@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>栈序云 · 每日签到</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
+body{
+  min-height:100vh;background:#080b12;color:#e8edf7;
+  background-image:
+    radial-gradient(ellipse 600px 300px at 20% -10%,rgba(74,158,255,0.15),transparent 60%),
+    radial-gradient(ellipse 500px 250px at 90% 20%,rgba(167,139,250,0.1),transparent 60%);
+  padding:20px;
+}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.back{color:#73b8ff;text-decoration:none;font-size:14px;cursor:pointer}
+.title{font-size:18px;font-weight:600;color:#f0f5ff}
+.box{
+  max-width:420px;margin:0 auto;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid rgba(115,184,255,0.25);
+  border-radius:20px;padding:28px 24px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.date{text-align:center;color:#607494;font-size:13px;margin-bottom:8px}
+.streak{text-align:center;font-size:48px;font-weight:700;color:#73b8ff;margin:10px 0}
+.streak small{font-size:14px;color:#607494;font-weight:400}
+.reward{text-align:center;color:#fbbf24;font-size:13px;margin-bottom:24px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:20px 0}
+.cal .h{text-align:center;font-size:11px;color:#607494;padding:4px 0}
+.cal .d{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;font-size:13px;color:#94a8c7;
+  background:rgba(255,255,255,0.04);
+}
+.cal .d.done{background:rgba(52,211,153,0.2);color:#34d399}
+.cal .d.today{background:rgba(115,184,255,0.25);color:#73b8ff;font-weight:600}
+.cal .d.future{opacity:0.3}
+.btn{
+  width:100%;padding:14px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,#73b8ff,#5b8def);
+  color:#fff;font-size:15px;font-weight:600;cursor:pointer;
+  box-shadow:0 6px 20px rgba(91,141,239,0.35);
+}
+.btn:disabled{opacity:0.5;cursor:default;box-shadow:none}
+.toast{
+  position:fixed;left:50%;bottom:80px;transform:translateX(-50%) translateY(20px);
+  background:rgba(20,28,45,0.95);border:1px solid rgba(115,184,255,0.3);
+  padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;
+  transition:all .3s;z-index:999;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div style="max-width:420px;margin:0 auto">
+  <div class="top">
+    <a class="back" href="admin.html">‹ 返回</a>
+    <div class="title">每日签到</div>
+    <div style="width:40px"></div>
+  </div>
+
+  <div class="box">
+    <div class="date" id="todayStr"></div>
+    <div class="streak"><span id="streakNum">0</span><small> 天连续签到</small></div>
+    <div class="reward" id="rewardText">今日签到可领 5 积分</div>
+    <div class="cal" id="cal"></div>
+    <button class="btn" id="btnSign" onclick="doSign()">立即签到</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const today = new Date();
+document.getElementById('todayStr').textContent = today.getFullYear()+'年'+(today.getMonth()+1)+'月'+today.getDate()+'日';
+let signed = sessionStorage.getItem('zx_signed')==='1';
+let streak = signed ? parseInt(sessionStorage.getItem('zx_streak')||'1') : 0;
+document.getElementById('streakNum').textContent = streak;
+if(signed){
+  document.getElementById('btnSign').disabled = true;
+  document.getElementById('btnSign').textContent = '今日已签到';
+  document.getElementById('rewardText').textContent = '明日再来，连续签到奖励更多';
+}
+
+// 日历
+const cal = document.getElementById('cal');
+const week = ['日','一','二','三','四','五','六'];
+week.forEach(w=>{const h=document.createElement('div');h.className='h';h.textContent=w;cal.appendChild(h)});
+const year=today.getFullYear(), month=today.getMonth(), date=today.getDate();
+const firstDay = new Date(year,month,1).getDay();
+const daysInMonth = new Date(year,month+1,0).getDate();
+for(let i=0;i<firstDay;i++){const e=document.createElement('div');cal.appendChild(e)}
+for(let d=1;d<=daysInMonth;d++){
+  const cell=document.createElement('div');cell.className='d';cell.textContent=d;
+  if(d<date){cell.classList.add('done')}
+  if(d===date){cell.classList.add(signed?'done':'today')}
+  if(d>date){cell.classList.add('future')}
+  cal.appendChild(cell);
+}
+
+function doSign(){
+  signed=true;streak=streak+1;
+  sessionStorage.setItem('zx_signed','1');
+  sessionStorage.setItem('zx_streak',String(streak));
+  document.getElementById('streakNum').textContent=streak;
+  document.getElementById('btnSign').disabled=true;
+  document.getElementById('btnSign').textContent='今日已签到';
+  document.getElementById('rewardText').textContent='签到成功 +5 积分，明天继续保持';
+  showToast('签到成功！连续 '+streak+' 天');
+}
+function showToast(t){
+  const el=document.getElementById('toast');
+  el.textContent=t;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2000);
+}
+</script>
+</body>
+</html>
