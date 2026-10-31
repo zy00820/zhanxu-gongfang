@@ -641,15 +641,15 @@ body.plain .ann-card.open{
 <script>
 // 账号配置
 const ACCOUNTS = {
-  "100000000": { hash: "b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name: "张岳", level: "超级管理员", key: "57a67bfc" },
-  "100000001": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "徐文桐", level: "超级管理员", key: "3db80897" },
-  "100000020": { hash: "8ca6337698a3a754baf957d8c76aa9eb484a22a76d72f1aa17ee19172fe24fee", name: "陆宇", level: "管理员", key: "7be2724d" },
-  "100000013": { hash: "c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name: "周天浩", level: "管理员", key: "2279d6f8" },
-  "100000014": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "迪", level: "管理员", key: "44f28222" },
-  "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员", key: "5169f1dc" },
-  "100000021": { hash: "aac8a922d7ac3a1fa25f4ac118a29ec022e245fd0195ca55bd98b64b77b53278", name: "闻浩楠", level: "管理员", key: "ea2a1b33" },
-  "100000025": { hash: "c89d383ab20c398cba45862a3a2645668bddbcdc3a655a850c562f95ad8b3bac", name: "秦之俊", level: "管理员", key: "250c5704" },
-  "100000026": { hash: "5de5508b36a6a4aee8faa6a19704ddf1ffd074e4bda2b5a58921926a3e4545a7", name: "徐子俊", level: "管理员", key: "e10071f2" }
+  "100000000": { hash: "b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name: "张岳", level: "超级管理员", key: "57a67bfc", balance: 662 },
+  "100000001": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "徐文桐", level: "超级管理员", key: "3db80897", balance: 0 },
+  "100000020": { hash: "8ca6337698a3a754baf957d8c76aa9eb484a22a76d72f1aa17ee19172fe24fee", name: "陆宇", level: "管理员", key: "7be2724d", balance: 0 },
+  "100000013": { hash: "c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name: "周天浩", level: "管理员", key: "2279d6f8", balance: 0 },
+  "100000014": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "迪", level: "管理员", key: "44f28222", balance: 0 },
+  "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员", key: "5169f1dc", balance: 0 },
+  "100000021": { hash: "aac8a922d7ac3a1fa25f4ac118a29ec022e245fd0195ca55bd98b64b77b53278", name: "闻浩楠", level: "管理员", key: "ea2a1b33", balance: 0 },
+  "100000025": { hash: "c89d383ab20c398cba45862a3a2645668bddbcdc3a655a850c562f95ad8b3bac", name: "秦之俊", level: "管理员", key: "250c5704", balance: 0 },
+  "100000026": { hash: "5de5508b36a6a4aee8faa6a19704ddf1ffd074e4bda2b5a58921926a3e4545a7", name: "徐子俊", level: "管理员", key: "e10071f2", balance: 0 }
 };
 
 // 登录态
@@ -729,6 +729,7 @@ function renderStaff(currentAcc){
             ${banned?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(248,113,113,0.2);color:#f87171;margin-left:4px">已封号</span>':''}
           </div>
           <div style="font-size:11px;color:#607494;margin-top:2px">账号：${s.uid}</div>
+          <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${s.balance ?? 0}</div>
           ${isSuper ? `<div style="font-size:11px;color:#fbbf24;margin-top:2px">安全密钥：${s.key||'未设置'}</div>` : ''}
         </div>
         ${isSuper ? `<div style="display:flex;gap:6px">
@@ -744,7 +745,7 @@ function renderStaff(currentAcc){
 }
 let staffData = [];
 function initStaffData(){
-  staffData = Object.entries(ACCOUNTS).map(([uid,a])=>({uid, name:a.name, level:a.level, key:a.key, banned:false}));
+  staffData = Object.entries(ACCOUNTS).map(([uid,a])=>({uid, name:a.name, level:a.level, key:a.key, balance:a.balance||0, banned:false}));
 }
 async function addStaff(){
   const uid = await glassPrompt('添加员工','请输入新员工账号（数字）');
