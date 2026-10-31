@@ -273,9 +273,69 @@ footer{
   .hero h1{font-size:28px}
   .container{padding:0 18px}
 }
+
+/* ===== 液态玻璃增强 ===== */
+body{position:relative;overflow-x:hidden}
+.glass-blob{position:fixed;border-radius:50%;filter:blur(80px);z-index:0;pointer-events:none;opacity:.55}
+.glass-blob.b1{width:340px;height:340px;background:radial-gradient(circle,#73b8ff,transparent 70%);top:-80px;left:-80px}
+.glass-blob.b2{width:300px;height:300px;background:radial-gradient(circle,#a78bfa,transparent 70%);top:40%;right:-100px}
+.glass-blob.b3{width:280px;height:280px;background:radial-gradient(circle,#34d399,transparent 70%);bottom:-60px;left:30%}
+.container,nav,footer{position:relative;z-index:1}
+/* 所有卡片/面板升级为真液态玻璃 */
+.card,.doc-card,.nav,.footer,.hero-box,.glass-panel{
+  background:rgba(255,255,255,0.06) !important;
+  backdrop-filter:blur(28px) saturate(180%) !important;
+  -webkit-backdrop-filter:blur(28px) saturate(180%) !important;
+  border:1px solid rgba(255,255,255,0.12) !important;
+  box-shadow:0 8px 32px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.15) !important;
+}
+/* 模态弹窗（液态玻璃） */
+.glass-modal{
+  position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;
+  background:rgba(8,11,18,0.5);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);
+}
+.glass-modal.show{display:flex}
+.glass-modal-box{
+  width:88%;max-width:360px;padding:28px 24px;border-radius:20px;
+  background:rgba(255,255,255,0.08);backdrop-filter:blur(32px) saturate(180%);-webkit-backdrop-filter:blur(32px) saturate(180%);
+  border:1px solid rgba(255,255,255,0.18);
+  box-shadow:0 16px 48px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,0.2);
+  animation:modalIn .25s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.glass-modal-box h3{margin:0 0 6px;font-size:18px;color:#f0f5ff}
+.glass-modal-box p{margin:0 0 16px;font-size:13px;color:#a0b4d2}
+.glass-modal-box input{
+  width:100%;box-sizing:border-box;padding:12px 14px;margin-bottom:14px;
+  background:rgba(0,0,0,0.3);border:1px solid rgba(115,184,255,0.3);border-radius:10px;
+  color:#fff;font-size:14px;outline:none;
+}
+.glass-modal-box input:focus{border-color:#73b8ff;box-shadow:0 0 0 3px rgba(115,184,255,0.15)}
+.glass-modal-box .btn-row{display:flex;gap:8px}
+.glass-modal-box .btn-row button{
+  flex:1;padding:11px;border-radius:10px;border:none;font-size:14px;cursor:pointer;
+}
+.glass-modal-box .btn-cancel{background:rgba(255,255,255,0.08);color:#a0b4d2;border:1px solid rgba(255,255,255,0.12)!important}
+.glass-modal-box .btn-ok{background:linear-gradient(135deg,#73b8ff,#5aa3f5);color:#080b12;font-weight:600}
 </style>
 </head>
 <body>
+<div class="glass-blob b1"></div>
+<div class="glass-blob b2"></div>
+<div class="glass-blob b3"></div>
+
+<!-- 管理员密码模态弹窗 -->
+<div class="glass-modal" id="modalConsole">
+  <div class="glass-modal-box">
+    <h3>进入控制台</h3>
+    <p>请输入管理员密码以进入栈序云管理后台</p>
+    <input type="password" id="consolePwd" placeholder="管理员密码" autocomplete="off">
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-ok" onclick="submitConsole()">确认</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div class="container nav">
@@ -866,12 +926,18 @@ function toast(msg){
   window._toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
 }
 function showConsole(){
-  const pwd = prompt('请输入管理员密码：');
-  if(pwd === null) return;
-  if(pwd !== 'xdf195458'){ toast('密码错误'); return; }
-  document.getElementById('view-home').style.display='none';
-  document.getElementById('view-console').style.display='block';
-  window.scrollTo({top:0});
+  document.getElementById('modalConsole').classList.add('show');
+  setTimeout(()=>document.getElementById('consolePwd').focus(),100);
+}
+function closeModal(){
+  document.getElementById('modalConsole').classList.remove('show');
+  document.getElementById('consolePwd').value='';
+}
+function submitConsole(){
+  const pwd = document.getElementById('consolePwd').value;
+  if(pwd !== 'xdf195458'){ toast('密码错误'); document.getElementById('consolePwd').value=''; return; }
+  closeModal();
+  location.href='admin.html';
 }
 function showHome(){
   document.getElementById('view-console').style.display='none';
