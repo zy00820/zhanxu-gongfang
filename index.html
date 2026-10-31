@@ -258,7 +258,8 @@ footer{
   .app-grid{grid-template-columns:repeat(2,1fr)}
   .status-bar{grid-template-columns:repeat(2,1fr)}
   .hero h1{font-size:34px}
-  .nav-links{display:none}
+  .nav-links{gap:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  .nav-links a{font-size:13px}
   .doc-wrap{grid-template-columns:1fr}
   .doc-side{display:flex;flex-wrap:wrap;gap:4px}
   .doc-side-title{width:100%}
@@ -292,7 +293,7 @@ footer{
       <a onclick="document.getElementById('faces').scrollIntoView({behavior:'smooth'})">表盘</a>
       <a onclick="toast('栈序OS 模块建设中')">栈序OS</a>
       <a onclick="document.getElementById('docs').scrollIntoView({behavior:'smooth'})">开发者</a>
-      <a href="admin.html" style="color:#6db5ff">管理后台</a>
+      
     </nav>
     <button class="btn btn-primary" onclick="location.href='admin.html'">进入控制台</button>
   </div>
