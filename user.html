@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>栈序云 · 用户版</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
+body{
+  min-height:100vh;background:#080b12;color:#e8edf7;
+  background-image:
+    radial-gradient(ellipse 600px 300px at 20% -10%,rgba(74,158,255,0.15),transparent 60%),
+    radial-gradient(ellipse 500px 250px at 90% 20%,rgba(167,139,250,0.1),transparent 60%);
+}
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(8,11,18,0.7);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(115,184,255,0.12);
+  padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
+}
+.logo{font-weight:700;font-size:16px;color:#f0f5ff}
+.logo small{color:#73b8ff;font-weight:400;margin-left:6px;font-size:12px}
+.top-actions{display:flex;gap:8px;align-items:center}
+.top-btn{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);
+  color:#d4e4fb;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;
+}
+.container{max-width:480px;margin:0 auto;padding:18px}
+.welcome{
+  background:rgba(255,255,255,0.07);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(115,184,255,0.2);
+  border-radius:16px;padding:20px;margin-bottom:16px;
+}
+.welcome h2{font-size:18px;margin-bottom:4px}
+.welcome p{font-size:12px;color:#94a8c7}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.entry{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(115,184,255,0.15);
+  border-radius:14px;padding:18px 14px;text-align:center;cursor:pointer;
+  transition:all .2s;
+}
+.entry:active{transform:scale(0.97);background:rgba(115,184,255,0.12)}
+.entry-icon{font-size:24px;margin-bottom:8px}
+.entry-name{font-size:13px;font-weight:600}
+.card{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(115,184,255,0.15);
+  border-radius:14px;padding:16px;margin-bottom:12px;
+}
+.card-title{font-size:14px;font-weight:600;margin-bottom:10px;color:#f0f5ff;display:flex;justify-content:space-between;align-items:center}
+.tag{font-size:10px;padding:2px 8px;border-radius:5px}
+.tag-green{background:rgba(52,211,153,0.18);color:#34d399}
+.tag-yellow{background:rgba(251,191,36,0.18);color:#fbbf24}
+.list-item{padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px}
+.list-item:last-child{border:none}
+.list-item .meta{font-size:11px;color:#607494;margin-top:3px}
+.section-title{font-size:13px;color:#94a8c7;margin:18px 0 10px;font-weight:500}
+.btn-full{
+  width:100%;padding:12px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#73b8ff,#5b8def);
+  color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;
+}
+.toast{
+  position:fixed;left:50%;bottom:80px;transform:translateX(-50%) translateY(20px);
+  background:rgba(20,28,45,0.95);border:1px solid rgba(115,184,255,0.3);
+  padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;
+  transition:all .3s;z-index:999;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">栈序云<small>用户版</small></div>
+  <div class="top-actions">
+    <button class="top-btn" onclick="location.href='checkin.html'">签到</button>
+    <button class="top-btn" onclick="location.href='admin.html'">管理员登录</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="welcome">
+    <h2 id="hello">你好，栈序用户 👋</h2>
+    <p>v1.0.1 · 今天是 <span id="dateStr"></span></p>
+  </div>
+
+  <div class="grid">
+    <div class="entry" onclick="toast('活动报名：服务器压力过大，请稍后重试')">
+      <div class="entry-icon">🎁</div>
+      <div class="entry-name">有奖建议信</div>
+    </div>
+    <div class="entry" onclick="toast('知识问答：服务器压力过大，请稍后重试')">
+      <div class="entry-icon">❓</div>
+      <div class="entry-name">我问你答</div>
+    </div>
+    <div class="entry" onclick="toast('工单提交入口开发中')">
+      <div class="entry-icon">📮</div>
+      <div class="entry-name">提交工单</div>
+    </div>
+    <div class="entry" onclick="location.href='checkin.html'">
+      <div class="entry-icon">✅</div>
+      <div class="entry-name">每日签到</div>
+    </div>
+  </div>
+
+  <div class="section-title">最新公告</div>
+  <div class="card">
+    <div class="list-item">
+      栈序OS 1.2 灰度推送
+      <div class="meta">2026-10-31 · 技术部</div>
+    </div>
+    <div class="list-item">
+      有奖建议信活动上线
+      <div class="meta">2026-10-28 · 运营部</div>
+    </div>
+    <div class="list-item">
+      栈序工坊社区规则更新
+      <div class="meta">2026-10-20 · 栈序团队</div>
+    </div>
+  </div>
+
+  <div class="section-title">活动中心</div>
+  <div class="card">
+    <div class="card-title">有奖建议信 <span class="tag tag-yellow">报名中</span></div>
+    <div style="font-size:12px;color:#94a8c7;line-height:1.7">向栈序团队提交产品建议，被采纳最高赢取666元。</div>
+    <button class="btn-full" onclick="toast('服务器压力过大，请稍后重试')">立即报名</button>
+  </div>
+  <div class="card">
+    <div class="card-title">「我问你答」栈序知识问答 <span class="tag tag-green">报名中</span></div>
+    <div style="font-size:12px;color:#94a8c7;line-height:1.7">关于栈序OS、栈序工坊的知识问答，答对最高赢取666元。</div>
+    <button class="btn-full" onclick="toast('服务器压力过大，请稍后重试')">立即报名</button>
+  </div>
+
+  <div class="section-title">关于栈序</div>
+  <div class="card">
+    <div style="font-size:12px;color:#94a8c7;line-height:1.8">
+      栈序工作室致力于打造轻量化、高性能的国产定制系统。<br>
+      QQ 交流群：<b style="color:#73b8ff">586352356</b><br>
+      栈序OS · 栈序工坊 · 栈序云
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const now = new Date();
+document.getElementById('dateStr').textContent = now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日';
+function toast(t){
+  const el=document.getElementById('toast');
+  el.textContent=t;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2000);
+}
+</script>
+</body>
+</html>
