@@ -12,6 +12,7 @@ body{
     radial-gradient(ellipse 600px 300px at 20% -10%,rgba(74,158,255,0.15),transparent 60%),
     radial-gradient(ellipse 500px 250px at 90% 20%,rgba(167,139,250,0.1),transparent 60%);
 }
+body.plain *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .topbar{
   position:sticky;top:0;z-index:50;
   background:rgba(8,11,18,0.7);backdrop-filter:blur(20px);
@@ -69,6 +70,24 @@ body{
   transition:all .3s;z-index:999;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* 设置弹窗 */
+#settingsMask{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;backdrop-filter:blur(4px)}
+.sheet{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(15,20,30,0.95);backdrop-filter:blur(28px);
+  border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;
+  padding:20px 18px calc(20px + env(safe-area-inset-bottom));
+}
+.sheet h3{text-align:center;font-size:15px;font-weight:600;margin-bottom:16px}
+.sheet-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;color:#d4e4fb;
+}
+.sheet-row span:last-child{font-size:12px;color:#73b8ff}
+.sheet button{
+  width:100%;padding:13px;margin-top:12px;border-radius:12px;font-size:15px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:#94a8c7;
+}
 </style>
 </head>
 <body>
@@ -76,24 +95,23 @@ body{
 <div class="topbar">
   <div class="logo">栈序云<small>用户版</small></div>
   <div class="top-actions">
-    <button class="top-btn" onclick="location.href='checkin.html'">签到</button>
-    <button class="top-btn" onclick="location.href='admin.html'">管理员登录</button>
+    <button class="top-btn" onclick="openSettings()">⚙</button>
   </div>
 </div>
 
 <div class="container">
 
   <div class="welcome">
-    <h2 id="hello">你好，栈序用户 👋</h2>
+    <h2>你好，栈序用户 👋</h2>
     <p>v1.0.1 · 今天是 <span id="dateStr"></span></p>
   </div>
 
   <div class="grid">
-    <div class="entry" onclick="toast('活动报名：服务器压力过大，请稍后重试')">
+    <div class="entry" onclick="toast('服务器压力过大，请稍后重试')">
       <div class="entry-icon">🎁</div>
       <div class="entry-name">有奖建议信</div>
     </div>
-    <div class="entry" onclick="toast('知识问答：服务器压力过大，请稍后重试')">
+    <div class="entry" onclick="toast('服务器压力过大，请稍后重试')">
       <div class="entry-icon">❓</div>
       <div class="entry-name">我问你答</div>
     </div>
@@ -110,7 +128,7 @@ body{
   <div class="section-title">最新公告</div>
   <div class="card">
     <div class="list-item">
-      栈序OS 1.2 灰度推送
+      栈序OS 1.0 beta 6 灰度推送
       <div class="meta">2026-10-31 · 技术部</div>
     </div>
     <div class="list-item">
@@ -135,15 +153,27 @@ body{
     <button class="btn-full" onclick="toast('服务器压力过大，请稍后重试')">立即报名</button>
   </div>
 
-  <div class="section-title">关于栈序</div>
+  <div class="section-title">开发软件</div>
   <div class="card">
-    <div style="font-size:12px;color:#94a8c7;line-height:1.8">
-      栈序工作室致力于打造轻量化、高性能的国产定制系统。<br>
-      QQ 交流群：<b style="color:#73b8ff">586352356</b><br>
-      栈序OS · 栈序工坊 · 栈序云
+    <div style="font-size:13px;color:#d4e4fb;line-height:2">
+      📱 <b>栈序OS</b>：AOSP深度定制手机系统<br>
+      🏪 <b>栈序工坊</b>：穿戴应用开发者平台<br>
+      ☁️ <b>栈序云</b>：团队协作与管理后台<br>
+      QQ 群：<b style="color:#73b8ff">586352356</b>
     </div>
   </div>
 
+</div>
+
+<!-- 设置 -->
+<div id="settingsMask" onclick="if(event.target===this)closeSettings()">
+  <div class="sheet">
+    <h3>设置</h3>
+    <div class="sheet-row" onclick="toggleTheme()"><span>界面风格</span><span id="themeLabel">液态玻璃</span></div>
+    <div class="sheet-row" onclick="showTeam()"><span>栈序团队</span><span>查看 ›</span></div>
+    <div class="sheet-row"><span>版本号</span><span>v1.0.1</span></div>
+    <button onclick="closeSettings()">关闭</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -155,6 +185,17 @@ function toast(t){
   const el=document.getElementById('toast');
   el.textContent=t;el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),2000);
+}
+function openSettings(){document.getElementById('settingsMask').style.display='block'}
+function closeSettings(){document.getElementById('settingsMask').style.display='none'}
+let liquid=true;
+function toggleTheme(){
+  liquid=!liquid;
+  document.body.classList.toggle('plain',!liquid);
+  document.getElementById('themeLabel').textContent=liquid?'液态玻璃':'普通界面';
+}
+function showTeam(){
+  alert('栈序团队\n\n超级管理员：张岳、徐文桐\n管理员：陆宇、周天浩、迪、蔡子润、闻浩楠、秦之俊、徐子俊');
 }
 </script>
 </body>
