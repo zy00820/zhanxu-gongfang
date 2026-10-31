@@ -288,6 +288,9 @@ body.plain .ann-card.open{
       <div style="text-align:center;margin-top:12px">
         <a onclick="showRecover()" style="color:rgba(115,184,255,0.7);font-size:12px;cursor:pointer;text-decoration:underline">忘记密码？使用安全密钥解锁</a>
       </div>
+      <div style="text-align:center;margin-top:8px">
+        <a onclick="regMaint()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？申请注册</a>
+      </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
         <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.1 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 新增员工服务、公单处理、活动中心<br>· 安全密钥解锁登录<br>· 新增每日签到</div>
@@ -944,6 +947,13 @@ function showMaint(){
 function activitySignup(){
   const t=document.getElementById('toast');
   document.getElementById('toastText').textContent='服务器压力过大，请稍后重试';
+  t.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>t.classList.remove('show'),2200);
+}
+function regMaint(){
+  const t=document.getElementById('toast');
+  document.getElementById('toastText').textContent='注册通道维护中，敬请期待';
   t.classList.add('show');
   clearTimeout(window._tt);
   window._tt=setTimeout(()=>t.classList.remove('show'),2200);
