@@ -175,6 +175,20 @@ body{min-height:100vh;background:#080b12;background-image:linear-gradient(rgba(2
 
     <!-- 我的 -->
     <div class="view" id="view-me">
+      <!-- 账户信息 -->
+      <div class="card">
+        <div class="liquid" style="width:120px;height:120px;background:#fbbf24;top:-30px;left:-20px"></div>
+        <div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:10px">账户服务</div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+          <span style="color:#607494">账户余额</span>
+          <span style="color:#34d399;font-weight:600">¥0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px">
+          <span style="color:#607494">账户等级</span>
+          <span style="color:#fbbf24;font-weight:600">Lv.3 签到达人</span>
+        </div>
+      </div>
+
       <!-- 开发者中心 -->
       <div class="card" onclick="openDevCenter()" style="cursor:pointer">
         <div class="liquid" style="width:120px;height:120px;background:#34d399;top:-30px;right:-20px"></div>
@@ -187,10 +201,16 @@ body{min-height:100vh;background:#080b12;background-image:linear-gradient(rgba(2
         </div>
       </div>
 
-      <!-- 团队成员 -->
+      <!-- 管理员列表 -->
       <div class="card">
-        <div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:8px">团队成员</div>
-        <div id="teamList"></div>
+        <div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:8px">管理员列表</div>
+        <div id="adminList"></div>
+      </div>
+
+      <!-- 用户列表 -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:8px">用户列表</div>
+        <div id="userList"></div>
       </div>
     </div>
   </div>
@@ -254,17 +274,21 @@ function enterApp(){
   if(acc.level==='超级管理员'){
     badge.textContent='已授权';badge.style.background='rgba(52,211,153,0.18)';badge.style.color='#34d399';
   }
-  renderTeam();
+  renderLists();
 }
-function renderTeam(){
-  document.getElementById('teamList').innerHTML=Object.entries(ACCOUNTS).map(([uid,a])=>{
+function renderLists(){
+  const admins=Object.entries(ACCOUNTS).filter(([_,a])=>a.level!=='普通用户');
+  const users=Object.entries(ACCOUNTS).filter(([_,a])=>a.level==='普通用户');
+  const row=(uid,a)=>{
     const c=AVATAR_COLORS[uid.slice(-1)%6];
     const badge=a.level==='超级管理员'?'<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(251,191,36,0.18);color:#fbbf24;margin-left:6px">超管</span>':a.level==='管理员'?'<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(115,184,255,0.18);color:#73b8ff;margin-left:6px">管理员</span>':'';
     return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0">
       <div style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#080b12;background:linear-gradient(135deg,${c[0]},${c[1]})">${a.name.charAt(0)}</div>
       <div style="flex:1"><div style="font-size:13px;color:#d4e4fb">${a.name}${badge}</div><div style="font-size:10px;color:#607494">${uid}</div></div>
     </div>`;
-  }).join('');
+  };
+  document.getElementById('adminList').innerHTML=admins.map(([uid,a])=>row(uid,a)).join('');
+  document.getElementById('userList').innerHTML=users.length?users.map(([uid,a])=>row(uid,a)).join(''):'<div style="font-size:12px;color:#607494;text-align:center;padding:10px">暂无用户</div>';
 }
 function doSign(){
   const btn=document.getElementById('btnSign');
