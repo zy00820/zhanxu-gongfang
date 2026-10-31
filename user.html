@@ -7,59 +7,65 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
 body{
-  min-height:100vh;background:#080b12;color:#e8edf7;
+  min-height:100vh;background:#080b12;
   background-image:linear-gradient(rgba(20,40,80,0.18) 1px,transparent 1px),linear-gradient(90deg,rgba(20,40,80,0.18) 1px,transparent 1px);
-  background-size:40px 40px;padding:0 0 60px;
+  background-size:40px 40px;color:#e8edf7;padding:0 0 80px;
 }
-/* 登录页 */
+/* 登录 */
 .login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
-.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:0.55;pointer-events:none;z-index:0}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:0.5;pointer-events:none;z-index:0}
 .blob-1{width:320px;height:320px;background:#4a9eff;top:-80px;left:-60px;animation:f1 12s ease-in-out infinite}
 .blob-2{width:280px;height:280px;background:#a78bfa;bottom:-60px;right:-40px;animation:f2 14s ease-in-out infinite}
-.blob-3{width:200px;height:200px;background:#34d399;top:40%;left:30%;opacity:0.35;animation:f3 16s ease-in-out infinite}
 @keyframes f1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,30px) scale(1.15)}}
 @keyframes f2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,-40px) scale(1.1)}}
-@keyframes f3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,20px) scale(0.9)}}
 .login-box{position:relative;z-index:1;width:100%;max-width:380px;background:rgba(255,255,255,0.08);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border:1px solid rgba(255,255,255,0.18);border-radius:24px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.25)}
 .login-logo{text-align:center;margin-bottom:26px}
-.login-logo .mark{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;margin-bottom:14px;box-shadow:0 6px 20px rgba(115,184,255,0.4),inset 0 1px 0 rgba(255,255,255,0.4)}
-.login-logo h1{font-size:21px;color:#f0f5ff;font-weight:600}
+.login-logo .mark{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;margin-bottom:14px;box-shadow:0 6px 20px rgba(115,184,255,0.4)}
+.login-logo h1{font-size:20px;color:#f0f5ff;font-weight:600}
 .login-logo p{font-size:12.5px;color:rgba(255,255,255,0.55);margin-top:6px}
 .field{margin-bottom:16px}
 .field label{display:block;font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:7px}
-.field input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#fff;font-size:15px;outline:none;transition:all .25s;backdrop-filter:blur(10px)}
-.field input:focus{border-color:rgba(115,184,255,0.6);background:rgba(255,255,255,0.12);box-shadow:0 0 0 3px rgba(115,184,255,0.15)}
+.field input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#fff;font-size:15px;outline:none;transition:all .25s}
+.field input:focus{border-color:rgba(115,184,255,0.6);background:rgba(255,255,255,0.12)}
 .field input::placeholder{color:rgba(255,255,255,0.3)}
-.btn-login{width:100%;padding:14px;margin-top:10px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(91,141,239,0.35),inset 0 1px 0 rgba(255,255,255,0.3)}
+.btn-login{width:100%;padding:14px;margin-top:8px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer}
 .login-err{color:#f87171;font-size:12px;text-align:center;min-height:18px;margin-top:10px}
-/* 顶部栏 */
-.topbar{position:sticky;top:0;z-index:100;background:rgba(8,11,18,0.75);backdrop-filter:blur(16px);border-bottom:1px solid rgba(115,184,255,0.15);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+/* 顶部 */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(8,11,18,0.75);backdrop-filter:blur(16px);border-bottom:1px solid rgba(115,184,255,0.15);padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
 .topbar .logo{font-size:17px;font-weight:600;color:#73b8ff}
 .topbar .logo small{font-size:11px;color:#607494;font-weight:400;margin-left:6px}
-.user-chip{display:flex;align-items:center;gap:8px;background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.2);padding:5px 12px 5px 5px;border-radius:99px}
-.user-chip .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#080b12}
+.user-chip{display:flex;align-items:center;gap:10px;cursor:pointer;background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.2);padding:5px 12px 5px 5px;border-radius:99px}
+.user-chip .avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#080b12;background:linear-gradient(135deg,#73b8ff,#a78bfa)}
 .user-chip .uname{font-size:13px;color:#d4e4fb}
-.btn-logout{background:transparent;border:1px solid rgba(248,113,113,0.35);color:#f87171;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer}
 .container{max-width:720px;margin:0 auto;padding:18px}
-.card{background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);border:1px solid rgba(115,184,255,0.18);border-radius:14px;padding:18px;margin-bottom:12px}
-/* 个人资料 */
-.profile{display:flex;gap:14px;align-items:center;margin-bottom:16px}
-.profile .avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#080b12;flex-shrink:0}
-.profile .name{font-size:18px;font-weight:600;color:#f0f5ff}
-.profile .bio{font-size:13px;color:#94a8c7;margin-top:3px}
-.profile .uid{font-size:11px;color:#607494;margin-top:2px}
-/* 功能入口 */
-.menu-item{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;transition:background .2s}
-.menu-item:last-child{border-bottom:none}
-.menu-item:active{background:rgba(115,184,255,0.06)}
-.menu-item .left{display:flex;align-items:center;gap:12px}
-.menu-item .icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.menu-item .title{font-size:15px;color:#f0f5ff;font-weight:500}
-.menu-item .desc{font-size:12px;color:#607494;margin-top:2px}
-.menu-item .arrow{color:#607494;font-size:14px}
-.menu-item .tag{font-size:10px;padding:2px 8px;border-radius:5px;margin-left:8px}
+.card{background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);border:1px solid rgba(115,184,255,0.18);border-radius:14px;padding:16px;margin-bottom:12px}
+/* 签到 */
+.sign-card{display:flex;justify-content:space-between;align-items:center}
+.sign-card .btn-sign{padding:10px 22px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
+.sign-card .btn-sign.done{background:rgba(52,211,153,0.2);color:#34d399}
+/* 活动 */
+.activity-tag{font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(52,211,153,0.18);color:#34d399}
+.btn-signup{width:100%;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer;margin-top:10px}
+/* 用户列表 */
+.user-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.user-row:last-child{border-bottom:none}
+.user-row .avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#080b12;flex-shrink:0}
+.user-row .name{font-size:14px;color:#d4e4fb;font-weight:500}
+.user-row .info{font-size:11px;color:#607494;margin-top:2px}
+.user-row .badge{font-size:10px;padding:2px 7px;border-radius:5px;margin-left:6px}
+/* 弹窗 */
+.mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.95);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+.sheet h3{text-align:center;font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:16px}
+.avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+.avatar-opt{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#080b12;cursor:pointer;border:3px solid transparent;transition:all .2s}
+.avatar-opt.sel{border-color:#73b8ff;transform:scale(1.1)}
+.sheet input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#fff;font-size:14px;outline:none;margin-bottom:12px}
+.sheet .btn{width:100%;padding:13px;border-radius:12px;font-size:15px;cursor:pointer;border:none;margin-top:8px}
+.sheet .btn-primary{background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;font-weight:600}
+.sheet .btn-ghost{background:rgba(255,255,255,0.06);color:#94a8c7}
 /* toast */
-.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);background:rgba(20,28,45,0.95);border:1px solid rgba(115,184,255,0.3);color:#e8edf7;padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:all .3s;z-index:999;max-width:80%;text-align:center}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);background:rgba(20,28,45,0.95);border:1px solid rgba(115,184,255,0.3);color:#e8edf7;padding:12px 22px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:all .3s;z-index:999}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #app{display:none}
 #app.logged-in{display:block}
@@ -67,165 +73,180 @@ body{
 </head>
 <body>
 
-<!-- 登录页 -->
+<!-- 登录 -->
 <div class="login-page" id="loginPage">
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
+  <div class="blob blob-1"></div><div class="blob blob-2"></div>
   <div class="login-box">
     <div class="login-logo">
       <div class="mark">栈</div>
       <h1>栈序云 · 用户版</h1>
-      <p>请使用用户账号登录</p>
+      <p>请使用账号登录</p>
     </div>
-    <div class="field">
-      <label>账号</label>
-      <input type="text" id="inpUser" placeholder="请输入用户账号" autocomplete="off">
-    </div>
-    <div class="field">
-      <label>密码</label>
-      <input type="password" id="inpPwd" placeholder="请输入密码">
-    </div>
+    <div class="field"><label>账号</label><input type="text" id="inpUser" placeholder="请输入账号"></div>
+    <div class="field"><label>密码</label><input type="password" id="inpPwd" placeholder="请输入密码"></div>
     <div class="login-err" id="loginErr"></div>
     <button class="btn-login" onclick="doLogin()">登 录</button>
-    <button style="width:100%;padding:13px;margin-top:10px;background:rgba(255,255,255,0.06);color:#94a8c7;border:1px solid rgba(255,255,255,0.12);border-radius:12px;font-size:14px;cursor:pointer" onclick="registerMaint()">注 册</button>
-    <div style="text-align:center;margin-top:14px;font-size:12px">
-      <a onclick="toast('请联系管理员重置密码')" style="color:rgba(115,184,255,0.7);cursor:pointer;text-decoration:underline">忘记密码？</a>
-    </div>
   </div>
 </div>
 
-<!-- 用户主页 -->
+<!-- 用户版主界面 -->
 <div id="app">
   <div class="topbar">
     <div class="logo">栈序云<small>用户版</small></div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <div class="user-chip">
-        <div class="avatar" id="avatarText">哈</div>
-        <div class="uname" id="unameText">哈哈</div>
-      </div>
-      <button class="btn-logout" onclick="doLogout()">退出</button>
+    <div class="user-chip" onclick="openProfile()">
+      <div class="avatar" id="myAvatar">张</div>
+      <div class="uname" id="myName">张岳</div>
     </div>
   </div>
 
   <div class="container">
-    <!-- 个人资料 -->
+    <!-- 签到 -->
+    <div class="card sign-card">
+      <div>
+        <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">每日签到</div>
+        <div style="font-size:12px;color:#607494">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">3</span> 天</div>
+      </div>
+      <button class="btn-sign" id="btnSign" onclick="doSign()">签到</button>
+    </div>
+
+    <!-- 活动中心 -->
     <div class="card">
-      <div class="profile">
-        <div class="avatar" id="bigAvatar">哈</div>
-        <div>
-          <div class="name" id="bigName">哈哈</div>
-          <div class="bio" id="bigBio">我很懒哦</div>
-          <div class="uid" id="bigUid">UID: 100200000</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:15px;font-weight:600;color:#f0f5ff">活动中心</div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-size:14px;font-weight:600;color:#f0f5ff">有奖建议信</div>
+          <span class="activity-tag">报名中</span>
         </div>
+        <div style="font-size:12px;color:#a0b4d2;line-height:1.6">向栈序团队提交产品建议，被采纳最高赢取666元。截止 2026-11-15。</div>
+        <button class="btn-signup" onclick="signup()">立即报名</button>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-size:14px;font-weight:600;color:#f0f5ff">「我问你答」栈序知识问答</div>
+          <span class="activity-tag">报名中</span>
+        </div>
+        <div style="font-size:12px;color:#a0b4d2;line-height:1.6">栈序OS、栈序工坊知识问答，最高赢取666元。</div>
+        <button class="btn-signup" onclick="signup()">立即报名</button>
       </div>
     </div>
 
-    <!-- 功能菜单 -->
-    <div class="card" style="padding:0">
-      <div class="menu-item" onclick="toast('功能建设中')">
-        <div class="left">
-          <div class="icon" style="background:rgba(115,184,255,0.15);color:#73b8ff">📱</div>
-          <div>
-            <div class="title">我的应用</div>
-            <div class="desc">已安装的栈序应用</div>
-          </div>
-        </div>
-        <div class="arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="toast('功能建设中')">
-        <div class="left">
-          <div class="icon" style="background:rgba(52,211,153,0.15);color:#34d399">⌚</div>
-          <div>
-            <div class="title">我的表盘</div>
-            <div class="desc">已下载的表盘资源</div>
-          </div>
-        </div>
-        <div class="arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="tryDevCenter()">
-        <div class="left">
-          <div class="icon" style="background:rgba(251,191,36,0.15);color:#fbbf24">⚙️</div>
-          <div>
-            <div class="title">开发者中心<span class="tag" style="background:rgba(251,191,36,0.2);color:#fbbf24">未授权</span></div>
-            <div class="desc">上传应用、表盘、管理固件</div>
-          </div>
-        </div>
-        <div class="arrow">›</div>
-      </div>
-      <div class="menu-item" onclick="toast('功能建设中')">
-        <div class="left">
-          <div class="icon" style="background:rgba(167,139,250,0.15);color:#c4b5fd">📋</div>
-          <div>
-            <div class="title">我的工单</div>
-            <div class="desc">提交的反馈与处理进度</div>
-          </div>
-        </div>
-        <div class="arrow">›</div>
-      </div>
+    <!-- 团队成员 -->
+    <div class="card">
+      <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:10px">团队成员</div>
+      <div id="teamList"></div>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"><span id="toastText"></span></div>
+<!-- 个人资料弹窗 -->
+<div class="mask" id="profileMask" onclick="if(event.target===this)closeProfile()">
+  <div class="sheet">
+    <h3>个人资料</h3>
+    <div style="font-size:12px;color:#607494;margin-bottom:8px">选择头像</div>
+    <div class="avatar-grid" id="avatarGrid"></div>
+    <div style="font-size:12px;color:#607494;margin-bottom:8px">昵称</div>
+    <input type="text" id="editName" placeholder="输入昵称">
+    <button class="btn btn-primary" onclick="saveProfile()">保存</button>
+    <button class="btn btn-ghost" onclick="closeProfile()">取消</button>
+    <button class="btn btn-ghost" onclick="doLogout()" style="color:#f87171;border-color:rgba(248,113,113,0.3)">退出登录</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-const USERS = {
-  "100200000": { pwd: "hb123456", name: "哈哈", bio: "我很懒哦", dev: false }
+const AVATAR_COLORS = [
+  ['#73b8ff','#a78bfa'],['#f59e0b','#ef4444'],['#34d399','#10b981'],
+  ['#f472b6','#ec4899'],['#60a5fa','#3b82f6'],['#fbbf24','#f59e0b']
+];
+const ACCOUNTS = {
+  "100000000": { hash:"b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name:"张岳", level:"超级管理员" },
+  "100000001": { hash:"ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name:"徐文桐", level:"超级管理员" },
+  "100000020": { hash:"8ca6337698a3a754baf957d8c76aa9eb484a22a76d72f1aa17ee19172fe24fee", name:"陆宇", level:"管理员" },
+  "100000013": { hash:"c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name:"周天浩", level:"管理员" },
+  "100000014": { hash:"ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name:"迪", level:"管理员" },
+  "100000022": { hash:"719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name:"蔡子润", level:"管理员" },
+  "100000021": { hash:"aac8a922d7ac3a1fa25f4ac118a29ec022e245fd0195ca55bd98b64b77b53278", name:"闻浩楠", level:"管理员" },
+  "100000025": { hash:"c89d383ab20c398cba45862a3a2645668bddbcdc3a655a850c562f95ad8b3bac", name:"秦之俊", level:"管理员" },
+  "100000026": { hash:"5de5508b36a6a4aee8faa6a19704ddf1ffd074e4bda2b5a58921926a3e4545a7", name:"徐子俊", level:"管理员" }
 };
+let myAvatarIdx = 0;
+let myName = '';
 
-function checkAuth(){
-  const u = sessionStorage.getItem('zx_user_v');
-  if(u && USERS[u]){ showApp(u); } else { showLogin(); }
-}
-function showLogin(){
-  document.getElementById('loginPage').style.display='flex';
-  document.getElementById('app').classList.remove('logged-in');
-}
-function showApp(u){
-  const a = USERS[u];
-  document.getElementById('avatarText').textContent = a.name.charAt(0);
-  document.getElementById('bigAvatar').textContent = a.name.charAt(0);
-  document.getElementById('unameText').textContent = a.name;
-  document.getElementById('bigName').textContent = a.name;
-  document.getElementById('bigBio').textContent = a.bio;
-  document.getElementById('bigUid').textContent = 'UID: '+u;
-  document.getElementById('loginPage').style.display='none';
-  document.getElementById('app').classList.add('logged-in');
-}
-async function sha256(str){
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+async function sha256(s){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 async function doLogin(){
-  const u = document.getElementById('inpUser').value.trim();
-  const p = document.getElementById('inpPwd').value;
-  const err = document.getElementById('loginErr');
-  if(!u || !p){ err.textContent='请输入账号和密码'; return; }
-  const a = USERS[u];
-  if(!a || a.pwd !== p){ err.textContent='账号或密码错误'; return; }
-  sessionStorage.setItem('zx_user_v', u);
-  showApp(u);
+  const u=document.getElementById('inpUser').value.trim(), p=document.getElementById('inpPwd').value;
+  const err=document.getElementById('loginErr');
+  if(!u||!p){err.textContent='请输入账号和密码';return}
+  const acc=ACCOUNTS[u];
+  if(!acc){err.textContent='账号或密码错误';return}
+  const h=await sha256(p);
+  if(h!==acc.hash){err.textContent='账号或密码错误';return}
+  sessionStorage.setItem('zx_user',u);
+  myName = acc.name;
+  enterApp();
 }
-function doLogout(){
-  sessionStorage.removeItem('zx_user_v');
-  document.getElementById('inpPwd').value='';
-  showLogin();
+function enterApp(){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('app').classList.add('logged-in');
+  document.getElementById('myName').textContent=myName;
+  document.getElementById('myAvatar').textContent=myName.charAt(0);
+  renderTeam();
 }
-function tryDevCenter(){
-  toast('开发者中心需超管授权，暂未开放');
+function renderTeam(){
+  document.getElementById('teamList').innerHTML = Object.entries(ACCOUNTS).map(([uid,a])=>{
+    const c = AVATAR_COLORS[uid.slice(-1)%6];
+    const badge = a.level==='超级管理员'
+      ? '<span class="badge" style="background:rgba(251,191,36,0.18);color:#fbbf24">超管</span>'
+      : '<span class="badge" style="background:rgba(115,184,255,0.18);color:#73b8ff">管理员</span>';
+    return `<div class="user-row">
+      <div class="avatar" style="background:linear-gradient(135deg,${c[0]},${c[1]})">${a.name.charAt(0)}</div>
+      <div style="flex:1">
+        <div class="name">${a.name}${badge}</div>
+        <div class="info">账号 ${uid}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
-function registerMaint(){
-  toast('注册功能维护中，敬请期待');
+function doSign(){
+  const btn=document.getElementById('btnSign');
+  if(btn.classList.contains('done')){toast('今日已签到');return}
+  btn.classList.add('done');btn.textContent='已签到';
+  document.getElementById('signDays').textContent = parseInt(document.getElementById('signDays').textContent)+1;
+  toast('签到成功 +1 天');
 }
+function signup(){toast('服务器压力过大，请稍后重试')}
+function openProfile(){
+  document.getElementById('editName').value=myName;
+  const grid=document.getElementById('avatarGrid');
+  grid.innerHTML=AVATAR_COLORS.map((c,i)=>
+    `<div class="avatar-opt ${i===myAvatarIdx?'sel':''}" style="background:linear-gradient(135deg,${c[0]},${c[1]})" onclick="selAvatar(${i})">${myName.charAt(0)}</div>`
+  ).join('');
+  document.getElementById('profileMask').style.display='block';
+}
+function selAvatar(i){myAvatarIdx=i;document.querySelectorAll('.avatar-opt').forEach((el,j)=>el.classList.toggle('sel',j===i))}
+function saveProfile(){
+  const n=document.getElementById('editName').value.trim();
+  if(n) myName=n;
+  document.getElementById('myName').textContent=myName;
+  document.getElementById('myAvatar').textContent=myName.charAt(0);
+  document.getElementById('myAvatar').style.background=`linear-gradient(135deg,${AVATAR_COLORS[myAvatarIdx][0]},${AVATAR_COLORS[myAvatarIdx][1]})`;
+  closeProfile();toast('资料已保存');
+}
+function closeProfile(){document.getElementById('profileMask').style.display='none'}
+function doLogout(){sessionStorage.removeItem('zx_user');location.reload()}
 function toast(t){
-  const el = document.getElementById('toast');
-  document.getElementById('toastText').textContent = t;
-  el.classList.add('show');
-  clearTimeout(window._tt);
-  window._tt = setTimeout(()=>el.classList.remove('show'),2200);
+  const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');
+  clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('show'),2000);
 }
-checkAuth();
+// 启动
+const u=sessionStorage.getItem('zx_user');
+if(u&&ACCOUNTS[u]){myName=ACCOUNTS[u].name;enterApp();}
 </script>
 </body>
 </html>
