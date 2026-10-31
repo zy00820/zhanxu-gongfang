@@ -38,7 +38,17 @@ body{
 .user-chip .avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#080b12;background:linear-gradient(135deg,#73b8ff,#a78bfa)}
 .user-chip .uname{font-size:13px;color:#d4e4fb}
 .container{max-width:720px;margin:0 auto;padding:18px}
-.card{background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);border:1px solid rgba(115,184,255,0.18);border-radius:14px;padding:16px;margin-bottom:12px}
+.card{
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:16px;padding:18px;margin-bottom:14px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.15);
+  position:relative;overflow:hidden;
+}
+/* 液态光斑 */
+.liquid{position:absolute;border-radius:50%;filter:blur(40px);opacity:0.35;pointer-events:none;z-index:0}
+.card>*{position:relative;z-index:1}
 /* 签到 */
 .sign-card{display:flex;justify-content:space-between;align-items:center}
 .sign-card .btn-sign{padding:10px 22px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
@@ -102,6 +112,7 @@ body{
   <div class="container">
     <!-- 签到 -->
     <div class="card sign-card">
+      <div class="liquid" style="width:120px;height:120px;background:#73b8ff;top:-30px;right:-20px"></div>
       <div>
         <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">每日签到</div>
         <div style="font-size:12px;color:#607494">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">3</span> 天</div>
@@ -111,6 +122,7 @@ body{
 
     <!-- 活动中心 -->
     <div class="card">
+      <div class="liquid" style="width:150px;height:150px;background:#a78bfa;top:-40px;right:-30px"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:15px;font-weight:600;color:#f0f5ff">活动中心</div>
       </div>
@@ -120,7 +132,7 @@ body{
           <span class="activity-tag">报名中</span>
         </div>
         <div style="font-size:12px;color:#a0b4d2;line-height:1.6">向栈序团队提交产品建议，被采纳最高赢取666元。截止 2026-11-15。</div>
-        <button class="btn-signup" onclick="signup()">立即报名</button>
+        <button class="btn-signup" onclick="location.href='https://v.wjx.cn/vm/P4N9I4h.aspx'">立即报名</button>
       </div>
       <div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -134,6 +146,7 @@ body{
 
     <!-- 团队成员 -->
     <div class="card">
+      <div class="liquid" style="width:100px;height:100px;background:#34d399;bottom:-30px;left:-20px"></div>
       <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:10px">团队成员</div>
       <div id="teamList"></div>
     </div>
