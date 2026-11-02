@@ -526,10 +526,7 @@ body.plain .ann-card.open{
             <div style="font-size:11px;color:#fbbf24;margin-top:4px">当前等级：Lv.3 签到达人</div>
           </div>
         </div>
-        <div style="display:flex;gap:8px">
-          <button onclick="withdraw('微信')" style="flex:1;padding:10px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer">微信提现</button>
-          <button onclick="withdraw('支付宝')" style="flex:1;padding:10px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;border-radius:8px;font-size:13px;cursor:pointer">支付宝提现</button>
-        </div>
+        <button onclick="openWithdraw()" style="width:100%;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:14px;cursor:pointer">申请提现</button>
       </div>
       <div class="card ann-card" onclick="this.classList.toggle('open')">
         <div class="ann-head">
@@ -701,8 +698,46 @@ body.plain .ann-card.open{
   </div>
 </div>
 
+<!-- 提现向导（三步） -->
+<div id="wdMask" onclick="if(event.target===this)closeWithdraw()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:320;backdrop-filter:blur(4px)">
+  <div style="position:absolute;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:rgba(15,20,30,0.94);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
+    <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:6px">申请提现</div>
+    <div id="wdSteps" style="text-align:center;font-size:12px;color:#73b8ff;margin-bottom:18px">第 1 步 / 共 3 步</div>
+
+    <!-- 第一步：金额 -->
+    <div id="wdStep1">
+      <div style="font-size:13px;color:#a0b4d2;margin-bottom:10px">请输入提现金额（最低 50 元）</div>
+      <input type="number" id="wdAmount" placeholder="提现金额" style="width:100%;padding:13px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.25);border-radius:10px;color:#fff;font-size:15px;outline:none;box-sizing:border-box">
+      <div id="wdErr1" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
+    </div>
+
+    <!-- 第二步：渠道与账号 -->
+    <div id="wdStep2" style="display:none">
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <button id="wdChWx" onclick="wdPickChannel('微信')" style="flex:1;padding:11px;background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.5);color:#73b8ff;border-radius:10px;font-size:14px;cursor:pointer">微信</button>
+        <button id="wdChZfb" onclick="wdPickChannel('支付宝')" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#94a8c7;border-radius:10px;font-size:14px;cursor:pointer">支付宝</button>
+      </div>
+      <input type="text" id="wdAccount" placeholder="请输入微信 / 支付宝账号" style="width:100%;padding:13px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.25);border-radius:10px;color:#fff;font-size:15px;outline:none;box-sizing:border-box">
+      <div id="wdErr2" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
+    </div>
+
+    <!-- 第三步：密钥 -->
+    <div id="wdStep3" style="display:none;text-align:center">
+      <div style="font-size:13px;color:#a0b4d2;margin-bottom:12px">请保存以下 12 位提现密钥</div>
+      <div id="wdSecret" style="font-size:24px;font-weight:700;letter-spacing:3px;color:#34d399;background:rgba(52,211,153,0.1);border:1px dashed rgba(52,211,153,0.5);border-radius:12px;padding:20px 10px;margin-bottom:14px"></div>
+      <div style="font-size:12px;color:#fbbf24;line-height:1.7;text-align:left;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:10px;padding:12px 14px">
+        请截图本页，并附上你的栈序账号与密码，发送至邮箱：<br><span style="color:#fbbf24;font-weight:600">zy291817@outlook.com</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button id="wdBack" onclick="wdBack()" style="flex:1;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:10px;font-size:14px;cursor:pointer">上一步</button>
+      <button id="wdNext" onclick="wdNext()" style="flex:1;padding:12px;background:linear-gradient(135deg,#73b8ff,#5b8def);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">下一步</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// 账号配置
 const ACCOUNTS = {
   "100000000": { hash: "b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name: "张岳", level: "超级管理员", key: "57a67bfc", balance: 1162 },
   "100000001": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "徐文桐", level: "超级管理员", key: "3db80897", balance: 11632 },
@@ -1034,8 +1069,75 @@ function openDevCenter(){
     toastMsg('开发者中心需超管授权，请联系张岳/徐文桐');
   }
 }
-function withdraw(ch){
-  toastMsg(ch+'提现通道维护中，敬请期待');
+/* ===== 提现三步向导 ===== */
+let wdStep = 1;
+let wdChannel = '微信';
+let wdData = { amount: 0, channel: '微信', account: '', secret: '' };
+
+function openWithdraw(){
+  wdStep = 1;
+  wdData = { amount: 0, channel: '微信', account: '', secret: '' };
+  document.getElementById('wdAmount').value = '';
+  document.getElementById('wdAccount').value = '';
+  document.getElementById('wdErr1').textContent = '';
+  document.getElementById('wdErr2').textContent = '';
+  wdPickChannel('微信');
+  wdShow();
+  document.getElementById('wdMask').style.display = 'block';
+}
+function closeWithdraw(){
+  document.getElementById('wdMask').style.display = 'none';
+}
+function wdPickChannel(ch){
+  wdChannel = ch;
+  wdData.channel = ch;
+  const wx = document.getElementById('wdChWx');
+  const zfb = document.getElementById('wdChZfb');
+  const active = 'background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.5);color:#73b8ff';
+  const idle = 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#94a8c7';
+  wx.style.cssText = ch === '微信' ? active : idle;
+  zfb.style.cssText = ch === '支付宝' ? active : idle;
+}
+function wdShow(){
+  document.getElementById('wdSteps').textContent = '第 ' + wdStep + ' 步 / 共 3 步';
+  document.getElementById('wdStep1').style.display = wdStep === 1 ? 'block' : 'none';
+  document.getElementById('wdStep2').style.display = wdStep === 2 ? 'block' : 'none';
+  document.getElementById('wdStep3').style.display = wdStep === 3 ? 'block' : 'none';
+  document.getElementById('wdBack').style.visibility = wdStep === 1 ? 'hidden' : 'visible';
+  document.getElementById('wdNext').textContent = wdStep === 3 ? '完成' : '下一步';
+}
+function wdBack(){
+  if (wdStep > 1){ wdStep--; wdShow(); }
+}
+function wdNext(){
+  if (wdStep === 1){
+    const v = parseFloat(document.getElementById('wdAmount').value);
+    if (isNaN(v) || v < 50){
+      document.getElementById('wdErr1').textContent = '提现金额不得少于 50 元';
+      return;
+    }
+    wdData.amount = v;
+    wdStep = 2; wdShow();
+  } else if (wdStep === 2){
+    const acc = document.getElementById('wdAccount').value.trim();
+    if (!acc){
+      document.getElementById('wdErr2').textContent = '请输入' + wdData.channel + '账号';
+      return;
+    }
+    wdData.account = acc;
+    wdData.secret = wdGenSecret();
+    document.getElementById('wdSecret').textContent = wdData.secret;
+    wdStep = 3; wdShow();
+  } else {
+    closeWithdraw();
+    toastMsg('提现申请已提交，请按提示发送邮件');
+  }
+}
+function wdGenSecret(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 12; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
+  return s;
 }
 function regMaint(){
   const t=document.getElementById('toast');
