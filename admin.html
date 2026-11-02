@@ -522,7 +522,7 @@ body.plain .ann-card.open{
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div>
             <div style="font-size:12px;color:#607494;margin-bottom:4px">我的余额</div>
-            <div style="font-size:22px;font-weight:700;color:#34d399">¥0.00</div>
+            <div style="font-size:22px;font-weight:700;color:#34d399" id="myBalance">¥0.00</div>
             <div style="font-size:11px;color:#fbbf24;margin-top:4px">当前等级：Lv.3 签到达人</div>
           </div>
         </div>
@@ -708,7 +708,7 @@ const ACCOUNTS = {
   "100000001": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "徐文桐", level: "超级管理员", key: "3db80897", balance: 0 },
   "100000020": { hash: "8ca6337698a3a754baf957d8c76aa9eb484a22a76d72f1aa17ee19172fe24fee", name: "陆宇", level: "管理员", key: "7be2724d", balance: 0 },
   "100000013": { hash: "c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name: "周天浩", level: "管理员", key: "2279d6f8", balance: 0 },
-  "100000014": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "迪", level: "管理员", key: "44f28222", balance: 0 },
+  "100000014": { hash: "7d38ec28e62ff45a8c2098ab175f81c31fbe8914b72aba142f17ac1b5f3f5873", name: "王浩宇", level: "管理员", key: "44f28222", balance: 0 },
   "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员", key: "5169f1dc", balance: 0 },
   "100000021": { hash: "aac8a922d7ac3a1fa25f4ac118a29ec022e245fd0195ca55bd98b64b77b53278", name: "闻浩楠", level: "管理员", key: "ea2a1b33", balance: 0 },
   "100000025": { hash: "c89d383ab20c398cba45862a3a2645668bddbcdc3a655a850c562f95ad8b3bac", name: "秦之俊", level: "管理员", key: "250c5704", balance: 0 },
@@ -742,6 +742,9 @@ function showApp(u){
   }
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').classList.add('logged-in');
+  // 我的余额与员工管理同源（ACCOUNTS[uid].balance），保持同步
+  const myBal = document.getElementById('myBalance');
+  if(myBal) myBal.textContent = '¥' + Number(acc.balance || 0).toFixed(2);
   renderStaff(acc);
   currentIsSuper = acc.level === '超级管理员';
   document.getElementById('btnAddMeeting').style.display = currentIsSuper ? '' : 'none';
