@@ -1079,7 +1079,14 @@ function openDevCenter(){
 let wdStep = 1;
 let wdChannel = '微信';
 let wdData = { amount: 0, channel: '微信', account: '', secret: '' };
-let wdRecords = []; // 已提交的提现申请，供超管凭密钥解析
+// 提现记录持久化到 localStorage（按域名共享，不区分账号），换号/退出重登后仍可解析
+function loadWdRecords(){
+  try { return JSON.parse(localStorage.getItem('zx_wd_records') || '[]'); }
+  catch(e){ return []; }
+}
+function saveWdRecords(list){
+  localStorage.setItem('zx_wd_records', JSON.stringify(list));
+}
 
 function openWithdraw(){
   wdStep = 1;
@@ -1144,7 +1151,8 @@ function wdNext(){
   } else {
     const uid = sessionStorage.getItem('zx_user');
     const acc = ACCOUNTS[uid] || {};
-    wdRecords.push({
+    const all = loadWdRecords();
+    all.push({
       secret: wdData.secret,
       uid: uid,
       name: acc.name || uid,
@@ -1153,6 +1161,7 @@ function wdNext(){
       payAccount: wdData.account,
       time: new Date().toLocaleString()
     });
+    saveWdRecords(all);
     closeWithdraw();
     toastMsg('提现申请已提交，请按提示发送邮件');
   }
@@ -1167,7 +1176,7 @@ async function decodeWithdraw(){
   const input = await glassPrompt('提现密钥解析', '请输入 12 位提现密钥', '');
   if(!input) return;
   const key = input.trim().toUpperCase();
-  const rec = wdRecords.find(r => r.secret === key);
+  const rec = loadWdRecords().find(r => r.secret === key);
   if(!rec){
     await glassAlert('解析失败', '未找到该密钥对应的提现记录，请确认密钥是否正确。');
     return;
