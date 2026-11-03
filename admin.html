@@ -292,7 +292,7 @@ body.plain .ann-card.open{
         <a onclick="regMaint()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？申请注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.1 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.2 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 新增员工服务、公单处理、活动中心<br>· 安全密钥解锁登录<br>· 新增每日签到</div>
       </div>
     </div>
@@ -361,7 +361,7 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.1</span>
+        <span style="font-size:12px;color:#607494">v1.0.2</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -527,6 +527,7 @@ body.plain .ann-card.open{
           </div>
         </div>
         <button onclick="openWithdraw()" style="width:100%;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:14px;cursor:pointer">申请提现</button>
+        <button id="wdDecodeBtn" onclick="decodeWithdraw()" style="display:none;width:100%;margin-top:8px;padding:11px;background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;border-radius:8px;font-size:14px;cursor:pointer">提现密钥解析（仅超管）</button>
       </div>
       <div class="card ann-card" onclick="this.classList.toggle('open')">
         <div class="ann-head">
@@ -661,7 +662,7 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.1</span>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.2</span>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -782,6 +783,8 @@ function showApp(u){
   if(myBal) myBal.textContent = '¥' + Number(acc.balance || 0).toFixed(2);
   renderStaff(acc);
   currentIsSuper = acc.level === '超级管理员';
+  const decodeBtn = document.getElementById('wdDecodeBtn');
+  if(decodeBtn) decodeBtn.style.display = currentIsSuper ? 'block' : 'none';
   document.getElementById('btnAddMeeting').style.display = currentIsSuper ? '' : 'none';
   document.getElementById('meetingLock').style.display = currentIsSuper ? 'none' : 'block';
   renderMeetings();
@@ -810,7 +813,7 @@ function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.1 已发布：员工服务整合、公单处理、活动中心上线。');
+  await glassAlert('更新日志', 'v1.0.2 已发布：三步提现向导、超管密钥解析、余额同步。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1073,6 +1076,7 @@ function openDevCenter(){
 let wdStep = 1;
 let wdChannel = '微信';
 let wdData = { amount: 0, channel: '微信', account: '', secret: '' };
+let wdRecords = []; // 已提交的提现申请，供超管凭密钥解析
 
 function openWithdraw(){
   wdStep = 1;
@@ -1116,6 +1120,12 @@ function wdNext(){
       document.getElementById('wdErr1').textContent = '提现金额不得少于 50 元';
       return;
     }
+    const uid = sessionStorage.getItem('zx_user');
+    const bal = (uid && ACCOUNTS[uid]) ? Number(ACCOUNTS[uid].balance || 0) : 0;
+    if (v > bal){
+      document.getElementById('wdErr1').textContent = '提现金额不能大于可用余额（¥' + bal.toFixed(2) + '）';
+      return;
+    }
     wdData.amount = v;
     wdStep = 2; wdShow();
   } else if (wdStep === 2){
@@ -1129,6 +1139,17 @@ function wdNext(){
     document.getElementById('wdSecret').textContent = wdData.secret;
     wdStep = 3; wdShow();
   } else {
+    const uid = sessionStorage.getItem('zx_user');
+    const acc = ACCOUNTS[uid] || {};
+    wdRecords.push({
+      secret: wdData.secret,
+      uid: uid,
+      name: acc.name || uid,
+      amount: wdData.amount,
+      channel: wdData.channel,
+      payAccount: wdData.account,
+      time: new Date().toLocaleString()
+    });
     closeWithdraw();
     toastMsg('提现申请已提交，请按提示发送邮件');
   }
@@ -1138,6 +1159,22 @@ function wdGenSecret(){
   let s = '';
   for (let i = 0; i < 12; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
   return s;
+}
+async function decodeWithdraw(){
+  const input = await glassPrompt('提现密钥解析', '请输入 12 位提现密钥', '');
+  if(!input) return;
+  const key = input.trim().toUpperCase();
+  const rec = wdRecords.find(r => r.secret === key);
+  if(!rec){
+    await glassAlert('解析失败', '未找到该密钥对应的提现记录，请确认密钥是否正确。');
+    return;
+  }
+  await glassAlert('提现申请信息',
+    '申请人：' + rec.name + '（' + rec.uid + '）\n' +
+    '提现金额：¥' + Number(rec.amount).toFixed(2) + '\n' +
+    '提现渠道：' + rec.channel + '\n' +
+    '收款账号：' + rec.payAccount + '\n' +
+    '申请时间：' + rec.time);
 }
 function regMaint(){
   const t=document.getElementById('toast');
@@ -1231,6 +1268,13 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.2', date: '2026-11-03', items: [
+      '提现升级为三步向导：金额（50元起且不超过可用余额）→ 渠道与收款账号 → 12 位提现密钥',
+      '新增超管「提现密钥解析」，凭密钥可查看申请人、金额、渠道、收款账号与时间',
+      '我的余额与员工管理同源同步，登录即显示真实余额',
+      '账号 100000014 更名为王浩宇并更新登录密码',
+      '更新部分员工账户余额数据'
+    ]},
     { ver: 'v1.0.1', date: '2026-10-31', items: [
       '栈序OS 最新版本 1.0beta6 发布',
       '新增员工服务、公单处理、活动中心、更新日志模块',
