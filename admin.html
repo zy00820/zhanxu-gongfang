@@ -528,6 +528,7 @@ body.plain .ann-card.open{
         </div>
         <button onclick="openWithdraw()" style="width:100%;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:14px;cursor:pointer">申请提现</button>
         <button id="wdDecodeBtn" onclick="decodeWithdraw()" style="display:none;width:100%;margin-top:8px;padding:11px;background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;border-radius:8px;font-size:14px;cursor:pointer">提现密钥解析（仅超管）</button>
+        <button id="rpDecodeBtn" onclick="decodeReport()" style="display:none;width:100%;margin-top:8px;padding:11px;background:rgba(248,113,113,0.14);border:1px solid rgba(248,113,113,0.4);color:#f87171;border-radius:8px;font-size:14px;cursor:pointer">举报密钥解析（仅超管）</button>
       </div>
       <div class="card ann-card" onclick="this.classList.toggle('open')">
         <div class="ann-head">
@@ -739,6 +740,38 @@ body.plain .ann-card.open{
   </div>
 </div>
 
+<!-- 举报向导（三步） -->
+<div id="rpMask" onclick="if(event.target===this)closeReport()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:340;backdrop-filter:blur(4px)">
+  <div style="position:absolute;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:rgba(15,20,30,0.94);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(248,113,113,0.35);border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
+    <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:6px">举报员工</div>
+    <div id="rpTarget" style="text-align:center;font-size:12px;color:#f87171;margin-bottom:14px"></div>
+    <div id="rpSteps" style="text-align:center;font-size:12px;color:#73b8ff;margin-bottom:18px">第 1 步 / 共 3 步</div>
+
+    <div id="rpStep1">
+      <div style="font-size:13px;color:#a0b4d2;margin-bottom:10px">请输入举报原因</div>
+      <input type="text" id="rpReason" placeholder="例如：违规操作 / 态度问题" style="width:100%;padding:13px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.25);border-radius:10px;color:#fff;font-size:15px;outline:none;box-sizing:border-box">
+      <div id="rpErr1" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
+    </div>
+
+    <div id="rpStep2" style="display:none">
+      <div style="font-size:13px;color:#a0b4d2;margin-bottom:10px">请输入详细理由</div>
+      <textarea id="rpDetail" rows="4" placeholder="请描述具体情况" style="width:100%;padding:13px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.25);border-radius:10px;color:#fff;font-size:15px;outline:none;box-sizing:border-box;resize:vertical"></textarea>
+      <div id="rpErr2" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
+    </div>
+
+    <div id="rpStep3" style="display:none;text-align:center">
+      <div style="font-size:13px;color:#a0b4d2;margin-bottom:12px">请保存以下 12 位举报密钥</div>
+      <div id="rpSecret" style="font-size:24px;font-weight:700;letter-spacing:3px;color:#f87171;background:rgba(248,113,113,0.1);border:1px dashed rgba(248,113,113,0.5);border-radius:12px;padding:20px 10px;margin-bottom:12px"></div>
+      <div style="font-size:12px;color:#a0b4d2;line-height:1.6">超管可凭此密钥在「举报密钥解析」中查看完整举报信息。</div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button id="rpBack" onclick="rpBack()" style="flex:1;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:10px;font-size:14px;cursor:pointer">上一步</button>
+      <button id="rpNext" onclick="rpNext()" style="flex:1;padding:12px;background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">下一步</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const ACCOUNTS = {
   "100000000": { hash: "b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name: "张岳", level: "超级管理员", key: "57a67bfc", balance: 1162 },
@@ -788,6 +821,8 @@ function showApp(u){
   currentIsSuper = acc.level === '超级管理员';
   const decodeBtn = document.getElementById('wdDecodeBtn');
   if(decodeBtn) decodeBtn.style.display = currentIsSuper ? 'block' : 'none';
+  const rpDecodeBtn = document.getElementById('rpDecodeBtn');
+  if(rpDecodeBtn) rpDecodeBtn.style.display = currentIsSuper ? 'block' : 'none';
   document.getElementById('btnAddMeeting').style.display = currentIsSuper ? '' : 'none';
   document.getElementById('meetingLock').style.display = currentIsSuper ? 'none' : 'block';
   renderMeetings();
@@ -850,6 +885,12 @@ function renderStaff(currentAcc){
           </div>
           <div style="font-size:11px;color:#607494;margin-top:2px">账号：${s.uid}</div>
           <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${s.balance ?? 0}</div>
+          <div style="font-size:11px;color:#a78bfa;margin-top:3px">称号：${
+            (s.titles && s.titles.length)
+              ? s.titles.map(t=>`<span style="padding:1px 6px;border-radius:5px;background:rgba(167,139,250,0.16);color:#c4b5fd;margin-right:4px">${t}</span>`).join('')
+              : '暂无'
+          }</div>
+          <button onclick="openReport('${s.uid}','${s.name}')" style="margin-top:8px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">举报</button>
           ${isSuper ? `<div style="font-size:11px;color:#fbbf24;margin-top:2px">安全密钥：${s.key||'未设置'}</div>` : ''}
         </div>
         ${isSuper ? `<div style="display:flex;gap:6px">
@@ -864,8 +905,16 @@ function renderStaff(currentAcc){
   render();
 }
 let staffData = [];
+// 称号：默认暂无，仅张岳、徐文桐有称号
+const TITLES = {
+  "100000000": ["负责人", "JS专家"],
+  "100000001": ["负责人"]
+};
 function initStaffData(){
-  staffData = Object.entries(ACCOUNTS).map(([uid,a])=>({uid, name:a.name, level:a.level, key:a.key, balance:a.balance||0, banned:false}));
+  staffData = Object.entries(ACCOUNTS).map(([uid,a])=>({
+    uid, name:a.name, level:a.level, key:a.key,
+    balance:a.balance||0, titles:TITLES[uid]||[], banned:false
+  }));
 }
 async function addStaff(){
   const uid = await glassPrompt('添加员工','请输入新员工账号（数字）');
@@ -1083,7 +1132,8 @@ let wdData = { amount: 0, channel: '微信', account: '', secret: '' };
 // Token 分段拼接，避免完整密钥出现在源码中
 const GH_TOKEN = ['ghp_0Hx','dyCIi6','JhhJSX','3uV120','Iz6YQo','VYQ34','wYSS'].join('');
 const GH_RECORD_PATH = 'wd-records.json';
-const GH_API = 'https://api.github.com/repos/zy00820/zhanxu-gongfang/contents/' + GH_RECORD_PATH;
+const GH_REPORT_PATH = 'report-records.json';
+const GH_BASE_URL = 'https://api.github.com/repos/zy00820/zhanxu-gongfang/contents/';
 
 function b64encode(str){
   return btoa(unescape(encodeURIComponent(str)));
@@ -1092,9 +1142,9 @@ function b64decode(str){
   return decodeURIComponent(escape(atob(str.replace(/\s/g,''))));
 }
 
-// 读取云端记录：返回 { list:[], sha:'' }；文件不存在时 sha 为 null
-async function ghGetRecords(){
-  const resp = await fetch(GH_API, {
+// 读取指定云端文件：返回 { list:[], sha:null }；文件不存在时 sha 为 null
+async function ghGetRecords(file){
+  const resp = await fetch(GH_BASE_URL + file, {
     headers: { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json' }
   });
   if (resp.status === 404) return { list: [], sha: null };
@@ -1105,23 +1155,22 @@ async function ghGetRecords(){
   return { list, sha: d.sha };
 }
 
-// 追加一条记录到云端
-async function ghAppendRecord(rec){
-  const { list, sha } = await ghGetRecords();
+// 追加一条记录到指定云端文件
+async function ghAppendRecord(file, rec, cacheKey){
+  const { list, sha } = await ghGetRecords(file);
   list.push(rec);
   const body = {
-    message: 'data: 新增提现记录 ' + rec.secret,
+    message: 'data: 新增记录 ' + rec.secret,
     content: b64encode(JSON.stringify(list, null, 0))
   };
   if (sha) body.sha = sha;
-  const resp = await fetch(GH_API, {
+  const resp = await fetch(GH_BASE_URL + file, {
     method: 'PUT',
     headers: { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json' },
     body: JSON.stringify(body)
   });
   if (!resp.ok) throw new Error('写入失败 ' + resp.status);
-  // 同步本地缓存
-  localStorage.setItem('zx_wd_records', JSON.stringify(list));
+  if (cacheKey) localStorage.setItem(cacheKey, JSON.stringify(list));
   return true;
 }
 
@@ -1204,7 +1253,7 @@ async function wdNext(){
       time: new Date().toLocaleString()
     };
     try {
-      await ghAppendRecord(rec);
+      await ghAppendRecord(GH_RECORD_PATH, rec, 'zx_wd_records');
       closeWithdraw();
       toastMsg('提现申请已云端同步，换设备也可解析');
     } catch(e){
@@ -1229,7 +1278,7 @@ async function decodeWithdraw(){
   const key = input.trim().toUpperCase();
   let list;
   try {
-    list = (await ghGetRecords()).list;
+    list = (await ghGetRecords(GH_RECORD_PATH)).list;
   } catch(e){
     list = loadLocalRecords();
   }
@@ -1244,6 +1293,93 @@ async function decodeWithdraw(){
     '提现渠道：' + rec.channel + '\n' +
     '收款账号：' + rec.payAccount + '\n' +
     '申请时间：' + rec.time);
+}
+
+/* ===== 举报三步向导 ===== */
+let rpStep = 1;
+let rpData = { targetUid:'', targetName:'', reason:'', detail:'', secret:'' };
+function openReport(uid, name){
+  rpStep = 1;
+  rpData = { targetUid:uid, targetName:name, reason:'', detail:'', secret:'' };
+  document.getElementById('rpTarget').textContent = '被举报人：' + name + '（' + uid + '）';
+  document.getElementById('rpReason').value = '';
+  document.getElementById('rpDetail').value = '';
+  document.getElementById('rpErr1').textContent = '';
+  document.getElementById('rpErr2').textContent = '';
+  document.getElementById('rpMask').style.display = 'block';
+  rpShow();
+}
+function closeReport(){
+  document.getElementById('rpMask').style.display = 'none';
+}
+function rpShow(){
+  document.getElementById('rpStep1').style.display = rpStep===1 ? 'block' : 'none';
+  document.getElementById('rpStep2').style.display = rpStep===2 ? 'block' : 'none';
+  document.getElementById('rpStep3').style.display = rpStep===3 ? 'block' : 'none';
+  document.getElementById('rpSteps').textContent = '第 ' + rpStep + ' 步 / 共 3 步';
+  document.getElementById('rpBack').style.display = rpStep===1 ? 'none' : '';
+  document.getElementById('rpNext').textContent = rpStep===3 ? '完成' : '下一步';
+}
+function rpBack(){
+  if(rpStep > 1){ rpStep--; rpShow(); }
+}
+async function rpNext(){
+  if(rpStep===1){
+    const v = document.getElementById('rpReason').value.trim();
+    if(!v){ document.getElementById('rpErr1').textContent = '请填写举报原因'; return; }
+    rpData.reason = v;
+    rpStep = 2; rpShow();
+  } else if(rpStep===2){
+    const v = document.getElementById('rpDetail').value.trim();
+    if(!v){ document.getElementById('rpErr2').textContent = '请填写详细理由'; return; }
+    rpData.detail = v;
+    rpData.secret = wdGenSecret();
+    document.getElementById('rpSecret').textContent = rpData.secret;
+    // 提交云端
+    const reporterUid = sessionStorage.getItem('zx_user') || '';
+    const rec = {
+      secret: rpData.secret,
+      targetUid: rpData.targetUid,
+      targetName: rpData.targetName,
+      reason: rpData.reason,
+      detail: rpData.detail,
+      reporterUid: reporterUid,
+      time: new Date().toLocaleString()
+    };
+    try {
+      await ghAppendRecord(GH_REPORT_PATH, rec, 'zx_report_records');
+    } catch(e){
+      const local = JSON.parse(localStorage.getItem('zx_report_records')||'[]');
+      local.push(rec);
+      localStorage.setItem('zx_report_records', JSON.stringify(local));
+    }
+    rpStep = 3; rpShow();
+  } else {
+    closeReport();
+    toastMsg('举报已提交，密钥请妥善保存');
+  }
+}
+async function decodeReport(){
+  const input = await glassPrompt('举报密钥解析', '请输入 12 位举报密钥', '');
+  if(!input) return;
+  const key = input.trim().toUpperCase();
+  let list;
+  try {
+    list = (await ghGetRecords(GH_REPORT_PATH)).list;
+  } catch(e){
+    list = JSON.parse(localStorage.getItem('zx_report_records')||'[]');
+  }
+  const rec = list.find(r => r.secret === key);
+  if(!rec){
+    await glassAlert('解析失败','未找到该密钥对应的举报记录，请确认密钥是否正确。');
+    return;
+  }
+  await glassAlert('举报信息',
+    '被举报人：' + rec.targetName + '（' + rec.targetUid + '）\n' +
+    '举报原因：' + rec.reason + '\n' +
+    '详细理由：' + rec.detail + '\n' +
+    '举报人账号：' + rec.reporterUid + '\n' +
+    '举报时间：' + rec.time);
 }
 function regMaint(){
   const t=document.getElementById('toast');
