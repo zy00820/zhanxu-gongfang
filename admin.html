@@ -421,7 +421,7 @@ body.plain .ann-card.open{
   <div class="container">
     <div class="stats">
       <div class="stat"><div class="num">3</div><div class="label">待审公告</div></div>
-      <div class="stat"><div class="num">12</div><div class="label">社区帖子</div></div>
+      <div class="stat"><div class="num">53</div><div class="label">社区帖子</div></div>
       <div class="stat"><div class="num">876</div><div class="label">活跃用户</div></div>
     </div>
 
@@ -643,6 +643,7 @@ body.plain .ann-card.open{
         <div class="post-content">刷了栈序OS 1.1 之后，蓝牙有时候会自动断开，重连也连不上，重启手机就好。有没有人遇到同样的问题？日志已经贴在附件里了。</div>
         <div class="post-actions"><span>35 赞</span><span>18 评论</span><span>收藏</span></div>
       </div>
+      <div id="extraPosts"></div>
     </div>
 
     <!-- 公单处理 -->
@@ -748,7 +749,9 @@ const ACCOUNTS = {
   "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员", key: "5169f1dc", balance: 0 },
   "100000021": { hash: "aac8a922d7ac3a1fa25f4ac118a29ec022e245fd0195ca55bd98b64b77b53278", name: "闻浩楠", level: "管理员", key: "ea2a1b33", balance: 0 },
   "100000025": { hash: "c89d383ab20c398cba45862a3a2645668bddbcdc3a655a850c562f95ad8b3bac", name: "秦之俊", level: "管理员", key: "250c5704", balance: 0 },
-  "100000026": { hash: "5de5508b36a6a4aee8faa6a19704ddf1ffd074e4bda2b5a58921926a3e4545a7", name: "徐子俊", level: "管理员", key: "e10071f2", balance: 20 }
+  "100000026": { hash: "5de5508b36a6a4aee8faa6a19704ddf1ffd074e4bda2b5a58921926a3e4545a7", name: "徐子俊", level: "管理员", key: "e10071f2", balance: 20 },
+  "100000015": { hash: "dba0a3cca64cac483f3e8d02d30d9fdacb03c97ca27198dbec783c6d0b681d30", name: "李钦", level: "管理员", key: "8f3a2c91", balance: 0 },
+  "100000016": { hash: "7c4be761f4cd4c829dcd8a12011e1afb566dcb2be74ad3701bbd78cb77c88d91", name: "冯天宇", level: "管理员", key: "c27e94b8", balance: 0 }
 };
 
 // 登录态
@@ -1227,20 +1230,82 @@ function glassAlert(title, msg){ return glassOpen({title, msg, okText:'知道了
 // 启动
 // ===== 工单 =====
 let ticketData = [];
+
+/* ===== 社区预置 50 帖 ===== */
+function renderExtraPosts(){
+  const surnames = ['赵','钱','孙','李','周','吴','郑','王','冯','陈','褚','卫','蒋','沈','韩','杨','朱','秦','许','何','吕','施','张','孔','曹','严','华','金','魏','陶','姜','戚','谢','邹','喻','柏','水','窦','章','云','苏','潘','葛','奚','范','彭','鲁','韦','昌','马'];
+  const given = ['伟','芳','娜','敏','静','磊','洋','艳','勇','军','杰','娟','涛','明','超','秀','霞','平','刚','桂','英','华','强','子轩','雨泽','思源','欣怡','子涵','浩然','梓萱','一诺','宇航','书瑶','嘉怡','晨曦','若曦','沐宸','奕辰','若汐','语桐'];
+  const tags = ['固件讨论','表盘分享','求助','经验交流','功能建议','晒单','问题反馈'];
+  const contents = [
+    '升级到最新版之后流畅度明显提升，过渡动画也更跟手了，期待后续加入更多自定义选项。',
+    '自己做了个表盘，配色改了好几版，已经发到资源区，欢迎大家下载试用并提意见。',
+    '想问一下这个机型后续会不会支持更多手势操作？现在的全面屏手势偶尔会误触。',
+    '实测续航比上个版本好了一些，日常使用到晚上还能剩三成电，整体比较满意。',
+    '社区里的表盘资源越来越丰富了，希望能加一个收藏夹方便管理常用的几款。',
+    '连接手表后数据同步很稳定，运动记录基本没有延迟，联动体验值得点赞。',
+    '更新后第一次启动会稍微慢一点，之后就正常了，应该是在做应用优化。',
+    '建议官方出一个主题编辑器，让大家可以自己调整图标和配色，可玩性会更高。'
+  ];
+  const grads = [
+    'linear-gradient(135deg,#34d399,#10b981)','linear-gradient(135deg,#fbbf24,#f59e0b)',
+    'linear-gradient(135deg,#f472b6,#ec4899)','linear-gradient(135deg,#60a5fa,#3b82f6)',
+    'linear-gradient(135deg,#a78bfa,#8b5cf6)','linear-gradient(135deg,#f87171,#ef4444)'
+  ];
+  // 生成 50 个不重复昵称
+  const names = [];
+  while(names.length < 50){
+    const n = surnames[names.length % surnames.length] + given[(names.length*7+3) % given.length];
+    if(!names.includes(n)) names.push(n);
+  }
+  let html = '';
+  for(let i=0;i<50;i++){
+    // 时间分布在 8/9/10 月，精确到时分
+    const month = 8 + (i % 3);
+    const day = 1 + ((i*5+2) % 27);
+    const hour = (i*3+1) % 24;
+    const minute = (i*11) % 60;
+    const p2 = n => String(n).padStart(2,'0');
+    const time = '2026-' + p2(month) + '-' + p2(day) + ' ' + p2(hour) + ':' + p2(minute);
+    const name = names[i];
+    const tag = tags[i % tags.length];
+    const content = contents[i % contents.length];
+    const likes = 12 + (i*13) % 300;
+    const comments = 3 + (i*7) % 80;
+    const grad = grads[i % grads.length];
+    html += `<div class="card">
+      <div class="post-head">
+        <div class="post-avatar" style="background:${grad}">${name.charAt(0)}</div>
+        <div class="post-info"><div class="post-name">${name}</div><div class="post-time">${time} · 来自 栈序工坊</div></div>
+        <div class="post-tag">${tag}</div>
+      </div>
+      <div class="post-content">${content}</div>
+      <div class="post-actions"><span>${likes} 赞</span><span>${comments} 评论</span><span>收藏</span></div>
+    </div>`;
+  }
+  const box = document.getElementById('extraPosts');
+  if(box) box.innerHTML = html;
+}
+renderExtraPosts();
+
 function initTickets(){
   const titles = [
     '栈序OS 1.2 升级后蓝牙断开重连失败','iQOO GT2 表盘推送失败','栈序工坊 APK 闪退报告',
     'NFC 卡片写入后无反应','OTA 差分包下载速度慢','手表心率数据不同步到手机',
     '开发者结算单金额有误','登录页面偶发黑屏','AOD 模式下掉电异常',
     '社区发帖图片上传失败','栈序联动后台通知不震动','OTA 升级后设置被重置',
-    '手表查找手机功能失灵','表盘商城加载慢','栈序云网页端登录态丢失'
+    '手表查找手机功能失灵','表盘商城加载慢','栈序云网页端登录态丢失',
+    '微信提现页面无法提交','支付宝账号绑定失败','表盘 AOD 显示偏移',
+    '签到金币未到账','活动报名按钮无响应','通知栏快捷开关失效',
+    '深色模式下文字看不清','手表固件升级卡住','蓝牙音频偶尔卡顿',
+    '应用后台被频繁清理','桌面图标重启后错乱','安全密钥收不到邮件',
+    '工单附件上传中断','个人头像保存失败','开发者中心授权页空白'
   ];
   ticketData = titles.map((t,i)=>({
     id: 'WO-2026-'+String(1001+i),
     title: t,
-    from: ['社区用户','社区用户','社区用户','社区用户','社区用户','社区用户'][i%6],
-    time: '2026-10-'+String(27-(i%15)).padStart(2,'0')+' '+String(9+i%9)+':30',
-    status: i<8 ? '待处理' : '已处理'
+    from: '社区用户',
+    time: '2026-'+String(9+(i%2)).padStart(2,'0')+'-'+String(1+(i%28)).padStart(2,'0')+' '+String(8+i%12)+':'+String((i*7)%60).padStart(2,'0'),
+    status: i<16 ? '待处理' : '已处理'
   }));
 }
 function renderTickets(){
