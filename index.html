@@ -324,19 +324,6 @@ body{position:relative;overflow-x:hidden}
 <div class="glass-blob b2"></div>
 <div class="glass-blob b3"></div>
 
-<!-- 管理员密码模态弹窗 -->
-<div class="glass-modal" id="modalConsole">
-  <div class="glass-modal-box">
-    <h3>进入控制台</h3>
-    <p>请输入管理员密码以进入栈序云管理后台</p>
-    <input type="password" id="consolePwd" placeholder="管理员密码" autocomplete="off">
-    <div class="btn-row">
-      <button class="btn-cancel" onclick="closeModal()">取消</button>
-      <button class="btn-ok" onclick="submitConsole()">确认</button>
-    </div>
-  </div>
-</div>
-
 <header>
   <div class="container nav">
     <div class="brand">
@@ -355,8 +342,7 @@ body{position:relative;overflow-x:hidden}
       <a onclick="document.getElementById('docs').scrollIntoView({behavior:'smooth'})">开发者</a>
       
     </nav>
-    <button class="btn btn-primary" onclick="location.href='admin.html'">进入控制台</button>
-          <button class="btn" onclick="location.href='user.html'" style="margin-left:10px">用户入口</button>
+    <button class="btn btn-primary" onclick="location.href='admin.html'">登录</button>
   </div>
 </header>
 
@@ -757,34 +743,6 @@ body{position:relative;overflow-x:hidden}
 
 
 
-  <!-- ===== 栈序工坊客户端下载 ===== -->
-  <section style="margin-top:48px">
-    <h2 style="font-size:22px;margin-bottom:16px">客户端下载</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
-      <a href="https://gh-proxy.com/https://github.com/zy00820/zhanxu-gongfang/raw/main/workshop-real.apk" style="text-decoration:none;color:inherit">
-        <div class="glass-panel" style="padding:20px">
-          <div style="font-size:16px;font-weight:600;margin-bottom:4px">Android 原生版</div>
-          <div style="font-size:12px;color:var(--text-2)">栈序工坊 APK · 真实原生界面</div>
-          <div style="font-size:11px;color:var(--accent);margin-top:8px">国内加速下载 ↓</div>
-        </div>
-      </a>
-      <a href="https://gh-proxy.com/https://github.com/zy00820/zhanxu-gongfang/raw/main/workshop-linux" style="text-decoration:none;color:inherit">
-        <div class="glass-panel" style="padding:20px">
-          <div style="font-size:16px;font-weight:600;margin-bottom:4px">Linux 原生版</div>
-          <div style="font-size:12px;color:var(--text-2)">栈序工坊 ELF · 独立原生窗口</div>
-          <div style="font-size:11px;color:var(--accent);margin-top:8px">国内加速下载 ↓</div>
-        </div>
-      </a>
-      <a href="https://gh-proxy.com/https://github.com/zy00820/zhanxu-gongfang/raw/main/workshop-real.exe" style="text-decoration:none;color:inherit">
-        <div class="glass-panel" style="padding:20px">
-          <div style="font-size:16px;font-weight:600;margin-bottom:4px">Windows 原生版</div>
-          <div style="font-size:12px;color:var(--text-2)">栈序工坊 EXE · 独立原生窗口</div>
-          <div style="font-size:11px;color:var(--accent);margin-top:8px">国内加速下载 ↓</div>
-        </div>
-      </a>
-    </div>
-  </section>
-
   <footer>
     <div>© 2026 栈序工坊 · 宿迁市宿城区栈序软件开发工作室</div>
     <div>基于 AOSP 构建 · 面向行业终端 · <a onclick="showPrivacy()" style="color:var(--accent-2);text-decoration:none;cursor:pointer">隐私政策</a> · 联系：<a href="mailto:zy291817@outlook.com" style="color:var(--accent-2);text-decoration:none">zy291817@outlook.com</a> · QQ：<a href="tencent://message/?uin=156356679&Menu=yes" style="color:var(--accent-2);text-decoration:none">156356679</a> · QQ群：<a href="https://qm.qq.com/cgi-bin/qm/qr?k=586352356" style="color:var(--accent-2);text-decoration:none">586352356</a></div>
@@ -954,20 +912,6 @@ function toast(msg){
   t.classList.add('show');
   clearTimeout(window._toastTimer);
   window._toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
-}
-function showConsole(){
-  document.getElementById('modalConsole').classList.add('show');
-  setTimeout(()=>document.getElementById('consolePwd').focus(),100);
-}
-function closeModal(){
-  document.getElementById('modalConsole').classList.remove('show');
-  document.getElementById('consolePwd').value='';
-}
-function submitConsole(){
-  const pwd = document.getElementById('consolePwd').value;
-  if(pwd !== 'xdf195458'){ toast('密码错误'); document.getElementById('consolePwd').value=''; return; }
-  closeModal();
-  location.href='admin.html';
 }
 function showHome(){
   document.getElementById('view-console').style.display='none';
