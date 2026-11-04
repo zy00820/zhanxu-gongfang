@@ -325,7 +325,7 @@ body.plain .ann-card.open{
 <!-- ===== 管理后台 ===== -->
 <div id="app">
   <div class="topbar">
-    <div class="logo">栈序云<small>管理员版</small></div>
+    <div class="logo">栈序云</div>
     <div class="user-area">
       <div class="user-chip" onclick="openProfile()" style="cursor:pointer">
         <div class="avatar" id="avatarText">张</div>
@@ -390,8 +390,19 @@ body.plain .ann-card.open{
           <div style="font-size:11px;color:#607494;margin-top:2">等级</div>
         </div>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:18px;color:#f472b6;font-weight:600" id="pfFans">0</div>
+          <div style="font-size:11px;color:#607494;margin-top:2">粉丝数</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:18px;color:#a78bfa;font-weight:600" id="pfFollow">0</div>
+          <div style="font-size:11px;color:#607494;margin-top:2">关注数</div>
+        </div>
+      </div>
       <div style="font-size:12px;color:#94a8c7;line-height:2">
         <div>账号：<span id="pfUid"></span></div>
+        <div>称号：<span id="pfTitles" style="color:#c4b5fd"></span></div>
         <div>安全密钥：<span id="pfKey" style="color:#fbbf24"></span></div>
       </div>
       <button onclick="closeProfile()" style="width:100%;margin-top:18px;padding:13px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:12px;font-size:15px;cursor:pointer">关闭</button>
@@ -421,7 +432,7 @@ body.plain .ann-card.open{
   <div class="container">
     <div class="stats">
       <div class="stat"><div class="num">3</div><div class="label">待审公告</div></div>
-      <div class="stat"><div class="num">53</div><div class="label">社区帖子</div></div>
+      <div class="stat"><div class="num">51</div><div class="label">社区帖子</div></div>
       <div class="stat"><div class="num">876</div><div class="label">活跃用户</div></div>
     </div>
 
@@ -597,35 +608,6 @@ body.plain .ann-card.open{
           <button class="btn-send" onclick="showMaint()">发布</button>
         </div>
       </div>
-      <div class="card">
-        <div class="post-head">
-          <div class="post-avatar" style="background:linear-gradient(135deg,#34d399,#10b981)">林</div>
-          <div class="post-info"><div class="post-name">林工</div><div class="post-time">2 小时前 · 来自 栈序工坊</div></div>
-          <div class="post-tag">固件讨论</div>
-        </div>
-        <div class="post-content">栈序OS 1.2 的温控阈值是不是调激进了？游戏半小时机身温度从 38 升到 46，帧率也锁了。能不能在设置里加个「自定义温控曲线」开关？</div>
-        <div class="post-actions">
-          <span>128 赞</span><span>23 评论</span><span>收藏</span>
-        </div>
-      </div>
-      <div class="card">
-        <div class="post-head">
-          <div class="post-avatar" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">陈</div>
-          <div class="post-info"><div class="post-name">陈同学</div><div class="post-time">昨天 21:30 · 来自 栈序工坊</div></div>
-          <div class="post-tag">表盘分享</div>
-        </div>
-        <div class="post-content">新做的「荧光赛博 2.0」表盘已上传到社区，AOD 单独做了低功耗版本，GT2 实测一晚掉电 3%。欢迎大家试装反馈。</div>
-        <div class="post-actions"><span>86 赞</span><span>41 评论</span><span>收藏</span></div>
-      </div>
-      <div class="card">
-        <div class="post-head">
-          <div class="post-avatar" style="background:linear-gradient(135deg,#f472b6,#ec4899)">王</div>
-          <div class="post-info"><div class="post-name">王师傅</div><div class="post-time">2 天前 · 来自 栈序工坊</div></div>
-          <div class="post-tag">求助</div>
-        </div>
-        <div class="post-content">刷了栈序OS 1.1 之后，蓝牙有时候会自动断开，重连也连不上，重启手机就好。有没有人遇到同样的问题？日志已经贴在附件里了。</div>
-        <div class="post-actions"><span>35 赞</span><span>18 评论</span><span>收藏</span></div>
-      </div>
       <div id="extraPosts"></div>
     </div>
 
@@ -760,8 +742,8 @@ const ACCOUNTS = {
   "100000001": { hash: "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f", name: "徐文桐", level: "超级管理员", key: "3db80897", balance: 11632 },
   "100000020": { hash: "8ca6337698a3a754baf957d8c76aa9eb484a22a76d72f1aa17ee19172fe24fee", name: "陆宇", level: "管理员", key: "7be2724d", balance: 65 },
   "100000013": { hash: "c50bff302bd82f766a9d190f1b0fe6561b749c5bc78bd1c52fcc829448444989", name: "周天浩", level: "管理员", key: "2279d6f8", balance: 224.83 },
-  "100000014": { hash: "7d38ec28e62ff45a8c2098ab175f81c31fbe8914b72aba142f17ac1b5f3f5873", name: "王浩宇", level: "管理员", key: "44f28222", balance: 0 },
-  "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员", key: "5169f1dc", balance: 0 },
+  "100000014": { hash: "7d38ec28e62ff45a8c2098ab175f81c31fbe8914b72aba142f17ac1b5f3f5873", name: "王浩宇", level: "管理员", key: "44f28222", balance: 162 },
+  "100000022": { hash: "719f200fe85229938f31a2221e5910dd240cdda48ebf56f62d193df193c09adc", name: "蔡子润", level: "管理员", key: "5169f1dc", balance: 26 },
   "100000021": { hash: "aac8a922d7ac3a1fa25f4ac118a29ec022e245fd0195ca55bd98b64b77b53278", name: "闻浩楠", level: "管理员", key: "ea2a1b33", balance: 0 },
   "100000025": { hash: "c89d383ab20c398cba45862a3a2645668bddbcdc3a655a850c562f95ad8b3bac", name: "秦之俊", level: "管理员", key: "250c5704", balance: 0 },
   "100000026": { hash: "5de5508b36a6a4aee8faa6a19704ddf1ffd074e4bda2b5a58921926a3e4545a7", name: "徐子俊", level: "管理员", key: "e10071f2", balance: 20 },
@@ -867,11 +849,6 @@ function renderStaff(currentAcc){
           </div>
           <div style="font-size:11px;color:#607494;margin-top:2px">账号：${s.uid}</div>
           <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${s.balance ?? 0}</div>
-          <div style="font-size:11px;color:#a78bfa;margin-top:3px">称号：${
-            (s.titles && s.titles.length)
-              ? s.titles.map(t=>`<span style="padding:1px 6px;border-radius:5px;background:rgba(167,139,250,0.16);color:#c4b5fd;margin-right:4px">${t}</span>`).join('')
-              : '暂无'
-          }</div>
           <button onclick="openReport('${s.uid}','${s.name}')" style="margin-top:8px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">举报</button>
           ${isSuper ? `<div style="font-size:11px;color:#fbbf24;margin-top:2px">安全密钥：${s.key||'未设置'}</div>` : ''}
         </div>
@@ -892,6 +869,17 @@ const TITLES = {
   "100000000": ["负责人", "JS专家"],
   "100000001": ["负责人"]
 };
+// 粉丝数：指定账号的具体值，其余默认 3609
+const FANS = {
+  "100000000": 430926,
+  "100000001": 294568,
+  "100000014": 224508,
+  "100000022": 6023,
+  "100000020": 123089
+};
+// 关注数（未单独指定，统一默认值）
+const FOLLOW_DEFAULT = 128;
+function getFans(uid){ return FANS[uid] != null ? FANS[uid] : 3609; }
 function initStaffData(){
   staffData = Object.entries(ACCOUNTS).map(([uid,a])=>({
     uid, name:a.name, level:a.level, key:a.key,
@@ -1126,7 +1114,8 @@ function b64decode(str){
 
 // 读取指定云端文件：返回 { list:[], sha:null }；文件不存在时 sha 为 null
 async function ghGetRecords(file){
-  const resp = await fetch(GH_BASE_URL + file, {
+  const resp = await fetch(GH_BASE_URL + file + '?t=' + Date.now(), {
+    cache: 'no-store',
     headers: { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json' }
   });
   if (resp.status === 404) return { list: [], sha: null };
@@ -1258,15 +1247,21 @@ async function decodeWithdraw(){
   const input = await glassPrompt('提现密钥解析', '请输入 12 位提现密钥', '');
   if(!input) return;
   const key = input.trim().toUpperCase();
-  let list;
+  let cloud = [], cloudOk = false;
   try {
-    list = (await ghGetRecords(GH_RECORD_PATH)).list;
-  } catch(e){
-    list = loadLocalRecords();
-  }
-  const rec = list.find(r => r.secret === key);
+    cloud = (await ghGetRecords(GH_RECORD_PATH)).list;
+    cloudOk = true;
+  } catch(e){ cloud = []; }
+  // 合并云端与本地记录，按 secret 去重
+  const merged = [];
+  cloud.concat(loadLocalRecords()).forEach(r=>{
+    if(!merged.some(m=>m.secret===r.secret)) merged.push(r);
+  });
+  const rec = merged.find(r => String(r.secret).toUpperCase() === key);
   if(!rec){
-    await glassAlert('解析失败', '未找到该密钥对应的提现记录，请确认密钥是否正确。');
+    await glassAlert('解析失败', cloudOk
+      ? '未找到该密钥对应的提现记录，请确认 12 位密钥是否正确。'
+      : '云端读取失败且本地无记录，请检查网络后重试。');
     return;
   }
   await glassAlert('提现申请信息',
@@ -1345,15 +1340,22 @@ async function decodeReport(){
   const input = await glassPrompt('举报密钥解析', '请输入 12 位举报密钥', '');
   if(!input) return;
   const key = input.trim().toUpperCase();
-  let list;
+  let cloud = [], cloudOk = false;
   try {
-    list = (await ghGetRecords(GH_REPORT_PATH)).list;
-  } catch(e){
-    list = JSON.parse(localStorage.getItem('zx_report_records')||'[]');
-  }
-  const rec = list.find(r => r.secret === key);
+    cloud = (await ghGetRecords(GH_REPORT_PATH)).list;
+    cloudOk = true;
+  } catch(e){ cloud = []; }
+  let local = [];
+  try { local = JSON.parse(localStorage.getItem('zx_report_records')||'[]'); } catch(e){}
+  const merged = [];
+  cloud.concat(local).forEach(r=>{
+    if(!merged.some(m=>m.secret===r.secret)) merged.push(r);
+  });
+  const rec = merged.find(r => String(r.secret).toUpperCase() === key);
   if(!rec){
-    await glassAlert('解析失败','未找到该密钥对应的举报记录，请确认密钥是否正确。');
+    await glassAlert('解析失败', cloudOk
+      ? '未找到该密钥对应的举报记录，请确认 12 位密钥是否正确。'
+      : '云端读取失败且本地无记录，请检查网络后重试。');
     return;
   }
   await glassAlert('举报信息',
@@ -1441,7 +1443,8 @@ function renderExtraPosts(){
     const n = surnames[names.length % surnames.length] + given[(names.length*7+3) % given.length];
     if(!names.includes(n)) names.push(n);
   }
-  let html = '';
+  // 构建帖子对象数组
+  const posts = [];
   for(let i=0;i<50;i++){
     // 时间分布在 8/9/10 月，精确到时分
     const month = 8 + (i % 3);
@@ -1450,22 +1453,32 @@ function renderExtraPosts(){
     const minute = (i*11) % 60;
     const p2 = n => String(n).padStart(2,'0');
     const time = '2026-' + p2(month) + '-' + p2(day) + ' ' + p2(hour) + ':' + p2(minute);
-    const name = names[i];
-    const tag = tags[i % tags.length];
-    const content = contents[i % contents.length];
-    const likes = 12 + (i*13) % 300;
-    const comments = 3 + (i*7) % 80;
-    const grad = grads[i % grads.length];
+    posts.push({
+      name: names[i], tag: tags[i % tags.length], content: contents[i % contents.length],
+      likes: 12 + (i*13) % 300, comments: 3 + (i*7) % 80, grad: grads[i % grads.length],
+      time: time, ts: new Date(time).getTime()
+    });
+  }
+  // 蔡子润发帖：中国人会飞（置顶为最新）
+  posts.push({
+    name: '蔡子润', tag: '功能建议', content: '中国人会飞',
+    likes: 99, comments: 12, grad: grads[3],
+    time: '2026-11-04 20:00', ts: new Date('2026-11-04T20:00:00').getTime()
+  });
+  // 按时间从新到旧排序
+  posts.sort((a,b)=>b.ts - a.ts);
+  let html = '';
+  posts.forEach(p=>{
     html += `<div class="card">
       <div class="post-head">
-        <div class="post-avatar" style="background:${grad}">${name.charAt(0)}</div>
-        <div class="post-info"><div class="post-name">${name}</div><div class="post-time">${time} · 来自 栈序工坊</div></div>
-        <div class="post-tag">${tag}</div>
+        <div class="post-avatar" style="background:${p.grad}">${p.name.charAt(0)}</div>
+        <div class="post-info"><div class="post-name">${p.name}</div><div class="post-time">${p.time} · 来自 栈序工坊</div></div>
+        <div class="post-tag">${p.tag}</div>
       </div>
-      <div class="post-content">${content}</div>
-      <div class="post-actions"><span>${likes} 赞</span><span>${comments} 评论</span><span>收藏</span></div>
+      <div class="post-content">${p.content}</div>
+      <div class="post-actions"><span>${p.likes} 赞</span><span>${p.comments} 评论</span><span>收藏</span></div>
     </div>`;
-  }
+  });
   const box = document.getElementById('extraPosts');
   if(box) box.innerHTML = html;
 }
@@ -1603,6 +1616,10 @@ function openProfileFor(uid){
   document.getElementById('pfRank').textContent = 'Lv.' + rank;
   document.getElementById('pfUid').textContent = uid;
   document.getElementById('pfKey').textContent = currentIsSuper ? acc.key : '****';
+  const tlist = TITLES[uid] || [];
+  document.getElementById('pfTitles').textContent = tlist.length ? tlist.join('、') : '暂无';
+  document.getElementById('pfFans').textContent = getFans(uid);
+  document.getElementById('pfFollow').textContent = FOLLOW_DEFAULT;
   document.getElementById('profileMask').style.display = 'block';
 }
 function closeProfile(){
