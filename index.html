@@ -695,23 +695,13 @@ body{position:relative;overflow-x:hidden}
       <aside class="glass doc-side">
         <div class="doc-side-title">文档目录</div>
         <a class="doc-cat active" data-cat="start">快速开始</a>
-        <a class="doc-cat" data-cat="api">API 参考</a>
-        <a class="doc-cat" data-cat="design">设计规范</a>
-        <a class="doc-cat" data-cat="ota">OTA 接入</a>
+        <a class="doc-cat" data-cat="basic">基础指南</a>
+        <a class="doc-cat" data-cat="ui">UI 组件</a>
+        <a class="doc-cat" data-cat="api">接口能力</a>
         <a class="doc-cat" data-cat="debug">调试工具</a>
-        <a class="doc-cat" data-cat="review">上架审核</a>
+        <a class="doc-cat" data-cat="publish">打包发布</a>
       </aside>
       <div class="doc-main" id="doc-list"><!-- JS 渲染 --></div>
-      <div class="glass" id="doc-lock" style="padding:48px 32px;text-align:center">
-        <div style="font-size:32px;margin-bottom:12px">🔒</div>
-        <div style="font-size:17px;font-weight:600;margin-bottom:8px">开发文档已加密</div>
-        <div style="color:var(--text-2);font-size:13.5px;margin-bottom:20px">请输入访问密码以查看栈序工坊开发文档</div>
-        <form id="doc-lock-form" style="display:flex;gap:10px;justify-content:center;max-width:360px;margin:0 auto">
-          <input type="password" id="doc-pwd" placeholder="请输入密码" autocomplete="off"
-            style="flex:1;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-size:14px;font-family:inherit;outline:none">
-          <button type="submit" class="btn btn-primary">解锁</button>
-        </form>
-      </div>
     </div>
   </section>
 
@@ -929,116 +919,149 @@ function showPrivacy(){
 /* ===== 文档分类数据 ===== */
 const DOCS = {
   start: [
-    {t:"环境搭建与首次工程创建", d:"安装 Android Studio、Wear SDK，创建第一个手表工程，连接 vivo Watch 调试。", time:"约 10 分钟", date:"2026-09-20",
+    {t:"蓝河应用开发概述", d:"类 Web 开发范式与 MVVM 架构，了解蓝河应用的三种形态与两套 API。", time:"约 8 分钟", date:"2025-10-15",
      body:[
-       "栈序工坊支持 Android Studio Hedgehog 及以上版本。新建工程时选择「Wear OS Empty Activity」，最低 SDK 配置为 26（对应 Wear OS 3.0），可兼容 vivo Watch 2/3、iQOO Watch、Redmi Watch 系列。",
-       "连接手表前，先在手表「设置 → 关于」连续点击版本号开启开发者选项，再进入「开发者选项」打开「ADB 调试」与「无线调试」。手机与手表连同一 WiFi，在 Android Studio 的 Pair Devices 中输入手表屏幕上的配对码即可。",
-       "工程同步完成后，运行按钮选择目标手表设备，即可把第一个 Hello World 推送到表盘上。"
+       "蓝河应用采用类 Web 开发范式：使用 UI 组件搭建页面布局，使用样式描述组件与页面效果，使用 JavaScript 处理业务逻辑。",
+       "蓝河应用支持 MVVM（Model-View-ViewModel）架构，通过数据绑定视图，数据发生变化时自动触发 UI 更新。",
+       "蓝河应用支持应用、表盘、快捷卡片三种应用形态，并提供 JavaScript API 与 Native API 两套接口。"
      ]},
-    {t:"表盘开发入门", d:"使用 Canvas 绘制表盘，低功耗模式（Ambient Mode）适配，发布到工坊表盘区。", time:"约 25 分钟", date:"2026-09-18",
+    {t:"BlueOS Studio 安装", d:"蓝河一站式集成开发环境，支持编码、预览、调试与打包。", time:"约 10 分钟", date:"2025-10-15",
      body:[
-       "表盘服务继承 WearableFaceService，在 onDraw 中用 Canvas 绘制时分针、刻度与数据层。圆形屏幕需在直径 80% 安全区内布局，避免关键信息被圆角裁切。",
-       "Ambient Mode 是手表续航的关键。进入环境模式后需降低刷新率至 1 帧/秒、关闭抗锯齿与阴影、只用白/灰/黑三色，否则一晚上掉电超过 15%。",
-       "完成绘制后在工作台「表盘」分类提交预览图，审核通过即上架到工坊表盘区，用户可一键应用。"
+       "BlueOS Studio 是面向蓝河应用开发的一站式 IDE，提供从编码、实时预览、调试到发布的全链路支持。",
+       "进入工具下载页面下载并安装 BlueOS Studio，新建项目后会自动生成包含项目配置与示例页面的初始工程。"
      ]},
-    {t:"传感器与权限申请", d:"心率、加速度、GPS 传感器调用规范，权限申请最佳实践与合规要求。", time:"约 15 分钟", date:"2026-09-15", code:{lang:"Kotlin", title:"示例：读取心率传感器", body:`class HeartRateViewModel(app: Application) : AndroidViewModel(app) {
-    private val sensorManager = app.getSystemService(SENSOR_SERVICE)
-            as SensorManager
-    private val heartRate = sensorManager.getDefaultSensor(SENSOR_TYPE_HEART_RATE)
+    {t:"构建首个蓝河应用", d:"新建工程、实时预览并运行第一个页面。", time:"约 15 分钟", date:"2025-10-15",
+     body:[
+       "新建项目后，通过 BlueOS Studio 的实时预览即可查看页面效果，像 Web 开发一样灵活调整。",
+       "组件、样式与脚本主要写在 .ux 文件中，修改后实时编译预览，确认效果后即可进入调试与发布。"
+     ]},
+  ],
+  basic: [
+    {t:"项目文件组织", d:"src、app.ux、manifest.json 与页面目录的结构说明。", time:"约 12 分钟", date:"2024-01-10",
+     body:[
+       "项目根目录包含 scripts 工具脚本、src 源文件夹、jsconfig.json 与 package.json。",
+       "src 下包含 assets 公用资源、pages 页面目录、app.ux（全局逻辑与生命周期）以及 manifest.json（应用配置、接口声明与页面路由）。",
+       "页面以目录形式组织，一个目录下最多一个主页面文件，推荐命名为 index.ux。"
+     ],
+     code:{lang:"Text", title:"项目结构", body:`├── scripts
+├── src
+│   ├── assets
+│   │   ├── images
+│   │   └── styles
+│   ├── pages
+│   │   ├── Demo
+│   │   └── DemoDetail
+│   ├── app.ux
+│   └── manifest.json
+├── jsconfig.json
+└── package.json`}},
+    {t:"manifest.json 配置", d:"应用描述、接口声明 features 与页面路由 router。", time:"约 15 分钟", date:"2025-10-09",
+     body:[
+       "manifest.json 包含 package 包名、name 应用名称、icon 图标、versionName/versionCode 版本信息。",
+       "使用接口前须先在 features 中声明，例如网络请求需声明 blueos.communication.network.fetch。",
+       "router 定义 entry 首页与 pages 页面路由，未配置路由的 ux 页面不参与编译。"
+     ],
+     code:{lang:"JSON", title:"manifest 示例", body:`{
+  "package": "com.example.demo",
+  "name": "发票小助手",
+  "icon": "/assets/images/logo.png",
+  "versionName": "1.0",
+  "versionCode": 1,
+  "features": [
+    { "name": "blueos.communication.network.fetch" }
+  ],
+  "config": { "designWidth": 466 },
+  "router": {
+    "entry": "Demo",
+    "pages": { "Demo": { "component": "index" } }
+  }
+}`}},
+    {t:"ux 文件", d:"template、style、script 三段式组织与数据绑定。", time:"约 14 分钟", date:"2025-04-29",
+     body:[
+       "一个 .ux 文件由 template 模板、style 样式、script 脚本三部分组成。",
+       "script 导出页面对象，在 data 中声明响应式数据，模板中通过 {{ }} 绑定，数据变化自动更新视图。"
+     ]},
+  ],
+  ui: [
+    {t:"UI 组件与样式", d:"基础、容器、表单、画布、导航等组件，弹性与自适应布局。", time:"约 16 分钟", date:"2025-04-29",
+     body:[
+       "蓝河提供基础组件、容器组件、表单组件、画布组件、导航组件及系统风格 UI 组件。",
+       "样式可声明在 style 标签内，也可通过 style 属性内联声明；支持弹性布局与自适应布局。"
+     ]},
+    {t:"页面示例 index.ux", d:"通过输入框修改数据，体验 MVVM 数据绑定。", time:"约 12 分钟", date:"2025-04-29",
+     code:{lang:"ux", title:"index.ux", body:`&lt;template&gt;
+  &lt;div class="page"&gt;
+    &lt;text class="title"&gt;{{ title }}&lt;/text&gt;
+    &lt;input placeholder="请输入内容" onchange="onInput" /&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
 
-    fun start() {
-        sensorManager.registerListener(listener, heartRate, 3)
-    }
-    fun stop() = sensorManager.unregisterListener(listener)
-}`},
+&lt;style&gt;
+  .page { flex-direction: column; align-items: center; }
+  .title { font-size: 20px; color: #34d399; }
+&lt;/style&gt;
+
+&lt;script&gt;
+  export default {
+    data() { return { title: '你好，蓝河' } },
+    onInput(e) { this.title = e.value }
+  }
+&lt;/script&gt;`}},
+    {t:"动画能力", d:"属性动画、SVG 矢量动画与帧动画。", time:"约 10 分钟", date:"2025-04-29",
      body:[
-       "心率、加速度、GPS 均需在 AndroidManifest 中声明对应权限，并在运行时动态申请。健康类权限（BODY_SENSORS）必须向用户说明用途，否则审核会被驳回。",
-       "传感器采样率建议：心率 3 秒一次、加速度 200ms，过密采样会显著增加功耗。"
+       "蓝河支持属性动画、SVG 矢量动画与帧动画，可满足常见的界面过渡与交互反馈。",
+       "建议动效保持轻量，避免在低功耗设备上造成额外开销。"
      ]},
   ],
   api: [
-    {t:"Wear Data Layer API", d:"手表与手机间双向数据同步，跨设备通信通道配置与消息监听。", time:"约 20 分钟", date:"2026-09-19",
+    {t:"JavaScript API", d:"完整开放能力，覆盖生命周期、系统弹窗与多设备互联。", time:"约 18 分钟", date:"2025-04-29",
      body:[
-       "Data Layer 用于手表与配对手机间的数据同步。通过 putDataItem 写入数据，在另一端实现 DataClient.OnDataChangedListener 监听变化。",
-       "同步数据建议不超过 100KB，大文件请改用 Channel API 传输，并在手机端做缓存。"
+       "JavaScript API 提供完整的开放能力，支持应用生命周期监听、系统弹窗、多设备互联等，开发效率高。",
+       "调用前记得在 manifest.json 的 features 中声明对应接口。"
      ]},
-    {t:"通知与提醒 API", d:"在手表端推送通知、震动提醒，渠道配置与用户点击回调处理。", time:"约 12 分钟", date:"2026-09-17",
+    {t:"Native API", d:"面向高性能场景，支持 Posix API 与连接、存储、通信能力。", time:"约 20 分钟", date:"2025-04-29",
      body:[
-       "手表端通知由手机系统转发，需在手机端 App 创建 NotificationChannel 并设置 importance。手表端通过 setContentIntent 处理点击回调。",
-       "震动提醒建议使用 DEFAULT_VIBRATE，不要自定义长震动模式，避免用户反感。"
+       "Native API 聚焦高性能场景，支持 Posix API 以及连接能力、数据存储能力、通信能力等。",
+       "便于开发者对原有代码进行复用，在需要高性能的场景下选用。"
      ]},
-    {t:"健康数据接入", d:"读取步数、心率、睡眠等健康数据，Health Connect 权限对接。", time:"约 30 分钟", date:"2026-09-12",
+    {t:"十二大系统能力", d:"应用框架、AI、连接、运动健康、通信、多媒体、存储、安全等。", time:"约 12 分钟", date:"2025-10-15",
      body:[
-       "栈序工坊统一对接 Health Connect，请求权限后可读取步数、心率、睡眠、距离等聚合数据。不需要分别适配各品牌私有 SDK。",
-       "数据读取建议按天聚合，避免高频查询导致电池消耗。"
-     ]},
-  ],
-  design: [
-    {t:"表盘设计规范", d:"圆形/方形屏幕安全区、信息密度、低功耗模式对比度要求。", time:"约 15 分钟", date:"2026-09-16",
-     body:[
-       "圆形屏幕关键信息须放在直径 80% 的内圈；方形屏幕则留出 8dp 边距。环境模式下文字对比度至少 4.5:1。",
-       "一款表盘建议只保留时间 + 1~2 个数据项，信息过多会降低抬腕可读性。"
-     ]},
-    {t:"图标与视觉样式", d:"应用图标尺寸、圆角、主色规范，适配 vivo / iQOO / Redmi 手表桌面。", time:"约 10 分钟", date:"2026-09-14",
-     body:[
-       "手表应用图标建议 48×48dp，圆角半径 10dp。主色不要超过两种，背景尽量深色以匹配手表 OLED 熄屏特性。",
-       "提交前在圆形与方形两种模拟器上分别预览，避免图标被系统圆形遮罩裁掉关键元素。"
-     ]},
-    {t:"交互与动效", d:"手表端手势、侧边按键、抬起唤醒等交互模式的设计原则。", time:"约 18 分钟", date:"2026-09-10",
-     body:[
-       "手表屏幕小，交互优先使用上下滑动与侧边按键，避免依赖长按和多点触控。",
-       "动效时长控制在 150ms 以内，过长会让手表显得卡顿。"
-     ]},
-  ],
-  ota: [
-    {t:"OTA 服务端接入", d:"对接栈序 OTA 后台，设备注册、版本查询、差分包下载协议说明。", time:"约 40 分钟", date:"2026-09-21",
-     body:[
-       "设备首次开机时向 OTA 后台上报机型、当前版本、序列号，后台返回是否有更新。推送地址为 https://ota.zhanxu.dev/api/check。",
-       "请求须带设备签名，防止伪造更新包。下载支持断点续传，建议在 WiFi 环境下自动下载。"
-     ]},
-    {t:"差分包制作与签名", d:"生成增量更新包，APK 签名与版本号校验规则。", time:"约 25 分钟", date:"2026-09-19",
-     body:[
-       "使用栈序提供的差分包工具，输入旧版 APK 与新版 APK，生成 .patch 文件。差分包体积约为全量包的 20%~40%。",
-       "所有发布包必须使用栈序工坊提供的正式签名，调试签名包无法通过 OTA 升级。"
-     ]},
-    {t:"灰度发布与回滚", d:"按设备比例灰度推送，失败自动回滚与强制升级策略配置。", time:"约 20 分钟", date:"2026-09-11",
-     body:[
-       "新上线版本可先推送给 1% 设备，观察 24 小时崩溃率，无异常再逐步放大到 10%、50%、100%。",
-       "升级失败率超过 5% 时系统自动暂停推送并回滚到上一稳定版本。"
+       "蓝河开放应用框架、UI 组件、AI 能力、连接能力、运动健康、通信、多媒体、数据存储、电话、基础硬件、基础软件与安全共十二大系统能力。",
+       "权限机制、加解密算法库与应用沙箱共同保障应用安全。"
      ]},
   ],
   debug: [
-    {t:"ADB 无线调试", d:"手表端开启无线调试，通过 WiFi 连接 ADB 安装与日志抓取。", time:"约 8 分钟", date:"2026-09-22",
+    {t:"实时预览", d:"BlueOS Studio 实时编译预览，快速查看界面效果。", time:"约 6 分钟", date:"2025-10-15",
      body:[
-       "手表「开发者选项」→「无线调试」开启后，选择「使用配对码配对设备」，在电脑端执行 adb pair <ip:port>，输入 6 位配对码。",
-       "配对成功后执行 adb connect <ip:port> 即可无线安装 APK。"
+       "开发过程中可使用实时预览查看界面效果，支持快速编译，像 Web 开发一样灵活。",
+       "在不同设备规格下预览，确认布局自适应效果。"
      ]},
-    {t:"栈序调试 App 使用", d:"实时查看传感器、日志、CPU/内存占用，辅助性能优化。", time:"约 10 分钟", date:"2026-09-20",
+    {t:"全方位调试面板", d:"Element、Network、Storage 面板与日志查阅。", time:"约 12 分钟", date:"2025-10-15",
      body:[
-       "栈序调试 App 内置传感器实时曲线、日志过滤、CPU/内存监控面板，开发者可直接在手表上查看，无需连电脑。",
-       "日志可通过蓝牙发送到手机端导出，便于复盘问题。"
+       "BlueOS Studio 提供 Element、Network、Storage 等分析面板，可调试 UI 元素、检查网络请求与数据存储。",
+       "通过日志面板查阅运行日志，定位 UI、网络与内存问题。"
      ]},
-    {t:"日志抓取与分析", d:"logcat 过滤规则、ANR 与崩溃堆栈收集，常见问题排查流程。", time:"约 15 分钟", date:"2026-09-08",
+    {t:"UI 自动化测试", d:"录制回放操作，检测崩溃、黑屏、白屏与 JS 报错。", time:"约 10 分钟", date:"2025-10-15",
      body:[
-       "使用 adb logcat -s YourApp:V 过滤本应用日志。崩溃堆栈会自动上传到工坊后台，在控制台「我的应用 → 数据」中查看。",
-       "ANR 通常由主线程耗时操作导致，建议网络、数据库操作全部放到协程或子线程。"
+       "支持录制回放用户操作，并进行应用崩溃、黑屏、白屏和 JS 报错检测。",
+       "可为开发与测试人员提供便利，保障应用质量与可靠性。"
      ]},
   ],
-  review: [
-    {t:"上架材料清单", d:"应用包、截图、隐私政策、权限说明等提审所需材料准备。", time:"约 10 分钟", date:"2026-09-21",
+  publish: [
+    {t:"三种应用形态", d:"应用、表盘与快捷卡片的区别与选择。", time:"约 10 分钟", date:"2025-10-15",
      body:[
-       "提审需要：APK 包、至少 2 张手表截图、应用简介、隐私政策链接、权限用途说明。",
-       "涉及健康数据的应用须额外提供数据合规说明，否则无法通过审核。"
+       "应用具有完整功能，支持多页面与复杂交互，可在后台运行。",
+       "表盘支持普通与 AOD 模式、动态交互与多种数据展示；快捷卡片在表盘界面左滑即可查看信息与控制操作。"
      ]},
-    {t:"审核常见驳回原因", d:"权限滥用、UI 超出安全区、崩溃率过高等高频驳回点与修复建议。", time:"约 12 分钟", date:"2026-09-18",
+    {t:"打包 rpk", d:"使用 BlueOS Studio 打包功能生成 rpk 包。", time:"约 12 分钟", date:"2025-10-15",
      body:[
-       "高频驳回：申请了与功能无关的权限、UI 被圆形屏裁切、启动崩溃率 > 1%、隐私政策链接失效。",
-       "审核周期一般 1~3 个工作日，驳回后按提示修改重新提交即可。"
+       "开发测试完成后，使用 BlueOS Studio 的打包功能将应用打成 rpk 包。",
+       "打包完成后前往发布平台发布，蓝河系统用户即可使用对应应用。"
      ]},
-    {t:"版本更新与灰度", d:"新版本提审流程、灰度比例设置、用户评分与评论运营。", time:"约 10 分钟", date:"2026-09-05",
+    {t:"发布与快应用迁移", d:"发布平台上架，蓝河兼容快应用标准。", time:"约 10 分钟", date:"2025-10-15",
      body:[
-       "版本更新同样需要提审，但已过审的小版本通常 1 个工作日内通过。",
-       "在控制台可设置灰度比例，新版本先推给老用户，避免一次性影响全部设备。"
+       "前往发布平台提交 rpk 包，完成上架后用户即可下载使用。",
+       "蓝河系统兼容快应用标准，可使用 BlueOS Studio 开发快应用，存量快应用可便捷迁移至蓝河生态。"
      ]},
   ],
 };
@@ -1046,32 +1069,9 @@ const DOCS = {
 const APK_URL = "https://github.com/zy00820/zhanxu-gongfang/releases/download/v1.0.0/zhanxu-gongfang.apk";
 
 /* ===== 文档访问密码 ===== */
-const DOC_PASSWORD = 'xdf195458';
-let docsAuthed = false;
 let currentDocCat = 'start';
 
-function lockDocs(){
-  docsAuthed = false;
-  document.getElementById('doc-list').style.display = 'none';
-  document.getElementById('doc-lock').style.display = 'block';
-}
-function unlockDocs(){
-  docsAuthed = true;
-  document.getElementById('doc-lock').style.display = 'none';
-  document.getElementById('doc-list').style.display = 'flex';
-  renderDocs(currentDocCat);
-}
-function requireDocsAuth(){
-  if(!docsAuthed){
-    document.getElementById('docs').scrollIntoView({behavior:'smooth'});
-    document.getElementById('doc-pwd').focus();
-    return false;
-  }
-  return true;
-}
-
 function renderDocs(cat){
-  if(!docsAuthed){ lockDocs(); return; }
   currentDocCat = cat;
   const list = document.getElementById('doc-list');
   const items = DOCS[cat] || [];
@@ -1092,7 +1092,6 @@ function renderDocs(cat){
 }
 
 function openDoc(cat, idx){
-  if(!requireDocsAuth()) return;
   currentDocCat = cat;
   const d = DOCS[cat][idx];
   const list = document.getElementById('doc-list');
@@ -1113,26 +1112,13 @@ function openDoc(cat, idx){
 
 document.querySelectorAll('.doc-cat').forEach(a=>{
   a.addEventListener('click',()=>{
-    if(!requireDocsAuth()) return;
     document.querySelectorAll('.doc-cat').forEach(x=>x.classList.remove('active'));
     a.classList.add('active');
     renderDocs(a.dataset.cat);
   });
 });
 
-document.getElementById('doc-lock-form').addEventListener('submit',(e)=>{
-  e.preventDefault();
-  const pwd = document.getElementById('doc-pwd').value;
-  if(pwd === DOC_PASSWORD){
-    unlockDocs();
-  } else {
-    toast('密码错误');
-    document.getElementById('doc-pwd').value='';
-    document.getElementById('doc-pwd').focus();
-  }
-});
-
-lockDocs();
+renderDocs('start');
 
 document.querySelectorAll('.nav-links a[data-nav]').forEach(a=>{
   a.addEventListener('click',()=>toast('「'+a.textContent+'」模块建设中'));
