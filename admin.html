@@ -1116,7 +1116,14 @@ const GH_TOKEN = ['ghp_0Hx','dyCIi6','JhhJSX','3uV120','Iz6YQo','VYQ34','wYSS'].
 const GH_RECORD_PATH = 'wd-records.json';
 const GH_REPORT_PATH = 'report-records.json';
 const GH_POSTS_PATH = 'posts-records.json';
-const GH_BASE_URL = 'https://api.github.com/repos/zy00820/zhanxu-gongfang/contents/';
+const GH_REPO = 'zy00820/zhanxu-gongfang';
+// 直连 api.github.com 在部分网络下会被拦截（DNS 污染 / 私有地址限制），失败后自动走加速通道重试
+const GH_APIS = [
+  'https://api.github.com/repos/' + GH_REPO + '/contents/',
+  'https://gh-proxy.com/https://api.github.com/repos/' + GH_REPO + '/contents/'
+];
+// 只读兜底：通过加速通道读 raw 文件（无需鉴权）
+const GH_RAW = 'https://gh-proxy.com/https://raw.githubusercontent.com/' + GH_REPO + '/main/';
 
 function b64encode(str){
   return btoa(unescape(encodeURIComponent(str)));
@@ -1125,18 +1132,57 @@ function b64decode(str){
   return decodeURIComponent(escape(atob(str.replace(/\s/g,''))));
 }
 
+// 统一请求：依次尝试直连与加速通道，返回 {resp} 或 {error}
+async function ghRequest(file, method, bodyObj){
+  let lastErr = '网络不可达';
+  for (const base of GH_APIS){
+    try {
+      const ctl = new AbortController();
+      const timer = setTimeout(()=>ctl.abort(), 12000);
+      const headers = { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json' };
+      if (bodyObj) headers['Content-Type'] = 'application/json';
+      const url = base + file + (method === 'GET' ? '?t=' + Date.now() : '');
+      const resp = await fetch(url, {
+        method: method,
+        cache: 'no-store',
+        headers: headers,
+        signal: ctl.signal,
+        body: bodyObj ? JSON.stringify(bodyObj) : undefined
+      });
+      clearTimeout(timer);
+      if (resp.ok || resp.status === 404) return { resp };
+      // 鉴权/参数/冲突类错误换通道也没用，直接返回
+      if ([401,403,409,422].includes(resp.status)) return { resp };
+      lastErr = '读取失败 ' + resp.status;
+    } catch(e){
+      lastErr = '网络不可达';
+    }
+  }
+  return { error: lastErr };
+}
+
 // 读取指定云端文件：返回 { list:[], sha:null }；文件不存在时 sha 为 null
 async function ghGetRecords(file){
-  const resp = await fetch(GH_BASE_URL + file + '?t=' + Date.now(), {
-    cache: 'no-store',
-    headers: { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json' }
-  });
-  if (resp.status === 404) return { list: [], sha: null };
-  if (!resp.ok) throw new Error('读取失败 ' + resp.status);
-  const d = await resp.json();
-  let list = [];
-  try { list = JSON.parse(b64decode(d.content)); } catch(e){ list = []; }
-  return { list, sha: d.sha };
+  const r = await ghRequest(file, 'GET');
+  if (r.resp){
+    if (r.resp.status === 404) return { list: [], sha: null };
+    const d = await r.resp.json();
+    let list = [];
+    try { list = JSON.parse(b64decode(d.content)); } catch(e){ list = []; }
+    return { list, sha: d.sha };
+  }
+  // 兜底：加速通道直接读 raw（无 sha，仅用于解析）
+  try {
+    const ctl = new AbortController();
+    const timer = setTimeout(()=>ctl.abort(), 12000);
+    const resp = await fetch(GH_RAW + file + '?t=' + Date.now(), { cache: 'no-store', signal: ctl.signal });
+    clearTimeout(timer);
+    if (resp.ok) {
+      const list = await resp.json();
+      return { list: Array.isArray(list) ? list : [], sha: null };
+    }
+  } catch(e){}
+  throw new Error(r.error || '读取失败');
 }
 
 // 追加一条记录到指定云端文件
@@ -1148,12 +1194,8 @@ async function ghAppendRecord(file, rec, cacheKey){
     content: b64encode(JSON.stringify(list, null, 0))
   };
   if (sha) body.sha = sha;
-  const resp = await fetch(GH_BASE_URL + file, {
-    method: 'PUT',
-    headers: { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json' },
-    body: JSON.stringify(body)
-  });
-  if (!resp.ok) throw new Error('写入失败 ' + resp.status);
+  const r = await ghRequest(file, 'PUT', body);
+  if (!r.resp || !r.resp.ok) throw new Error('写入失败 ' + ((r.resp && r.resp.status) || r.error));
   if (cacheKey) localStorage.setItem(cacheKey, JSON.stringify(list));
   return true;
 }
@@ -1470,12 +1512,8 @@ async function ghWriteRecords(file, list, cacheKey){
   const { sha } = await ghGetRecords(file).catch(()=>({ sha:null }));
   const body = { message: 'chore: 自动清理重复帖子', content: b64encode(JSON.stringify(list)) };
   if(sha) body.sha = sha;
-  const resp = await fetch(GH_BASE_URL + file, {
-    method: 'PUT',
-    headers: { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json' },
-    body: JSON.stringify(body)
-  });
-  if(!resp.ok) throw new Error('写入失败 ' + resp.status);
+  const r = await ghRequest(file, 'PUT', body);
+  if(!r.resp || !r.resp.ok) throw new Error('写入失败 ' + ((r.resp && r.resp.status) || r.error));
   if(cacheKey) localStorage.setItem(cacheKey, JSON.stringify(list));
 }
 
