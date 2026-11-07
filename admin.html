@@ -889,10 +889,13 @@ const FANS = {
 const FOLLOW_DEFAULT = 128;
 function getFans(uid){ return FANS[uid] != null ? FANS[uid] : 3609; }
 function initStaffData(){
-  staffData = Object.entries(ACCOUNTS).map(([uid,a])=>({
-    uid, name:a.name, level:a.level, key:a.key,
-    balance:a.balance||0, titles:TITLES[uid]||[], banned:false
-  }));
+  // 员工管理只包含超管与管理员；职位为「用户」的账号归入用户管理
+  staffData = Object.entries(ACCOUNTS)
+    .filter(([uid,a]) => a.level !== '用户')
+    .map(([uid,a])=>({
+      uid, name:a.name, level:a.level, key:a.key,
+      balance:a.balance||0, titles:TITLES[uid]||[], banned:false
+    }));
 }
 async function addStaff(){
   const uid = await glassPrompt('添加员工','请输入新员工账号（数字）');
@@ -1635,8 +1638,15 @@ function renderChangelog(){
   `).join('');
 }
 
-// ===== 用户列表（普通用户，非员工） =====
-let normalUsers = []; // 暂时为空
+// ===== 用户列表（职位为「用户」的账号，自动从 ACCOUNTS 同步） =====
+let normalUsers = [];
+function initNormalUsers(){
+  normalUsers = Object.entries(ACCOUNTS)
+    .filter(([uid,a]) => a.level === '用户')
+    .map(([uid,a]) => ({
+      uid, name: a.name, key: a.key, balance: a.balance || 0, joinDate: '—'
+    }));
+}
 function renderUsers(kw){
   kw = (kw||'').trim().toLowerCase();
   const list = document.getElementById('userList');
@@ -1647,14 +1657,18 @@ function renderUsers(kw){
   }
   list.innerHTML = filtered.map(u=>`
     <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-      <div class="post-avatar">${u.name.charAt(0)}</div>
+      <div class="post-avatar" style="cursor:pointer" onclick="openProfileFor('${u.uid}')">${u.name.charAt(0)}</div>
       <div style="flex:1">
-        <div style="font-size:14px;color:#d4e4fb;font-weight:500">${u.name}</div>
-        <div style="font-size:11px;color:#607494">UID：${u.uid} · ${u.joinDate||'—'}</div>
+        <div style="font-size:14px;color:#d4e4fb;font-weight:500">${u.name}
+          <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(115,184,255,0.18);color:#73b8ff;margin-left:4px">用户</span>
+        </div>
+        <div style="font-size:11px;color:#607494;margin-top:2px">UID：${u.uid}</div>
+        <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${u.balance}</div>
       </div>
     </div>
   `).join('');
 }
+initNormalUsers();
 renderUsers('');
 
 // ===== 签到 & 个人信息 =====
