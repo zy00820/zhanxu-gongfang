@@ -640,7 +640,7 @@ body.plain .ann-card.open{
     <!-- 用户列表 -->
     <div class="view" id="view-users">
       <div class="card" style="margin-bottom:12px">
-        <input type="text" id="userSearch" placeholder="搜索用户昵称 / 账号…" style="width:100%;padding:11px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" oninput="renderUsers(this.value)">
+        <input type="text" id="userSearch" placeholder="搜索用户昵称 / 账号…" style="width:100%;padding:11px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" oninput="searchUsers(this.value)">
       </div>
       <div id="userList"></div>
     </div>
@@ -1671,35 +1671,76 @@ function renderChangelog(){
   `).join('');
 }
 
-// ===== 用户列表（职位为「用户」的账号，自动从 ACCOUNTS 同步） =====
+// ===== 用户列表（职位为「用户」的账号，自动从 ACCOUNTS 同步，管理员可管理） =====
 let normalUsers = [];
+function searchUsers(v){ window._userSearchKw = v || ''; renderUsers(v); }
 function initNormalUsers(){
   normalUsers = Object.entries(ACCOUNTS)
     .filter(([uid,a]) => a.level === '用户')
     .map(([uid,a]) => ({
-      uid, name: a.name, key: a.key, balance: a.balance || 0, joinDate: '—'
+      uid, name: a.name, key: a.key, balance: a.balance || 0, joinDate: '—', banned: false
     }));
 }
 function renderUsers(kw){
   kw = (kw||'').trim().toLowerCase();
   const list = document.getElementById('userList');
-  const filtered = normalUsers.filter(u=>!kw || u.name.toLowerCase().includes(kw) || u.uid.includes(kw));
+  const filtered = normalUsers
+    .map((u,i)=>({...u, idx:i}))
+    .filter(u=>!kw || u.name.toLowerCase().includes(kw) || u.uid.includes(kw));
   if(filtered.length === 0){
     list.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:30px 16px">'+(kw?'未找到匹配用户':'暂无用户')+'</div>';
     return;
   }
   list.innerHTML = filtered.map(u=>`
-    <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-      <div class="post-avatar" style="cursor:pointer" onclick="openProfileFor('${u.uid}')">${u.name.charAt(0)}</div>
+    <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;${u.banned?'opacity:0.5;background:rgba(248,113,113,0.06)':''}">
+      <div class="post-avatar" style="cursor:pointer;${u.banned?'filter:grayscale(1)':''}" onclick="openProfileFor('${u.uid}')">${u.name.charAt(0)}</div>
       <div style="flex:1">
         <div style="font-size:14px;color:#d4e4fb;font-weight:500">${u.name}
           <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(115,184,255,0.18);color:#73b8ff;margin-left:4px">用户</span>
+          ${u.banned?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(248,113,113,0.2);color:#f87171;margin-left:4px">已封号</span>':''}
         </div>
         <div style="font-size:11px;color:#607494;margin-top:2px">UID：${u.uid}</div>
         <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${u.balance}</div>
       </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button onclick="editUser(${u.idx})" style="background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">编辑</button>
+        <button onclick="toggleUserBan(${u.idx})" style="background:${u.banned?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.12)'};border:1px solid ${u.banned?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)'};color:${u.banned?'#34d399':'#f87171'};padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${u.banned?'解禁':'封号'}</button>
+        <button onclick="delUser(${u.idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">删除</button>
+      </div>
     </div>
   `).join('');
+}
+let _editUserIdx = -1;
+async function editUser(idx){
+  const u = normalUsers[idx];
+  if(!u) return;
+  const name = await glassPrompt('编辑用户', '修改昵称（' + u.uid + '）', u.name);
+  if(name === null) return;
+  const balStr = await glassPrompt('编辑用户', '修改余额（元）', String(u.balance));
+  if(balStr === null) return;
+  u.name = name.trim() || u.name;
+  const b = parseFloat(balStr);
+  if(!isNaN(b) && b >= 0) u.balance = b;
+  const acc = ACCOUNTS[u.uid];
+  if(acc){ acc.name = u.name; acc.balance = u.balance; }
+  renderUsers(window._userSearchKw || '');
+  toastMsg('已保存修改');
+}
+function toggleUserBan(idx){
+  const u = normalUsers[idx];
+  if(!u) return;
+  u.banned = !u.banned;
+  renderUsers(window._userSearchKw || '');
+  toastMsg(u.banned ? '已封号' : '已解禁');
+}
+async function delUser(idx){
+  const u = normalUsers[idx];
+  if(!u) return;
+  const ok = await glassConfirm('删除用户', '确认删除用户「' + u.name + '」？');
+  if(!ok) return;
+  normalUsers.splice(idx,1);
+  renderUsers(window._userSearchKw || '');
+  toastMsg('已删除');
 }
 initNormalUsers();
 renderUsers('');
