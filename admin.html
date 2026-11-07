@@ -331,6 +331,10 @@ body.plain .ann-card.open{
         <input type="text" id="regName" placeholder="请输入昵称" autocomplete="off">
       </div>
       <div class="field">
+        <label>邮箱</label>
+        <input type="email" id="regEmail" placeholder="请输入有效邮箱地址" autocomplete="off" oninput="checkEmailLive()">
+      </div>
+      <div class="field">
         <label>密码</label>
         <input type="password" id="regPwd" placeholder="至少 6 位密码">
       </div>
@@ -1503,13 +1507,25 @@ async function loadRemoteAccounts(){
   renderUsers(window._userSearchKw || '');
   return ok;
 }
+const EMAIL_RE = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}$/;
+function isValidEmail(v){ return EMAIL_RE.test(String(v||'').trim()); }
+function checkEmailLive(){
+  const v = document.getElementById('regEmail').value.trim();
+  const err = document.getElementById('regErr');
+  if(!v){ err.textContent = ''; return; }
+  err.textContent = isValidEmail(v) ? '' : '邮箱格式不正确';
+  err.style.color = isValidEmail(v) ? '' : '';
+}
 async function doRegister(){
   const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
   const p1 = document.getElementById('regPwd').value;
   const p2 = document.getElementById('regPwd2').value;
   const err = document.getElementById('regErr');
   const btn = document.getElementById('regBtn');
   if(!name){ err.textContent = '请输入昵称'; return; }
+  if(!email){ err.textContent = '请输入邮箱'; return; }
+  if(!isValidEmail(email)){ err.textContent = '邮箱格式不正确，请检查后重试'; return; }
   if(p1.length < 6){ err.textContent = '密码至少 6 位'; return; }
   if(p1 !== p2){ err.textContent = '两次输入的密码不一致'; return; }
   btn.disabled = true; btn.textContent = '提交中…';
@@ -1518,11 +1534,16 @@ async function doRegister(){
     // 昵称查重
     const dup = Object.values(ACCOUNTS).some(a=>a.name === name);
     if(dup){ err.textContent = '该昵称已被使用，请换一个'; btn.disabled=false; btn.textContent='注 册'; return; }
+    let remoteList = [];
+    try { remoteList = JSON.parse(localStorage.getItem('zx_user_accounts')||'[]'); } catch(x){}
+    if(remoteList.some(a=>a.email === email)){
+      err.textContent = '该邮箱已注册，请更换邮箱'; btn.disabled=false; btn.textContent='注 册'; return;
+    }
     const uid = nextUid();
     const hash = await sha256(p1);
     const key = genUserKey();
     const rec = {
-      uid: uid, name: name, hash: hash, key: key,
+      uid: uid, name: name, email: email, hash: hash, key: key,
       level: '用户', balance: 0, time: new Date().toLocaleString()
     };
     let localOk = false;
@@ -1540,11 +1561,12 @@ async function doRegister(){
     initNormalUsers();
     renderUsers('');
     document.getElementById('regName').value = '';
+    document.getElementById('regEmail').value = '';
     document.getElementById('regPwd').value = '';
     document.getElementById('regPwd2').value = '';
     err.textContent = '';
     await glassAlert('注册成功',
-      '账号：' + uid + '\n昵称：' + name + '\n安全密钥：' + key +
+      '账号：' + uid + '\n昵称：' + name + '\n邮箱：' + email + '\n安全密钥：' + key +
       '\n\n安全密钥可在忘记密码时用于解锁登录，请务必保存。' +
       (localOk ? '\n（网络异常，账号暂存本机，联网后请重试注册）' : ''));
     showLoginView();
