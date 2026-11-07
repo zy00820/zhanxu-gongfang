@@ -1451,15 +1451,49 @@ function renderPosts(list){
   if(box) box.innerHTML = html || '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:24px">还没有帖子，来发第一条吧</div>';
 }
 
+// 去重：同内容视为重复，保留最新一条，删掉更老的
+function dedupePosts(list){
+  const norm = s => String(s||'').replace(/\s+/g,'').toLowerCase();
+  const sorted = list.slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const seen = new Set();
+  const kept = [];
+  sorted.forEach(p=>{
+    const k = norm(p.content);
+    if(!k || seen.has(k)) return;
+    seen.add(k);
+    kept.push(p);
+  });
+  return kept;
+}
+
+async function ghWriteRecords(file, list, cacheKey){
+  const { sha } = await ghGetRecords(file).catch(()=>({ sha:null }));
+  const body = { message: 'chore: 自动清理重复帖子', content: b64encode(JSON.stringify(list)) };
+  if(sha) body.sha = sha;
+  const resp = await fetch(GH_BASE_URL + file, {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json' },
+    body: JSON.stringify(body)
+  });
+  if(!resp.ok) throw new Error('写入失败 ' + resp.status);
+  if(cacheKey) localStorage.setItem(cacheKey, JSON.stringify(list));
+}
+
 async function loadAndRenderPosts(){
   let list = [];
   try {
     const r = await ghGetRecords(GH_POSTS_PATH);
-    list = r.list || [];
+    const raw = r.list || [];
+    list = dedupePosts(raw);
+    // 有重复则回写云端，保证各处看到一致结果
+    if(list.length !== raw.length){
+      try { await ghWriteRecords(GH_POSTS_PATH, list, 'zx_posts'); } catch(e){}
+    }
     localStorage.setItem('zx_posts', JSON.stringify(list));
   } catch(e){
     // 网络失败：读本地缓存
     try { list = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){ list = []; }
+    list = dedupePosts(list);
   }
   renderPosts(list);
   const st = document.getElementById('statPosts');
@@ -1471,6 +1505,14 @@ async function submitPost(){
   const input = document.getElementById('postInput');
   const content = input.value.trim();
   if(!content){ toastMsg('请输入帖子内容'); return; }
+  // 重复内容拦截
+  let exist = [];
+  try { exist = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){}
+  const norm = s => String(s||'').replace(/\s+/g,'').toLowerCase();
+  if(exist.some(p => norm(p.content) === norm(content))){
+    toastMsg('该内容已存在，请勿重复发帖');
+    return;
+  }
   const uid = sessionStorage.getItem('zx_user') || '';
   const now = new Date();
   // 发帖间隔校验
