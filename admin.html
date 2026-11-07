@@ -432,7 +432,7 @@ body.plain .ann-card.open{
   <div class="container">
     <div class="stats">
       <div class="stat"><div class="num">3</div><div class="label">待审公告</div></div>
-      <div class="stat"><div class="num">51</div><div class="label">社区帖子</div></div>
+      <div class="stat"><div class="num" id="statPosts">0</div><div class="label">社区帖子</div></div>
       <div class="stat"><div class="num">876</div><div class="label">活跃用户</div></div>
     </div>
 
@@ -607,6 +607,7 @@ body.plain .ann-card.open{
           <textarea id="postInput" rows="3" placeholder="分享你的想法…" style="flex:1;background:transparent;border:none;outline:none;resize:none;color:#d4e4fb;font-size:14px;font-family:inherit;line-height:1.5"></textarea>
         </div>
         <div style="text-align:right;margin-top:8px">
+          <span style="font-size:11px;color:#607494;margin-right:8px">两次发帖间隔 15 秒</span>
           <button class="btn-send" onclick="submitPost()">发布</button>
         </div>
       </div>
@@ -1431,52 +1432,6 @@ let ticketData = [];
 
 /* ===== 社区预置 50 帖 ===== */
 // ===== 社区帖子：云端 posts-records.json，发帖即同步、查看即拉取 =====
-function buildSeedPosts(){
-  const surnames = ['赵','钱','孙','李','周','吴','郑','王','冯','陈','褚','卫','蒋','沈','韩','杨','朱','秦','许','何','吕','施','张','孔','曹','严','华','金','魏','陶','姜','戚','谢','邹','喻','柏','水','窦','章','云','苏','潘','葛','奚','范','彭','鲁','韦','昌','马'];
-  const given = ['伟','芳','娜','敏','静','磊','洋','艳','勇','军','杰','娟','涛','明','超','秀','霞','平','刚','桂','英','华','强','子轩','雨泽','思源','欣怡','子涵','浩然','梓萱','一诺','宇航','书瑶','嘉怡','晨曦','若曦','沐宸','奕辰','若汐','语桐'];
-  const tags = ['固件讨论','表盘分享','求助','经验交流','功能建议','晒单','问题反馈'];
-  const contents = [
-    '升级到最新版之后流畅度明显提升，过渡动画也更跟手了，期待后续加入更多自定义选项。',
-    '自己做了个表盘，配色改了好几版，已经发到资源区，欢迎大家下载试用并提意见。',
-    '想问一下这个机型后续会不会支持更多手势操作？现在的全面屏手势偶尔会误触。',
-    '实测续航比上个版本好了一些，日常使用到晚上还能剩三成电，整体比较满意。',
-    '社区里的表盘资源越来越丰富了，希望能加一个收藏夹方便管理常用的几款。',
-    '连接手表后数据同步很稳定，运动记录基本没有延迟，联动体验值得点赞。',
-    '更新后第一次启动会稍微慢一点，之后就正常了，应该是在做应用优化。',
-    '建议官方出一个主题编辑器，让大家可以自己调整图标和配色，可玩性会更高。'
-  ];
-  const grads = [
-    'linear-gradient(135deg,#34d399,#10b981)','linear-gradient(135deg,#fbbf24,#f59e0b)',
-    'linear-gradient(135deg,#f472b6,#ec4899)','linear-gradient(135deg,#60a5fa,#3b82f6)',
-    'linear-gradient(135deg,#a78bfa,#8b5cf6)','linear-gradient(135deg,#f87171,#ef4444)'
-  ];
-  const names = [];
-  while(names.length < 50){
-    const n = surnames[names.length % surnames.length] + given[(names.length*7+3) % given.length];
-    if(!names.includes(n)) names.push(n);
-  }
-  const posts = [];
-  const p2 = n => String(n).padStart(2,'0');
-  for(let i=0;i<50;i++){
-    const month = 8 + (i % 3);
-    const day = 1 + ((i*5+2) % 27);
-    const hour = (i*3+1) % 24;
-    const minute = (i*11) % 60;
-    const time = '2026-' + p2(month) + '-' + p2(day) + ' ' + p2(hour) + ':' + p2(minute);
-    posts.push({
-      uid: 'community', name: names[i], tag: tags[i % tags.length], content: contents[i % contents.length],
-      likes: 12 + (i*13) % 300, comments: 3 + (i*7) % 80, grad: grads[i % grads.length],
-      time: time, ts: new Date(time).getTime()
-    });
-  }
-  posts.push({
-    uid: '100000022', name: '蔡子润', tag: '功能建议', content: '中国人会飞',
-    likes: 99, comments: 12, grad: grads[3],
-    time: '2026-11-04 20:00', ts: new Date('2026-11-04T20:00:00').getTime()
-  });
-  return posts;
-}
-
 function renderPosts(list){
   const sorted = list.slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
   let html = '';
@@ -1497,45 +1452,33 @@ function renderPosts(list){
 }
 
 async function loadAndRenderPosts(){
-  let list;
+  let list = [];
   try {
     const r = await ghGetRecords(GH_POSTS_PATH);
-    if(!r.list || r.list.length === 0){
-      // 首次：用种子数据初始化云端
-      list = buildSeedPosts();
-      await writeWholeFile(GH_POSTS_PATH, list, 'zx_posts');
-    } else {
-      list = r.list;
-    }
+    list = r.list || [];
+    localStorage.setItem('zx_posts', JSON.stringify(list));
   } catch(e){
-    // 网络失败：本地缓存或种子
+    // 网络失败：读本地缓存
     try { list = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){ list = []; }
-    if(!list.length) list = buildSeedPosts();
   }
   renderPosts(list);
+  const st = document.getElementById('statPosts');
+  if(st) st.textContent = list.length;
 }
 
-// 整体覆盖写文件（用于初始化）
-async function writeWholeFile(file, list, cacheKey){
-  const { sha } = await ghGetRecords(file).catch(()=>({sha:null}));
-  const body = { message: 'init: 初始化社区帖子', content: b64encode(JSON.stringify(list)) };
-  if(sha) body.sha = sha;
-  const resp = await fetch(GH_BASE_URL + file, {
-    method: 'PUT',
-    headers: { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json' },
-    body: JSON.stringify(body)
-  });
-  if(!resp.ok) throw new Error('写入失败 '+resp.status);
-  if(cacheKey) localStorage.setItem(cacheKey, JSON.stringify(list));
-}
-
+const POST_INTERVAL_MS = 15000; // 发帖间隔 15 秒
 async function submitPost(){
   const input = document.getElementById('postInput');
   const content = input.value.trim();
   if(!content){ toastMsg('请输入帖子内容'); return; }
   const uid = sessionStorage.getItem('zx_user') || '';
-  const acc = ACCOUNTS[uid] || {};
   const now = new Date();
+  // 发帖间隔校验
+  const lastKey = 'zx_lastpost_' + (uid || 'anon');
+  const last = parseInt(localStorage.getItem(lastKey) || '0', 10);
+  const wait = Math.ceil((POST_INTERVAL_MS - (now.getTime() - last)) / 1000);
+  if(wait > 0){ toastMsg('发帖太频繁，请 ' + wait + ' 秒后再试'); return; }
+  const acc = ACCOUNTS[uid] || {};
   const p2 = n => String(n).padStart(2,'0');
   const timeStr = now.getFullYear()+'-'+p2(now.getMonth()+1)+'-'+p2(now.getDate())+' '+p2(now.getHours())+':'+p2(now.getMinutes());
   const rec = {
@@ -1545,6 +1488,7 @@ async function submitPost(){
   };
   try {
     await ghAppendRecord(GH_POSTS_PATH, rec, 'zx_posts');
+    localStorage.setItem(lastKey, String(now.getTime()));
     input.value = '';
     await loadAndRenderPosts();
     toastMsg('帖子已发布并云端同步');
@@ -1554,6 +1498,7 @@ async function submitPost(){
     try { local = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){}
     local.push(rec);
     localStorage.setItem('zx_posts', JSON.stringify(local));
+    localStorage.setItem(lastKey, String(now.getTime()));
     input.value='';
     renderPosts(local);
     toastMsg('网络异常，已先存本地');
