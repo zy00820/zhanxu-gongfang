@@ -292,8 +292,8 @@ body.plain .ann-card.open{
         <a onclick="regMaint()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？申请注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.2 更新</div>
-        <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 新增员工服务、公单处理、活动中心<br>· 安全密钥解锁登录<br>· 新增每日签到</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.3 更新</div>
+        <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 用户列表按职位自动同步<br>· 社区发帖云端化+自动去重<br>· 修复密钥解析受限网络失败</div>
       </div>
     </div>
 
@@ -361,7 +361,7 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.2</span>
+        <span style="font-size:12px;color:#607494">v1.0.3</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -631,7 +631,7 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.2</span>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.3</span>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -824,7 +824,7 @@ function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.2 已发布：三步提现向导、超管密钥解析、余额同步。');
+  await glassAlert('更新日志', 'v1.0.3 已发布：用户列表按职位自动同步、社区云端发帖与自动去重、密钥解析网络兜底修复。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1632,6 +1632,14 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.3', date: '2026-11-07', items: [
+      '用户列表按职位自动同步，所有职位为「用户」的账号自动显示，无需手工维护',
+      '员工管理自动排除普通用户账号，两个列表不再重复',
+      '社区发帖切换为云端真实发帖，全部预置帖已移除',
+      '社区新增重复帖自动清理（保留最新一条）与 15 秒发帖间隔',
+      '云端读写增加加速通道兜底，修复部分网络下提现 / 举报密钥解析失败',
+      '提现与举报记录支持跨设备跨账号解析'
+    ]},
     { ver: 'v1.0.2', date: '2026-11-03', items: [
       '提现升级为三步向导：金额（50元起且不超过可用余额）→ 渠道与收款账号 → 12 位提现密钥',
       '新增超管「提现密钥解析」，凭密钥可查看申请人、金额、渠道、收款账号与时间',
