@@ -1509,12 +1509,34 @@ async function loadRemoteAccounts(){
 }
 const EMAIL_RE = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}$/;
 function isValidEmail(v){ return EMAIL_RE.test(String(v||'').trim()); }
+// 邮箱真实性检测：查询域名 MX 记录，判断域名是否存在且能收信
+const MAIL_DOH = ['https://dns.alidns.com/resolve', 'https://doh.pub/dns-query'];
+async function checkEmailDomain(email){
+  const domain = String(email||'').split('@')[1];
+  if(!domain) return { ok:false, reason:'邮箱格式不正确' };
+  for (const base of MAIL_DOH){
+    try {
+      const ctl = new AbortController();
+      const timer = setTimeout(()=>ctl.abort(), 8000);
+      const resp = await fetch(base + '?name=' + encodeURIComponent(domain) + '&type=MX', {
+        cache: 'no-store', signal: ctl.signal, headers: { accept: 'application/dns-json' }
+      });
+      clearTimeout(timer);
+      if(!resp.ok) continue;
+      const d = await resp.json();
+      if(d.Status === 3) return { ok:false, reason:'该邮箱域名不存在，请检查是否输错' };
+      if(d.Status !== 0) continue;
+      if((d.Answer||[]).some(a=>a.type === 15)) return { ok:true };
+      return { ok:false, reason:'该邮箱域名不支持接收邮件，请换一个邮箱' };
+    } catch(e){}
+  }
+  return { ok:null }; // 检测通道不可用，不拦截
+}
 function checkEmailLive(){
   const v = document.getElementById('regEmail').value.trim();
   const err = document.getElementById('regErr');
   if(!v){ err.textContent = ''; return; }
   err.textContent = isValidEmail(v) ? '' : '邮箱格式不正确';
-  err.style.color = isValidEmail(v) ? '' : '';
 }
 async function doRegister(){
   const name = document.getElementById('regName').value.trim();
@@ -1526,6 +1548,11 @@ async function doRegister(){
   if(!name){ err.textContent = '请输入昵称'; return; }
   if(!email){ err.textContent = '请输入邮箱'; return; }
   if(!isValidEmail(email)){ err.textContent = '邮箱格式不正确，请检查后重试'; return; }
+  btn.disabled = true; btn.textContent = '校验邮箱中…';
+  const mail = await checkEmailDomain(email);
+  btn.textContent = '提交中…';
+  if(mail.ok === false){ err.textContent = mail.reason; btn.disabled=false; btn.textContent='注 册'; return; }
+  if(mail.ok === null){ err.textContent = '提示：邮箱域名检测暂不可用，已跳过真实性校验'; }
   if(p1.length < 6){ err.textContent = '密码至少 6 位'; return; }
   if(p1 !== p2){ err.textContent = '两次输入的密码不一致'; return; }
   btn.disabled = true; btn.textContent = '提交中…';
