@@ -289,7 +289,7 @@ body.plain .ann-card.open{
         <a onclick="showRecover()" style="color:rgba(115,184,255,0.7);font-size:12px;cursor:pointer;text-decoration:underline">忘记密码？使用安全密钥解锁</a>
       </div>
       <div style="text-align:center;margin-top:8px">
-        <a onclick="regMaint()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？申请注册</a>
+        <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
         <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.3 更新</div>
@@ -316,6 +316,32 @@ body.plain .ann-card.open{
       <button class="btn-login" onclick="doRecover()" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">解 锁</button>
       <div style="text-align:center;margin-top:12px">
         <a onclick="showLoginView()" style="color:rgba(115,184,255,0.7);font-size:12px;cursor:pointer;text-decoration:underline">返回账号密码登录</a>
+      </div>
+    </div>
+
+    <!-- 注册表单 -->
+    <div id="registerFormView" style="display:none">
+      <div class="login-logo">
+        <div class="mark" style="background:linear-gradient(135deg,#34d399,#10b981)">注</div>
+        <h1>创建账号</h1>
+        <p>输入昵称与密码，自动生成账号与安全密钥</p>
+      </div>
+      <div class="field">
+        <label>昵称</label>
+        <input type="text" id="regName" placeholder="请输入昵称" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>密码</label>
+        <input type="password" id="regPwd" placeholder="至少 6 位密码">
+      </div>
+      <div class="field">
+        <label>确认密码</label>
+        <input type="password" id="regPwd2" placeholder="再次输入密码">
+      </div>
+      <div class="login-err" id="regErr"></div>
+      <button class="btn-login" id="regBtn" onclick="doRegister()" style="background:linear-gradient(135deg,#34d399,#10b981)">注 册</button>
+      <div style="text-align:center;margin-top:12px">
+        <a onclick="showLoginView()" style="color:rgba(115,184,255,0.7);font-size:12px;cursor:pointer;text-decoration:underline">返回登录</a>
       </div>
     </div>
     <div class="login-foot"></div>
@@ -1008,7 +1034,8 @@ async function doLogin(){
   const p = document.getElementById('inpPwd').value;
   const err = document.getElementById('loginErr');
   if(!u || !p){ err.textContent = '请输入账号和密码'; return; }
-  const acc = ACCOUNTS[u];
+  let acc = ACCOUNTS[u];
+  if(!acc){ await loadRemoteAccounts(); acc = ACCOUNTS[u]; }
   if(!acc){ err.textContent = '账号或密码错误'; return; }
   const h = await sha256(p);
   if(h !== acc.hash){ err.textContent = '账号或密码错误'; return; }
@@ -1042,15 +1069,17 @@ function showRecover(){
 }
 function showLoginView(){
   document.getElementById('recoverFormView').style.display='none';
+  document.getElementById('registerFormView').style.display='none';
   document.getElementById('loginFormView').style.display='block';
   document.getElementById('loginErr').textContent='';
 }
-function doRecover(){
+async function doRecover(){
   const u = document.getElementById('recUser').value.trim();
   const k = document.getElementById('recKey').value.trim();
   const err = document.getElementById('recErr');
   if(!u || !k){ err.textContent='请输入账号和安全密钥'; return; }
-  const acc = ACCOUNTS[u];
+  let acc = ACCOUNTS[u];
+  if(!acc){ await loadRemoteAccounts(); acc = ACCOUNTS[u]; }
   if(!acc){ err.textContent='账号不存在'; return; }
   if(k !== acc.key){ err.textContent='安全密钥错误'; return; }
   sessionStorage.setItem('zx_user', u);
@@ -1420,12 +1449,112 @@ async function decodeReport(){
     '举报人账号：' + rec.reporterUid + '\n' +
     '举报时间：' + rec.time);
 }
-function regMaint(){
-  const t=document.getElementById('toast');
-  document.getElementById('toastText').textContent='注册通道维护中，敬请期待';
-  t.classList.add('show');
-  clearTimeout(window._tt);
-  window._tt=setTimeout(()=>t.classList.remove('show'),2200);
+// ===== 注册（账号存仓库 user-accounts.json，与社区发帖同一套云端读写） =====
+const GH_USERS_PATH = 'user-accounts.json';
+function showRegister(){
+  document.getElementById('loginFormView').style.display='none';
+  document.getElementById('recoverFormView').style.display='none';
+  document.getElementById('registerFormView').style.display='block';
+  document.getElementById('regErr').textContent='';
+}
+function genUserKey(){
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let s = '';
+  for(let i=0;i<8;i++) s += chars.charAt(Math.floor(Math.random()*chars.length));
+  return s;
+}
+function nextUid(){
+  let max = 100200000;
+  Object.keys(ACCOUNTS).forEach(k=>{
+    const n = parseInt(k,10);
+    if(!isNaN(n) && String(n).indexOf('100200') === 0 && n > max) max = n;
+  });
+  try {
+    JSON.parse(localStorage.getItem('zx_user_accounts')||'[]').forEach(a=>{
+      const n = parseInt(a.uid,10);
+      if(!isNaN(n) && n > max) max = n;
+    });
+  } catch(e){}
+  return String(max + 1);
+}
+async function loadRemoteAccounts(){
+  let ok = false;
+  try {
+    const r = await ghGetRecords(GH_USERS_PATH);
+    const list = r.list || [];
+    list.forEach(a=>{
+      if(a && a.uid && !ACCOUNTS[a.uid]){
+        ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', key:a.key, balance:a.balance||0 };
+      }
+    });
+    localStorage.setItem('zx_user_accounts', JSON.stringify(list));
+    ok = true;
+  } catch(e){
+    try {
+      JSON.parse(localStorage.getItem('zx_user_accounts')||'[]').forEach(a=>{
+        if(a && a.uid && !ACCOUNTS[a.uid]){
+          ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', key:a.key, balance:a.balance||0 };
+        }
+      });
+    } catch(x){}
+  }
+  initNormalUsers();
+  renderUsers(window._userSearchKw || '');
+  return ok;
+}
+async function doRegister(){
+  const name = document.getElementById('regName').value.trim();
+  const p1 = document.getElementById('regPwd').value;
+  const p2 = document.getElementById('regPwd2').value;
+  const err = document.getElementById('regErr');
+  const btn = document.getElementById('regBtn');
+  if(!name){ err.textContent = '请输入昵称'; return; }
+  if(p1.length < 6){ err.textContent = '密码至少 6 位'; return; }
+  if(p1 !== p2){ err.textContent = '两次输入的密码不一致'; return; }
+  btn.disabled = true; btn.textContent = '提交中…';
+  try {
+    await loadRemoteAccounts();
+    // 昵称查重
+    const dup = Object.values(ACCOUNTS).some(a=>a.name === name);
+    if(dup){ err.textContent = '该昵称已被使用，请换一个'; btn.disabled=false; btn.textContent='注 册'; return; }
+    const uid = nextUid();
+    const hash = await sha256(p1);
+    const key = genUserKey();
+    const rec = {
+      uid: uid, name: name, hash: hash, key: key,
+      level: '用户', balance: 0, time: new Date().toLocaleString()
+    };
+    let localOk = false;
+    try {
+      await ghAppendRecord(GH_USERS_PATH, rec, 'zx_user_accounts');
+    } catch(e){
+      // 云端失败则本地兜底
+      let local = [];
+      try { local = JSON.parse(localStorage.getItem('zx_user_accounts')||'[]'); } catch(x){}
+      local.push(rec);
+      localStorage.setItem('zx_user_accounts', JSON.stringify(local));
+      localOk = true;
+    }
+    ACCOUNTS[uid] = { hash: hash, name: name, level: '用户', key: key, balance: 0 };
+    initNormalUsers();
+    renderUsers('');
+    document.getElementById('regName').value = '';
+    document.getElementById('regPwd').value = '';
+    document.getElementById('regPwd2').value = '';
+    err.textContent = '';
+    await glassAlert('注册成功',
+      '账号：' + uid + '\n昵称：' + name + '\n安全密钥：' + key +
+      '\n\n安全密钥可在忘记密码时用于解锁登录，请务必保存。' +
+      (localOk ? '\n（网络异常，账号暂存本机，联网后请重试注册）' : ''));
+    showLoginView();
+    document.getElementById('inpUser').value = uid;
+    document.getElementById('inpPwd').value = '';
+    document.getElementById('inpPwd').focus();
+  } catch(e){
+    err.textContent = '注册失败：' + (e.message || '请稍后重试');
+  } finally {
+    btn.disabled = false; btn.textContent = '注 册';
+  }
 }
 
 // ===== 通用液态玻璃弹窗 =====
@@ -1633,6 +1762,8 @@ function resolveTicket(i){
 function renderChangelog(){
   const logs = [
     { ver: 'v1.0.3', date: '2026-11-07', items: [
+      '开放注册：输入昵称与密码即可创建用户账号，账号、哈希密码、安全密钥自动生成并存仓库',
+      '新注册账号自动出现在用户列表，支持编辑、封号、删除',
       '用户列表按职位自动同步，所有职位为「用户」的账号自动显示，无需手工维护',
       '员工管理自动排除普通用户账号，两个列表不再重复',
       '社区发帖切换为云端真实发帖，全部预置帖已移除',
@@ -1744,6 +1875,7 @@ async function delUser(idx){
 }
 initNormalUsers();
 renderUsers('');
+loadRemoteAccounts();
 
 // ===== 签到 & 个人信息 =====
 function getUserStats(uid){
