@@ -335,6 +335,13 @@ body.plain .ann-card.open{
         <input type="email" id="regEmail" placeholder="请输入有效邮箱地址" autocomplete="off" oninput="checkEmailLive()">
       </div>
       <div class="field">
+        <label>邮箱验证码</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="regCode" placeholder="6 位验证码" maxlength="6" inputmode="numeric" style="flex:1">
+          <button type="button" id="btnSendCode" onclick="sendVerifyCode()" style="flex-shrink:0;padding:13px 14px;border-radius:12px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.4);color:#73b8ff;font-size:13px;cursor:pointer;white-space:nowrap">发送验证码</button>
+        </div>
+      </div>
+      <div class="field">
         <label>密码</label>
         <input type="password" id="regPwd" placeholder="至少 6 位密码">
       </div>
@@ -1538,6 +1545,69 @@ function checkEmailLive(){
   if(!v){ err.textContent = ''; return; }
   err.textContent = isValidEmail(v) ? '' : '邮箱格式不正确';
 }
+// ===== 邮箱验证码（GitHub Actions 触发发信） =====
+const MAIL_WORKFLOW = 'send-code.yml';
+async function dispatchMail(email, code, name){
+  const body = { ref: 'main', inputs: { email: email, code: code, name: name || '栈序云用户' } };
+  const urls = [
+    'https://api.github.com/repos/' + GH_REPO + '/actions/workflows/' + MAIL_WORKFLOW + '/dispatches',
+    'https://gh-proxy.com/https://api.github.com/repos/' + GH_REPO + '/actions/workflows/' + MAIL_WORKFLOW + '/dispatches'
+  ];
+  let lastErr = '发送失败';
+  for(const url of urls){
+    try {
+      const ctl = new AbortController();
+      const timer = setTimeout(()=>ctl.abort(), 15000);
+      const resp = await fetch(url, {
+        method: 'POST', cache: 'no-store', signal: ctl.signal,
+        headers: { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      clearTimeout(timer);
+      if(resp.ok || resp.status === 204) return { ok: true };
+      lastErr = 'HTTP ' + resp.status;
+      if([401,403,404,422].includes(resp.status)) return { ok:false, reason:lastErr };
+    } catch(e){ lastErr = 'network'; }
+  }
+  return { ok:false, reason:lastErr };
+}
+let _codeTimer = null;
+async function sendVerifyCode(){
+  const email = document.getElementById('regEmail').value.trim();
+  const name = document.getElementById('regName').value.trim();
+  const err = document.getElementById('regErr');
+  const btn = document.getElementById('btnSendCode');
+  if(!email){ err.textContent = '请先填写邮箱'; return; }
+  if(!isValidEmail(email)){ err.textContent = '邮箱格式不正确'; return; }
+  // 60 秒冷却
+  const cdKey = 'zx_code_cd_' + email.toLowerCase();
+  const left = Math.ceil((parseInt(localStorage.getItem(cdKey)||'0',10) - Date.now())/1000);
+  if(left > 0){ err.textContent = '请 ' + left + ' 秒后再发送'; return; }
+  btn.disabled = true; btn.textContent = '校验邮箱…';
+  const mail = await checkEmailDomain(email);
+  if(mail.ok === false){ err.textContent = mail.reason; btn.disabled=false; btn.textContent='发送验证码'; return; }
+  const code = String(Math.floor(100000 + Math.random()*900000));
+  btn.textContent = '发送中…';
+  const r = await dispatchMail(email, code, name);
+  if(!r.ok){
+    err.textContent = '验证码发送失败（' + r.reason + '），请稍后重试或联系管理员';
+    btn.disabled = false; btn.textContent = '发送验证码';
+    return;
+  }
+  localStorage.setItem('zx_email_code', JSON.stringify({ email: email.toLowerCase(), code: code, exp: Date.now() + 10*60*1000 }));
+  localStorage.setItem(cdKey, String(Date.now() + 60*1000));
+  err.textContent = '';
+  toastMsg('验证码已发送，约 1 分钟内到达，请查收邮箱（含垃圾箱）');
+  let cd = 60;
+  btn.disabled = true; btn.textContent = cd + ' 秒';
+  _codeTimer && clearInterval(_codeTimer);
+  _codeTimer = setInterval(()=>{
+    cd--;
+    if(cd <= 0){ clearInterval(_codeTimer); _codeTimer=null; btn.disabled=false; btn.textContent='重新发送'; }
+    else btn.textContent = cd + ' 秒';
+  }, 1000);
+}
+
 async function doRegister(){
   const name = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim();
@@ -1550,12 +1620,20 @@ async function doRegister(){
   if(!isValidEmail(email)){ err.textContent = '邮箱格式不正确，请检查后重试'; return; }
   btn.disabled = true; btn.textContent = '校验邮箱中…';
   const mail = await checkEmailDomain(email);
-  btn.textContent = '提交中…';
-  if(mail.ok === false){ err.textContent = mail.reason; btn.disabled=false; btn.textContent='注 册'; return; }
+  const reset = ()=>{ btn.disabled=false; btn.textContent='注 册'; };
+  if(mail.ok === false){ err.textContent = mail.reason; reset(); return; }
   if(mail.ok === null){ err.textContent = '提示：邮箱域名检测暂不可用，已跳过真实性校验'; }
-  if(p1.length < 6){ err.textContent = '密码至少 6 位'; return; }
-  if(p1 !== p2){ err.textContent = '两次输入的密码不一致'; return; }
-  btn.disabled = true; btn.textContent = '提交中…';
+  // 验证码校验
+  const codeInput = document.getElementById('regCode').value.trim();
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('zx_email_code')||'null'); } catch(x){}
+  if(!codeInput){ err.textContent = '请输入邮箱验证码'; reset(); return; }
+  if(!saved || saved.email !== email.toLowerCase()){ err.textContent = '请先点击“发送验证码”获取验证码'; reset(); return; }
+  if(Date.now() > saved.exp){ err.textContent = '验证码已过期，请重新获取'; reset(); return; }
+  if(codeInput !== saved.code){ err.textContent = '验证码不正确'; reset(); return; }
+  if(p1.length < 6){ err.textContent = '密码至少 6 位'; reset(); return; }
+  if(p1 !== p2){ err.textContent = '两次输入的密码不一致'; reset(); return; }
+  btn.textContent = '提交中…';
   try {
     await loadRemoteAccounts();
     // 昵称查重
@@ -1587,8 +1665,10 @@ async function doRegister(){
     ACCOUNTS[uid] = { hash: hash, name: name, level: '用户', key: key, balance: 0 };
     initNormalUsers();
     renderUsers('');
+    localStorage.removeItem('zx_email_code');
     document.getElementById('regName').value = '';
     document.getElementById('regEmail').value = '';
+    document.getElementById('regCode').value = '';
     document.getElementById('regPwd').value = '';
     document.getElementById('regPwd2').value = '';
     err.textContent = '';
