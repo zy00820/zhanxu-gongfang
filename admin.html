@@ -1545,31 +1545,46 @@ function checkEmailLive(){
   if(!v){ err.textContent = ''; return; }
   err.textContent = isValidEmail(v) ? '' : '邮箱格式不正确';
 }
-// ===== 邮箱验证码（GitHub Actions 触发发信） =====
-const MAIL_WORKFLOW = 'send-code.yml';
+// ===== 邮箱验证码（EmailJS 前端直发，无需后端） =====
+// 填入 EmailJS 控制台的三个值后即启用邮箱验证；留空则暂时免验证码注册
+const EMAILJS = {
+  service: '',
+  template: '',
+  publicKey: ''
+};
+function mailReady(){
+  return !!(EMAILJS.service && EMAILJS.template && EMAILJS.publicKey);
+}
 async function dispatchMail(email, code, name){
-  const body = { ref: 'main', inputs: { email: email, code: code, name: name || '栈序云用户' } };
-  const urls = [
-    'https://api.github.com/repos/' + GH_REPO + '/actions/workflows/' + MAIL_WORKFLOW + '/dispatches',
-    'https://gh-proxy.com/https://api.github.com/repos/' + GH_REPO + '/actions/workflows/' + MAIL_WORKFLOW + '/dispatches'
-  ];
-  let lastErr = '发送失败';
-  for(const url of urls){
-    try {
-      const ctl = new AbortController();
-      const timer = setTimeout(()=>ctl.abort(), 15000);
-      const resp = await fetch(url, {
-        method: 'POST', cache: 'no-store', signal: ctl.signal,
-        headers: { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      clearTimeout(timer);
-      if(resp.ok || resp.status === 204) return { ok: true };
-      lastErr = 'HTTP ' + resp.status;
-      if([401,403,404,422].includes(resp.status)) return { ok:false, reason:lastErr };
-    } catch(e){ lastErr = 'network'; }
+  const payload = {
+    service_id: EMAILJS.service,
+    template_id: EMAILJS.template,
+    user_id: EMAILJS.publicKey,
+    template_params: {
+      to_email: email,
+      to_name: name || '栈序云用户',
+      code: code,
+      email: email
+    }
+  };
+  try {
+    const ctl = new AbortController();
+    const timer = setTimeout(()=>ctl.abort(), 15000);
+    const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      cache: 'no-store',
+      signal: ctl.signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    clearTimeout(timer);
+    if(resp.ok) return { ok:true };
+    let msg = '';
+    try { msg = (await resp.text()).slice(0,120); } catch(e){}
+    return { ok:false, reason: 'HTTP ' + resp.status + (msg ? ' ' + msg : '') };
+  } catch(e){
+    return { ok:false, reason: 'network' };
   }
-  return { ok:false, reason:lastErr };
 }
 let _codeTimer = null;
 async function sendVerifyCode(){
@@ -1583,6 +1598,11 @@ async function sendVerifyCode(){
   const cdKey = 'zx_code_cd_' + email.toLowerCase();
   const left = Math.ceil((parseInt(localStorage.getItem(cdKey)||'0',10) - Date.now())/1000);
   if(left > 0){ err.textContent = '请 ' + left + ' 秒后再发送'; return; }
+  if(!mailReady()){
+    err.textContent = '邮件服务尚未配置，注册暂免验证码';
+    btn.disabled = false; btn.textContent = '发送验证码';
+    return;
+  }
   btn.disabled = true; btn.textContent = '校验邮箱…';
   const mail = await checkEmailDomain(email);
   if(mail.ok === false){ err.textContent = mail.reason; btn.disabled=false; btn.textContent='发送验证码'; return; }
@@ -1623,14 +1643,16 @@ async function doRegister(){
   const reset = ()=>{ btn.disabled=false; btn.textContent='注 册'; };
   if(mail.ok === false){ err.textContent = mail.reason; reset(); return; }
   if(mail.ok === null){ err.textContent = '提示：邮箱域名检测暂不可用，已跳过真实性校验'; }
-  // 验证码校验
-  const codeInput = document.getElementById('regCode').value.trim();
-  let saved = null;
-  try { saved = JSON.parse(localStorage.getItem('zx_email_code')||'null'); } catch(x){}
-  if(!codeInput){ err.textContent = '请输入邮箱验证码'; reset(); return; }
-  if(!saved || saved.email !== email.toLowerCase()){ err.textContent = '请先点击“发送验证码”获取验证码'; reset(); return; }
-  if(Date.now() > saved.exp){ err.textContent = '验证码已过期，请重新获取'; reset(); return; }
-  if(codeInput !== saved.code){ err.textContent = '验证码不正确'; reset(); return; }
+  // 验证码校验（邮件服务配置后强制生效）
+  if(mailReady()){
+    const codeInput = document.getElementById('regCode').value.trim();
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem('zx_email_code')||'null'); } catch(x){}
+    if(!codeInput){ err.textContent = '请输入邮箱验证码'; reset(); return; }
+    if(!saved || saved.email !== email.toLowerCase()){ err.textContent = '请先点击“发送验证码”获取验证码'; reset(); return; }
+    if(Date.now() > saved.exp){ err.textContent = '验证码已过期，请重新获取'; reset(); return; }
+    if(codeInput !== saved.code){ err.textContent = '验证码不正确'; reset(); return; }
+  }
   if(p1.length < 6){ err.textContent = '密码至少 6 位'; reset(); return; }
   if(p1 !== p2){ err.textContent = '两次输入的密码不一致'; reset(); return; }
   btn.textContent = '提交中…';
