@@ -1610,7 +1610,7 @@ async function sendVerifyCode(){
   btn.textContent = '发送中…';
   const r = await dispatchMail(email, code, name);
   if(!r.ok){
-    err.textContent = '验证码发送失败（' + r.reason + '），请稍后重试或联系管理员';
+    err.textContent = '验证码发送失败：' + r.reason;
     btn.disabled = false; btn.textContent = '发送验证码';
     return;
   }
