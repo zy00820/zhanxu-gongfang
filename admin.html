@@ -292,7 +292,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.6 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.7 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -398,7 +398,7 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.6</span>
+        <span style="font-size:12px;color:#607494">v1.0.7</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -408,6 +408,7 @@ body.plain .ann-card.open{
   <!-- 个人信息弹窗 -->
   <div id="profileMask" onclick="if(event.target===this)closeProfile()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))">
+      <button id="pfBanBtn" onclick="profileBanAction()" style="display:none;position:absolute;top:16px;right:82px;padding:7px 14px;border-radius:8px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.32);color:#f87171;font-size:12px;cursor:pointer">封号</button>
       <button id="pfDmBtn" onclick="profileDmAction()" style="position:absolute;top:16px;right:16px;padding:7px 14px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;font-size:12px;cursor:pointer">私信</button>
       <div style="text-align:center;margin-bottom:18px">
         <div id="pfAvatar" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#080b12;margin-bottom:10px">张</div>
@@ -709,7 +710,7 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.6</span>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.7</span>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -840,6 +841,7 @@ const ACCOUNTS = {
 // 登录态
 function checkAuth(){
   if(!window._staffInit){ initStaffData(); initMeetings(); window._staffInit = true; }
+  loadBans();
   const u = sessionStorage.getItem('zx_user');
   if(u && ACCOUNTS[u]){ showApp(u); } else { showLogin(); }
 }
@@ -904,7 +906,7 @@ function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.6 已发布：活动中心支持超管布置活动、开放报名与参与链接。');
+  await glassAlert('更新日志', 'v1.0.7 已发布：封号真实生效，用户列表改由资料页统一管理。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1093,6 +1095,8 @@ async function doLogin(){
   if(!acc){ err.textContent = '账号或密码错误'; return; }
   const h = await sha256(p);
   if(h !== acc.hash){ err.textContent = '账号或密码错误'; return; }
+  await loadBans();
+  if(isBanned(u)){ err.textContent = '该账号已被封禁，无法登录'; return; }
   sessionStorage.setItem('zx_user', u);
   err.textContent = '';
   showApp(u);
@@ -1136,6 +1140,8 @@ async function doRecover(){
   if(!acc){ await loadRemoteAccounts(); acc = ACCOUNTS[u]; }
   if(!acc){ err.textContent='账号不存在'; return; }
   if(k !== acc.key){ err.textContent='安全密钥错误'; return; }
+  await loadBans();
+  if(isBanned(u)){ err.textContent = '该账号已被封禁，无法登录'; return; }
   sessionStorage.setItem('zx_user', u);
   showApp(u);
 }
@@ -1957,6 +1963,11 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.7', date: '2026-11-08', items: [
+      '用户列表精简：移除卡片右侧编辑、封号、删除三个按钮，改为点击头像进入资料页操作',
+      '封号改为真实生效：封禁名单存仓库 user-bans.json，被封账号无法用密码或安全密钥登录',
+      '资料页封禁按钮实时显示封号 / 解禁状态，操作后全端同步'
+    ]},
     { ver: 'v1.0.6', date: '2026-11-08', items: [
       '活动中心改为云端管理：活动存 activity-records.json，报名记录存 activity-signup-records.json',
       '超管可布置、编辑、删除活动，可设置标题、说明、参与链接、截止时间与报名状态',
@@ -2046,11 +2057,6 @@ function renderUsers(kw){
         <div style="font-size:11px;color:#607494;margin-top:2px">UID：${u.uid}</div>
         <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${u.balance}</div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <button onclick="editUser(${u.idx})" style="background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">编辑</button>
-        <button onclick="toggleUserBan(${u.idx})" style="background:${u.banned?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.12)'};border:1px solid ${u.banned?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)'};color:${u.banned?'#34d399':'#f87171'};padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${u.banned?'解禁':'封号'}</button>
-        <button onclick="delUser(${u.idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">删除</button>
-      </div>
     </div>
   `).join('');
 }
@@ -2130,6 +2136,18 @@ function openProfileFor(uid){
   window._pfUid = uid;
   const dmBtn = document.getElementById('pfDmBtn');
   if(dmBtn) dmBtn.textContent = (uid === sessionStorage.getItem('zx_user')) ? '消息' : '私信';
+  const banBtn = document.getElementById('pfBanBtn');
+  if(banBtn){
+    banBtn.style.display = isManageable(uid) ? 'block' : 'none';
+    const banned = isBanned(uid);
+    banBtn.textContent = banned ? '解禁' : '封号';
+    banBtn.style.color = banned ? '#34d399' : '#f87171';
+    banBtn.style.borderColor = banned ? 'rgba(52,211,153,0.32)' : 'rgba(248,113,113,0.32)';
+    banBtn.style.background = banned ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)';
+  }
+  if(acc.banned){
+    document.getElementById('pfLevel').textContent = acc.level + ' · 已封禁';
+  }
   document.getElementById('profileMask').style.display = 'block';
 }
 
@@ -2417,6 +2435,69 @@ async function delAct(aid){
   try { await ghWriteRecords(GH_ACT_PATH, list, 'zx_acts'); } catch(e){ toastMsg('删除失败，请检查网络'); return; }
   toastMsg('活动已删除');
   renderActivities();
+}
+
+
+// ===== 封禁（云端 user-bans.json，封号后真实无法登录） =====
+const GH_BAN_PATH = 'user-bans.json';
+let banCache = [];
+async function loadBans(){
+  try {
+    const r = await ghGetRecords(GH_BAN_PATH);
+    banCache = (r.list || []).map(x => typeof x === 'string' ? x : (x && x.uid) || '').filter(Boolean);
+    localStorage.setItem('zx_user_bans', JSON.stringify(banCache));
+  } catch(e){
+    try { banCache = JSON.parse(localStorage.getItem('zx_user_bans')||'[]'); } catch(x){ banCache = []; }
+  }
+  applyBans();
+  return banCache;
+}
+function applyBans(){
+  Object.keys(ACCOUNTS).forEach(uid=>{
+    ACCOUNTS[uid].banned = banCache.indexOf(uid) >= 0;
+  });
+}
+function isBanned(uid){ return banCache.indexOf(uid) >= 0; }
+function isManageable(uid){
+  const acc = ACCOUNTS[uid];
+  if(!acc) return false;
+  if(acc.level !== '用户') return false;
+  return sessionStorage.getItem('zx_user') !== uid;
+}
+async function setUserBan(uid, banned){
+  const list = banCache.slice();
+  const i = list.indexOf(uid);
+  if(banned && i < 0) list.push(uid);
+  if(!banned && i >= 0) list.splice(i, 1);
+  try {
+    await ghWriteRecords(GH_BAN_PATH, list, 'zx_user_bans');
+  } catch(e){
+    toastMsg('云端写入失败，请检查网络');
+    return false;
+  }
+  banCache = list;
+  applyBans();
+  initNormalUsers();
+  renderUsers(window._userSearchKw || '');
+  return true;
+}
+async function profileBanAction(){
+  const uid = window._pfUid || '';
+  if(!isManageable(uid)) return;
+  const acc = ACCOUNTS[uid] || {};
+  const banned = isBanned(uid);
+  const ok = await glassConfirm(banned ? '解除封禁' : '封禁账号', banned ? ('确定解除「' + acc.name + '」的封禁？') : ('封禁后「' + acc.name + '」将无法登录，确定继续？'));
+  if(!ok) return;
+  const done = await setUserBan(uid, !banned);
+  if(!done) return;
+  const btn = document.getElementById('pfBanBtn');
+  if(btn){
+    btn.textContent = !banned ? '解禁' : '封号';
+    btn.style.color = !banned ? '#34d399' : '#f87171';
+    btn.style.borderColor = !banned ? 'rgba(52,211,153,0.32)' : 'rgba(248,113,113,0.32)';
+    btn.style.background = !banned ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)';
+  }
+  toastMsg(!banned ? '账号已封禁' : '账号已解禁');
 }
 
 function closeProfile(){
