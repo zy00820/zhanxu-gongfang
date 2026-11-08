@@ -740,7 +740,7 @@ body.plain .ann-card.open{
         <div style="font-size:14px;color:#d4e4fb;font-weight:500">消息中心</div>
         <div style="display:flex;gap:8px">
           <button onclick="openCreateGroup()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">+ 创建群聊</button>
-          <button onclick="renderDmCenterPage()" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+          <button onclick="renderDmCenterPage(true)" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
         </div>
       </div>
       <div id="dmCenterList"></div>
@@ -1847,11 +1847,79 @@ let ticketData = [];
 
 /* ===== 社区预置 50 帖 ===== */
 // ===== 社区帖子：云端 posts-records.json，发帖即同步、查看即拉取 =====
+// ===== 社区帖子互动（点赞 / 评论，存 post-interact-records.json） =====
+const GH_INTERACT_PATH = 'post-interact-records.json';
+let interactCache = [];
+let interactLoaded = false;
+let postsCache = [];
+let postsLoaded = false;
+let postsExpanded = {};
+
+async function loadInteractOnce(force){
+  if(interactLoaded && !force) return interactCache;
+  try {
+    const r = await ghGetRecords(GH_INTERACT_PATH);
+    interactCache = r.list || [];
+    localStorage.setItem('zx_interact', JSON.stringify(interactCache));
+  } catch(e){
+    try { interactCache = JSON.parse(localStorage.getItem('zx_interact')||'[]'); } catch(x){ interactCache = []; }
+  }
+  interactLoaded = true;
+  return interactCache;
+}
+function postLikes(pid){ return interactCache.filter(x => x.pid === pid && x.type === 'like').length; }
+function postComments(pid){ return interactCache.filter(x => x.pid === pid && x.type === 'comment').sort((a,b)=>(a.ts||0)-(b.ts||0)); }
+function iLiked(pid){ const me = myUid(); return interactCache.some(x => x.pid === pid && x.type === 'like' && x.uid === me); }
+function pidOf(p){ return String(p.id || p.ts || ''); }
+async function saveInteract(){
+  try { await ghWriteRecords(GH_INTERACT_PATH, interactCache, 'zx_interact'); return true; }
+  catch(e){ localStorage.setItem('zx_interact', JSON.stringify(interactCache)); return false; }
+}
+async function toggleLike(pid){
+  const me = myUid();
+  if(!me){ toastMsg('请先登录'); return; }
+  await loadInteractOnce();
+  const idx = interactCache.findIndex(x => x.pid === pid && x.type === 'like' && x.uid === me);
+  if(idx >= 0){ interactCache.splice(idx,1); }
+  else {
+    interactCache.push({ pid: pid, type: 'like', uid: me, name: (ACCOUNTS[me]||{}).name || me, ts: Date.now(), time: dmTime(Date.now()) });
+  }
+  const ok = await saveInteract();
+  renderPosts(postsCache);
+  if(!ok) toastMsg('网络异常，点赞已先存本地');
+  else toastMsg(idx >= 0 ? '已取消点赞' : '已点赞');
+}
+async function toggleComments(pid){
+  postsExpanded[pid] = !postsExpanded[pid];
+  renderPosts(postsCache);
+  if(postsExpanded[pid]) setTimeout(()=>{ const el = document.getElementById('pcmt-'+pid); if(el && el.scrollIntoView) el.scrollIntoView({block:'nearest'}); }, 60);
+}
+async function addComment(pid){
+  const me = myUid();
+  if(!me){ toastMsg('请先登录'); return; }
+  const inp = document.getElementById('pcmtIn-'+pid);
+  if(!inp) return;
+  const text = inp.value.trim();
+  if(!text){ toastMsg('请输入评论内容'); return; }
+  await loadInteractOnce();
+  const rec = { pid: pid, type: 'comment', uid: me, name: (ACCOUNTS[me]||{}).name || me, text: text, ts: Date.now(), time: dmTime(Date.now()) };
+  interactCache.push(rec);
+  inp.value = '';
+  const ok = await saveInteract();
+  postsExpanded[pid] = true;
+  renderPosts(postsCache);
+  toastMsg(ok ? '评论已发布并云端同步' : '网络异常，评论已先存本地');
+}
 function renderPosts(list){
   const sorted = list.slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
   let html = '';
   sorted.forEach(p=>{
     const grad = p.grad || 'linear-gradient(135deg,#60a5fa,#3b82f6)';
+    const pid = pidOf(p);
+    const likes = postLikes(pid);
+    const cms = postComments(pid);
+    const liked = iLiked(pid);
+    const open = !!postsExpanded[pid];
     html += `<div class="card">
       <div class="post-head">
         <div class="post-avatar" style="background:${grad}">${(p.name||'?').charAt(0)}</div>
@@ -1859,58 +1927,69 @@ function renderPosts(list){
         <div class="post-tag">${p.tag||'综合'}</div>
       </div>
       <div class="post-content">${p.content}</div>
-      <div class="post-actions"><span>${p.likes||0} 赞</span><span>${p.comments||0} 评论</span><span>收藏</span></div>
+      <div class="post-actions">
+        <span onclick="toggleLike('${pid}')" style="cursor:pointer;color:${liked?'#f472b6':'inherit'}">${liked?'♥':'♡'} ${likes} 赞</span>
+        <span onclick="toggleComments('${pid}')" style="cursor:pointer">${cms.length} 评论</span>
+        <span style="color:#607494">收藏</span>
+      </div>
+      ${open ? `<div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px">
+        ${cms.length ? cms.map(m=>`<div style="margin-bottom:8px;font-size:12px;line-height:1.6"><span style="color:#73b8ff">${(m.name||'').replace(/</g,'&lt;')}</span> <span style="color:#607494;font-size:11px">${m.time||''}</span><div style="color:#a0b4d2;margin-top:2px">${String(m.text||'').replace(/</g,'&lt;')}</div></div>`).join('') : `<div style="font-size:12px;color:#607494;margin-bottom:8px">还没有评论</div>`}
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input id="pcmtIn-${pid}" maxlength="200" placeholder="写评论…" style="flex:1;padding:9px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
+          <button onclick="addComment('${pid}')" style="padding:9px 14px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:9px;font-size:13px;cursor:pointer">发送</button>
+        </div>
+      </div>` : ''}
     </div>`;
   });
   const box = document.getElementById('extraPosts');
   if(box) box.innerHTML = html || '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:24px">还没有帖子，来发第一条吧</div>';
 }
-
-// 去重：同内容视为重复，保留最新一条，删掉更老的
+// 内容去重：忽略空格与大小写，同一内容只保留最新一条
 function dedupePosts(list){
-  const norm = s => String(s||'').replace(/\s+/g,'').toLowerCase();
-  const sorted = list.slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
-  const seen = new Set();
-  const kept = [];
-  sorted.forEach(p=>{
+  const norm = s => String(s==null?'':s).replace(/\s+/g,'').toLowerCase();
+  const seen = {};
+  const out = [];
+  list.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).forEach(p=>{
     const k = norm(p.content);
-    if(!k || seen.has(k)) return;
-    seen.add(k);
-    kept.push(p);
+    if(!seen[k]){ seen[k] = 1; out.push(p); }
   });
-  return kept;
+  return out;
 }
 
 async function ghWriteRecords(file, list, cacheKey){
   const { sha } = await ghGetRecords(file).catch(()=>({ sha:null }));
-  const body = { message: 'chore: 自动清理重复帖子', content: b64encode(JSON.stringify(list)) };
+  const body = { message: 'data: 同步记录', content: b64encode(JSON.stringify(list)) };
   if(sha) body.sha = sha;
   const r = await ghRequest(file, 'PUT', body);
   if(!r.resp || !r.resp.ok) throw new Error('写入失败 ' + ((r.resp && r.resp.status) || r.error));
   if(cacheKey) localStorage.setItem(cacheKey, JSON.stringify(list));
 }
 
-async function loadAndRenderPosts(){
+async function loadAndRenderPosts(force){
+  if(postsLoaded && !force){
+    renderPosts(postsCache);
+    return;
+  }
   let list = [];
   try {
     const r = await ghGetRecords(GH_POSTS_PATH);
     const raw = r.list || [];
     list = dedupePosts(raw);
-    // 有重复则回写云端，保证各处看到一致结果
     if(list.length !== raw.length){
       try { await ghWriteRecords(GH_POSTS_PATH, list, 'zx_posts'); } catch(e){}
     }
     localStorage.setItem('zx_posts', JSON.stringify(list));
   } catch(e){
-    // 网络失败：读本地缓存
     try { list = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){ list = []; }
     list = dedupePosts(list);
   }
-  renderPosts(list);
+  postsCache = list;
+  postsLoaded = true;
+  await loadInteractOnce();
+  renderPosts(postsCache);
   const st = document.getElementById('statPosts');
   if(st) st.textContent = list.length;
 }
-
 const POST_INTERVAL_MS = 15000; // 发帖间隔 15 秒
 async function submitPost(){
   const input = document.getElementById('postInput');
@@ -1943,7 +2022,11 @@ async function submitPost(){
     await ghAppendRecord(GH_POSTS_PATH, rec, 'zx_posts');
     localStorage.setItem(lastKey, String(now.getTime()));
     input.value = '';
-    await loadAndRenderPosts();
+    postsCache.push(rec);
+    postsLoaded = true;
+    renderPosts(postsCache);
+    const st0 = document.getElementById('statPosts');
+    if(st0) st0.textContent = postsCache.length;
     toastMsg('帖子已发布并云端同步');
   } catch(e){
     // 本地兜底
@@ -2009,7 +2092,9 @@ function renderChangelog(){
       '消息页右上角新增「创建群聊」，可自选成员并命名群名',
       '群成员上限 10 人（含创建者），超出自动拦截并提示',
       '群聊与消息分别存 group-records.json / group-msg-records.json，多端实时拉取',
-      '群聊界面为纯白背景，成员与消息按账号权限可见'
+      '群聊界面为纯白背景，成员与消息按账号权限可见',
+      '社区发帖新增点赞与评论，互动记录存 post-interact-records.json，多端同步',
+      '社区帖子、私信、群聊改为首次加载后本地缓存，切换页面不再重复请求云端，仅「刷新」强制拉取'
     ]},
     { ver: 'v1.0.8', date: '2026-11-08', items: [
       '右上角去掉重复的签到入口，只保留一个签到按钮',
@@ -2306,7 +2391,9 @@ function dmTime(ts){
   const p2 = n => String(n).padStart(2,'0');
   return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes());
 }
-async function loadDmData(){
+let dmLoaded = false;
+async function loadDmData(force){
+  if(dmLoaded && !force) return dmCache;
   let list = [];
   try {
     const r = await ghGetRecords(GH_DM_PATH);
@@ -2316,6 +2403,7 @@ async function loadDmData(){
     try { list = JSON.parse(localStorage.getItem('zx_dms')||'[]'); } catch(x){ list = []; }
   }
   dmCache = list;
+  dmLoaded = true;
   return list;
 }
 function profileDmAction(){
@@ -2328,9 +2416,11 @@ function closeDm(){
   document.getElementById('dmMask').style.display = 'none';
   dmPeer = null;
 }
-function refreshDm(){
+async function refreshDm(){
+  await loadDmData(true);
+  await loadGroups(true);
   if(dmPeer) openDm(dmPeer);
-  else { closeDm(); gotoDmTab(); }
+  else { closeDm(); gotoDmTab(); renderDmCenterPage(true); }
 }
 async function openDm(uid){
   const me = myUid();
@@ -2371,13 +2461,13 @@ function gotoDmTab(){
   if(subtabs) subtabs.style.display = 'none';
   renderDmCenterPage();
 }
-async function renderDmCenterPage(){
+async function renderDmCenterPage(force){
   const me = myUid();
   const box = document.getElementById('dmCenterList');
   if(!box) return;
   box.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div>';
-  await loadDmData();
-  await loadGroups();
+  await loadDmData(force);
+  await loadGroups(force);
   const groups = myGroups();
   let gHtml = '';
   if(groups.length){
@@ -2427,12 +2517,13 @@ async function submitDm(){
   input.value = '';
   try {
     await ghAppendRecord(GH_DM_PATH, rec, 'zx_dms');
+    dmCache.push(rec);
+    dmLoaded = true;
     toastMsg('私信已发送并云端同步');
   } catch(e){
-    let local = [];
-    try { local = JSON.parse(localStorage.getItem('zx_dms')||'[]'); } catch(x){}
-    local.push(rec);
-    localStorage.setItem('zx_dms', JSON.stringify(local));
+    dmCache.push(rec);
+    dmLoaded = true;
+    localStorage.setItem('zx_dms', JSON.stringify(dmCache));
     toastMsg('网络异常，已先存本地');
   }
   openDm(dmPeer);
@@ -2663,7 +2754,11 @@ const GROUP_LIMIT = 10;
 let groupCache = [];
 let gchatGid = null;
 
-async function loadGroups(){
+let groupsLoaded = false;
+let gmsgsLoaded = false;
+let gmsgCache = [];
+async function loadGroups(force){
+  if(groupsLoaded && !force) return groupCache;
   try {
     const r = await ghGetRecords(GH_GROUP_PATH);
     groupCache = r.list || [];
@@ -2671,17 +2766,20 @@ async function loadGroups(){
   } catch(e){
     try { groupCache = JSON.parse(localStorage.getItem('zx_groups')||'[]'); } catch(x){ groupCache = []; }
   }
+  groupsLoaded = true;
   return groupCache;
 }
-async function loadGroupMsgs(){
+async function loadGroupMsgs(force){
+  if(gmsgsLoaded && !force) return gmsgCache;
   try {
     const r = await ghGetRecords(GH_GMSG_PATH);
-    const list = r.list || [];
-    localStorage.setItem('zx_gmsgs', JSON.stringify(list));
-    return list;
+    gmsgCache = r.list || [];
+    localStorage.setItem('zx_gmsgs', JSON.stringify(gmsgCache));
   } catch(e){
-    try { return JSON.parse(localStorage.getItem('zx_gmsgs')||'[]'); } catch(x){ return []; }
+    try { gmsgCache = JSON.parse(localStorage.getItem('zx_gmsgs')||'[]'); } catch(x){ gmsgCache = []; }
   }
+  gmsgsLoaded = true;
+  return gmsgCache;
 }
 function myGroups(){
   const me = myUid();
@@ -2744,7 +2842,8 @@ async function createGroup(){
     local.push(rec); localStorage.setItem('zx_groups', JSON.stringify(local));
   }
   closeCreateGroup();
-  await loadGroups();
+  groupCache.push(rec);
+  groupsLoaded = true;
   renderDmCenterPage();
   openGroupChat(rec.gid);
 }
@@ -2753,7 +2852,13 @@ function closeGroupChat(){
   gchatGid = null;
   renderDmCenterPage();
 }
-function refreshGroupChat(){ if(gchatGid) openGroupChat(gchatGid); }
+async function refreshGroupChat(){
+  if(!gchatGid) return;
+  gmsgsLoaded = false;
+  await loadGroupMsgs(true);
+  await loadGroups(true);
+  openGroupChat(gchatGid);
+}
 async function openGroupChat(gid){
   await loadGroups();
   const g = groupCache.find(x=>x.gid === gid);
@@ -2794,9 +2899,10 @@ async function submitGroupMsg(){
   input.value = '';
   try {
     await ghAppendRecord(GH_GMSG_PATH, rec, 'zx_gmsgs');
+    gmsgCache.push(rec); gmsgsLoaded = true;
   } catch(e){
-    let local = []; try { local = JSON.parse(localStorage.getItem('zx_gmsgs')||'[]'); } catch(x){}
-    local.push(rec); localStorage.setItem('zx_gmsgs', JSON.stringify(local));
+    gmsgCache.push(rec); gmsgsLoaded = true;
+    localStorage.setItem('zx_gmsgs', JSON.stringify(gmsgCache));
     toastMsg('网络异常，已先存本地');
   }
   openGroupChat(gchatGid);
