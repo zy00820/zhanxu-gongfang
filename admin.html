@@ -292,7 +292,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.8 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.9 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -397,7 +397,7 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.8</span>
+        <span style="font-size:12px;color:#607494">v1.0.9</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -479,6 +479,45 @@ body.plain .ann-card.open{
       <div id="actErr" style="font-size:12px;color:#f87171;min-height:16px;text-align:center"></div>
       <button onclick="saveAct()" style="width:100%;margin-top:6px;padding:13px;background:linear-gradient(135deg,#73b8ff,#5b8def);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
       <button onclick="closeActForm()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
+    </div>
+  </div>
+
+  <!-- 创建群聊（纯白） -->
+  <div id="gcCreateMask" onclick="if(event.target===this)closeCreateGroup()" style="display:none;position:fixed;inset:0;z-index:212;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:#ffffff;border-radius:20px 20px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom));max-height:85vh;overflow-y:auto">
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:4px">创建群聊</div>
+      <div style="text-align:center;font-size:12px;color:#9ca3af;margin-bottom:16px">群成员上限 10 人（含自己）</div>
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">群名称</label>
+        <input id="gcName" maxlength="20" placeholder="给群聊起个名字" style="width:100%;padding:12px 14px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:10px;color:#111827;font-size:14px;outline:none">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:12px;color:#6b7280">选择成员</span>
+        <span style="font-size:12px;color:#9ca3af">已选 <span id="gcCount" style="color:#2563eb;font-weight:600">0</span>/9</span>
+      </div>
+      <div id="gcMembers" style="max-height:40vh;overflow-y:auto;margin-bottom:14px"></div>
+      <div id="gcErr" style="font-size:12px;color:#ef4444;min-height:16px;text-align:center"></div>
+      <button onclick="createGroup()" style="width:100%;padding:13px;background:#2563eb;border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">创建并进入</button>
+      <button onclick="closeCreateGroup()" style="width:100%;margin-top:10px;padding:13px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
+    </div>
+  </div>
+
+  <!-- 群聊面板（纯白背景） -->
+  <div id="gchatMask" style="display:none;position:fixed;inset:0;z-index:213;background:#ffffff">
+    <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:#ffffff">
+      <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid #eef0f4;background:#ffffff">
+        <button onclick="closeGroupChat()" style="padding:7px 12px;border-radius:8px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+        <div style="flex:1;min-width:0;text-align:center">
+          <div style="font-size:15px;color:#111827;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="gchatTitle">群聊</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:2px" id="gchatSub"></div>
+        </div>
+        <button onclick="refreshGroupChat()" style="padding:7px 12px;border-radius:8px;background:#eff6ff;border:1px solid #dbeafe;color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+      </div>
+      <div id="gchatList" style="flex:1;overflow-y:auto;padding:16px;background:#ffffff"></div>
+      <div style="display:flex;gap:8px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #eef0f4;background:#ffffff">
+        <input id="gchatInput" maxlength="300" placeholder="发送消息…" style="flex:1;padding:11px 14px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:10px;color:#111827;font-size:14px;outline:none">
+        <button onclick="submitGroupMsg()" style="padding:11px 18px;background:#2563eb;border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">发送</button>
+      </div>
     </div>
   </div>
 
@@ -699,7 +738,10 @@ body.plain .ann-card.open{
     <div class="view" id="view-dm">
       <div class="card" style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
         <div style="font-size:14px;color:#d4e4fb;font-weight:500">消息中心</div>
-        <button onclick="renderDmCenterPage()" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="openCreateGroup()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">+ 创建群聊</button>
+          <button onclick="renderDmCenterPage()" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+        </div>
       </div>
       <div id="dmCenterList"></div>
     </div>
@@ -709,7 +751,7 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.8</span>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.9</span>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -906,7 +948,7 @@ function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.8 已发布：签到记录云端同步，修复重复签到入口。');
+  await glassAlert('更新日志', 'v1.0.9 已发布：消息支持创建 10 人以内群聊，纯白界面。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1963,6 +2005,12 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.9', date: '2026-11-08', items: [
+      '消息页右上角新增「创建群聊」，可自选成员并命名群名',
+      '群成员上限 10 人（含创建者），超出自动拦截并提示',
+      '群聊与消息分别存 group-records.json / group-msg-records.json，多端实时拉取',
+      '群聊界面为纯白背景，成员与消息按账号权限可见'
+    ]},
     { ver: 'v1.0.8', date: '2026-11-08', items: [
       '右上角去掉重复的签到入口，只保留一个签到按钮',
       '签到改为云端记录（checkin-records.json），金币、经验、连续天数跨设备同步',
@@ -2329,9 +2377,21 @@ async function renderDmCenterPage(){
   if(!box) return;
   box.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div>';
   await loadDmData();
+  await loadGroups();
+  const groups = myGroups();
+  let gHtml = '';
+  if(groups.length){
+    gHtml = '<div style="font-size:12px;color:#607494;margin:2px 0 8px">我的群聊</div>' + groups.map(g=>
+      '<div onclick="openGroupChat(\'' + g.gid + '\')" class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer">' +
+      '<div class="post-avatar" style="background:linear-gradient(135deg,#a78bfa,#8b5cf6)">群</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:14px;color:#d4e4fb">' + String(g.name||'群聊').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#607494">' + (g.members||[]).length + ' 人</span></div>' +
+        '<div style="font-size:12px;color:#607494;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + groupMemberNames(g).join('、') + '</div>' +
+      '</div></div>').join('');
+  }
   const mine = dmCache.filter(m => m.from === me || m.to === me).sort((a,b)=>(b.ts||0)-(a.ts||0));
   if(!mine.length){
-    box.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:28px">暂无消息，可在员工 / 用户管理点击头像发起私信</div>';
+    box.innerHTML = gHtml + '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:28px">暂无单聊，可在员工 / 用户管理点击头像发起私信</div>';
     return;
   }
   const conv = {};
@@ -2340,7 +2400,7 @@ async function renderDmCenterPage(){
     if(!conv[peer]) conv[peer] = { peer: peer, last: m, count: 0 };
     conv[peer].count++;
   });
-  box.innerHTML = Object.values(conv).map(cv=>{
+  box.innerHTML = gHtml + (Object.values(conv).length ? '<div style="font-size:12px;color:#607494;margin:6px 0 8px">单聊</div>' : '') + Object.values(conv).map(cv=>{
     const acc = ACCOUNTS[cv.peer] || {};
     const isMine = cv.last.from === me;
     return '<div onclick="openDm(\''+cv.peer+'\')" class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer">'+
@@ -2593,6 +2653,153 @@ async function profileBanAction(){
     btn.style.background = !banned ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)';
   }
   toastMsg(!banned ? '账号已封禁' : '账号已解禁');
+}
+
+
+// ===== 群聊（群存 group-records.json，消息存 group-msg-records.json，上限 10 人） =====
+const GH_GROUP_PATH = 'group-records.json';
+const GH_GMSG_PATH = 'group-msg-records.json';
+const GROUP_LIMIT = 10;
+let groupCache = [];
+let gchatGid = null;
+
+async function loadGroups(){
+  try {
+    const r = await ghGetRecords(GH_GROUP_PATH);
+    groupCache = r.list || [];
+    localStorage.setItem('zx_groups', JSON.stringify(groupCache));
+  } catch(e){
+    try { groupCache = JSON.parse(localStorage.getItem('zx_groups')||'[]'); } catch(x){ groupCache = []; }
+  }
+  return groupCache;
+}
+async function loadGroupMsgs(){
+  try {
+    const r = await ghGetRecords(GH_GMSG_PATH);
+    const list = r.list || [];
+    localStorage.setItem('zx_gmsgs', JSON.stringify(list));
+    return list;
+  } catch(e){
+    try { return JSON.parse(localStorage.getItem('zx_gmsgs')||'[]'); } catch(x){ return []; }
+  }
+}
+function myGroups(){
+  const me = myUid();
+  return groupCache.filter(g => Array.isArray(g.members) && g.members.indexOf(me) >= 0).sort((a,b)=>(b.ts||0)-(a.ts||0));
+}
+function groupMemberNames(g){
+  return (g.members||[]).map(uid => (ACCOUNTS[uid] && ACCOUNTS[uid].name) || uid);
+}
+function openCreateGroup(){
+  const me = myUid();
+  const box = document.getElementById('gcMembers');
+  const others = Object.keys(ACCOUNTS).filter(uid => uid !== me);
+  box.innerHTML = others.map(uid=>{
+    const a = ACCOUNTS[uid] || {};
+    return '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:8px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:10px;cursor:pointer">'+
+      '<input type="checkbox" class="gcMemberChk" value="'+uid+'" onchange="updateGcCount()" style="width:16px;height:16px;accent-color:#2563eb">'+
+      '<span style="flex:1;font-size:14px;color:#111827">'+(a.name||uid)+'</span>'+
+      '<span style="font-size:11px;color:#9ca3af">'+(a.level||'用户')+'</span></label>';
+  }).join('');
+  document.getElementById('gcCount').textContent = '0';
+  document.getElementById('gcErr').textContent = '';
+  document.getElementById('gcName').value = '';
+  document.getElementById('gcCreateMask').style.display = 'block';
+}
+function closeCreateGroup(){
+  document.getElementById('gcCreateMask').style.display = 'none';
+}
+function updateGcCount(){
+  const chks = [...document.querySelectorAll('.gcMemberChk:checked')];
+  document.getElementById('gcCount').textContent = chks.length;
+  const err = document.getElementById('gcErr');
+  // 超过 9 人（群上限 10 含自己）自动取消多余勾选
+  if(chks.length > GROUP_LIMIT - 1){
+    chks[chks.length-1].checked = false;
+    document.getElementById('gcCount').textContent = document.querySelectorAll('.gcMemberChk:checked').length;
+    err.textContent = '群成员上限 10 人（含自己），最多再选 9 人';
+  } else {
+    err.textContent = '';
+  }
+}
+async function createGroup(){
+  const me = myUid();
+  if(!me){ toastMsg('请先登录'); return; }
+  const name = document.getElementById('gcName').value.trim();
+  const members = [...document.querySelectorAll('.gcMemberChk:checked')].map(x=>x.value);
+  const err = document.getElementById('gcErr');
+  if(!name){ err.textContent = '请填写群名称'; return; }
+  if(members.length < 1){ err.textContent = '至少选择 1 位成员'; return; }
+  if(members.length > GROUP_LIMIT - 1){ err.textContent = '群成员上限 10 人'; return; }
+  const rec = {
+    gid: 'G' + Date.now(), name: name, owner: me,
+    members: [me].concat(members),
+    creator: (ACCOUNTS[me]||{}).name || me,
+    time: dmTime(Date.now()), ts: Date.now()
+  };
+  try {
+    await ghAppendRecord(GH_GROUP_PATH, rec, 'zx_groups');
+  } catch(e){
+    let local = []; try { local = JSON.parse(localStorage.getItem('zx_groups')||'[]'); } catch(x){}
+    local.push(rec); localStorage.setItem('zx_groups', JSON.stringify(local));
+  }
+  closeCreateGroup();
+  await loadGroups();
+  renderDmCenterPage();
+  openGroupChat(rec.gid);
+}
+function closeGroupChat(){
+  document.getElementById('gchatMask').style.display = 'none';
+  gchatGid = null;
+  renderDmCenterPage();
+}
+function refreshGroupChat(){ if(gchatGid) openGroupChat(gchatGid); }
+async function openGroupChat(gid){
+  await loadGroups();
+  const g = groupCache.find(x=>x.gid === gid);
+  if(!g){ toastMsg('群聊不存在'); return; }
+  gchatGid = gid;
+  document.getElementById('gchatTitle').textContent = g.name;
+  document.getElementById('gchatSub').textContent = groupMemberNames(g).length + ' 人 · ' + groupMemberNames(g).slice(0,4).join('、') + (groupMemberNames(g).length>4?'…':'');
+  document.getElementById('gchatMask').style.display = 'block';
+  const box = document.getElementById('gchatList');
+  box.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:13px;padding:20px">加载中…</div>';
+  const all = await loadGroupMsgs();
+  const msgs = all.filter(m=>m.gid === gid).sort((a,b)=>(a.ts||0)-(b.ts||0));
+  if(!msgs.length){
+    box.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:13px;padding:24px">还没有消息，说句话吧</div>';
+    return;
+  }
+  const me = myUid();
+  box.innerHTML = msgs.map(m=>{
+    const mine = m.from === me;
+    return '<div style="display:flex;flex-direction:'+(mine?'row-reverse':'row')+';gap:8px;margin-bottom:12px;align-items:flex-start">'+
+      '<div style="width:32px;height:32px;border-radius:50%;background:#eff6ff;color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0">'+String(m.fromName||'?').charAt(0)+'</div>'+
+      '<div style="max-width:72%">'+
+        '<div style="font-size:11px;color:#9ca3af;margin-bottom:3px;text-align:'+(mine?'right':'left')+'">'+(mine?'我':String(m.fromName||''))+' · '+dmTime(m.ts)+'</div>'+
+        '<div style="padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.6;text-align:left;'+
+          (mine ? 'background:#2563eb;color:#ffffff' : 'background:#f3f4f6;color:#111827')+'">'+String(m.text||'').replace(/</g,'&lt;')+'</div>'+
+      '</div></div>';
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+async function submitGroupMsg(){
+  const me = myUid();
+  if(!me || !gchatGid) return;
+  const input = document.getElementById('gchatInput');
+  const text = input.value.trim();
+  if(!text){ toastMsg('请输入消息内容'); return; }
+  const rec = { gid: gchatGid, from: me, fromName: (ACCOUNTS[me]||{}).name || me,
+                text: text, time: dmTime(Date.now()), ts: Date.now() };
+  input.value = '';
+  try {
+    await ghAppendRecord(GH_GMSG_PATH, rec, 'zx_gmsgs');
+  } catch(e){
+    let local = []; try { local = JSON.parse(localStorage.getItem('zx_gmsgs')||'[]'); } catch(x){}
+    local.push(rec); localStorage.setItem('zx_gmsgs', JSON.stringify(local));
+    toastMsg('网络异常，已先存本地');
+  }
+  openGroupChat(gchatGid);
 }
 
 function closeProfile(){
