@@ -292,7 +292,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.3 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.4 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 用户列表按职位自动同步<br>· 社区发帖云端化+自动去重<br>· 修复密钥解析受限网络失败</div>
       </div>
     </div>
@@ -398,7 +398,7 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.3</span>
+        <span style="font-size:12px;color:#607494">v1.0.4</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -408,6 +408,7 @@ body.plain .ann-card.open{
   <!-- 个人信息弹窗 -->
   <div id="profileMask" onclick="if(event.target===this)closeProfile()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))">
+      <button id="pfDmBtn" onclick="profileDmAction()" style="position:absolute;top:16px;right:16px;padding:7px 14px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;font-size:12px;cursor:pointer">私信</button>
       <div style="text-align:center;margin-bottom:18px">
         <div id="pfAvatar" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#080b12;margin-bottom:10px">张</div>
         <div style="font-size:18px;font-weight:600;color:#f0f5ff" id="pfName">张岳</div>
@@ -443,6 +444,22 @@ body.plain .ann-card.open{
         <div>安全密钥：<span id="pfKey" style="color:#fbbf24"></span></div>
       </div>
       <button onclick="closeProfile()" style="width:100%;margin-top:18px;padding:13px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:12px;font-size:15px;cursor:pointer">关闭</button>
+    </div>
+  </div>
+
+  <!-- 私信面板 -->
+  <div id="dmMask" style="display:none;position:fixed;inset:0;z-index:210;background:rgba(4,6,12,0.55);backdrop-filter:blur(16px)">
+    <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.94);backdrop-filter:blur(30px) saturate(180%);border-left:1px solid rgba(115,184,255,0.18);border-right:1px solid rgba(115,184,255,0.18)">
+      <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08)">
+        <button onclick="closeDm()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+        <div style="flex:1;text-align:center;font-size:15px;color:#f0f5ff;font-weight:600" id="dmTitle">私信</div>
+        <button onclick="refreshDm()" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+      </div>
+      <div id="dmList" style="flex:1;overflow-y:auto;padding:14px 16px"></div>
+      <div id="dmCompose" style="display:none;gap:8px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,0.08)">
+        <input id="dmInput" maxlength="300" placeholder="输入私信内容…" style="flex:1;padding:11px 14px;background:rgba(255,255,255,0.07);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
+        <button onclick="submitDm()" class="btn-send">发送</button>
+      </div>
     </div>
   </div>
 
@@ -668,7 +685,7 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.3</span>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.4</span>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -862,7 +879,7 @@ function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.3 已发布：用户列表按职位自动同步、社区云端发帖与自动去重、密钥解析网络兜底修复。');
+  await glassAlert('更新日志', 'v1.0.4 已发布：新增私信功能，员工与用户资料页可直接发起私信，记录云端同步。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1913,6 +1930,12 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.4', date: '2026-11-08', items: [
+      '新增私信功能：私信记录存于仓库 dm-records.json，与社区发帖同一套云端读写',
+      '员工管理与用户管理点击头像可查看个人信息，右上角可发起私信',
+      '个人资料页为自己时显示「私信中心」，可查看全部会话与未读汇总',
+      '私信面板支持会话气泡、时间戳、刷新与本地兜底'
+    ]},
     { ver: 'v1.0.3', date: '2026-11-07', items: [
       '开放注册：输入昵称与密码即可创建用户账号，账号、哈希密码、安全密钥自动生成并存仓库',
       '新注册账号自动出现在用户列表，支持编辑、封号、删除',
@@ -2048,7 +2071,7 @@ function doCheckin(){
   document.getElementById('btnCheckin').textContent = '已签到';
   toastMsg('签到成功 +10金币 +10经验');
 }
-function openProfile(){ openProfileFor(currentUid); }
+function openProfile(){ openProfileFor(sessionStorage.getItem('zx_user')); }
 function openProfileFor(uid){
   const acc = ACCOUNTS[uid];
   if(!acc) return;
@@ -2066,8 +2089,136 @@ function openProfileFor(uid){
   document.getElementById('pfTitles').textContent = tlist.length ? tlist.join('、') : '暂无';
   document.getElementById('pfFans').textContent = getFans(uid);
   document.getElementById('pfFollow').textContent = FOLLOW_DEFAULT;
+  window._pfUid = uid;
+  const dmBtn = document.getElementById('pfDmBtn');
+  if(dmBtn) dmBtn.textContent = (uid === sessionStorage.getItem('zx_user')) ? '私信中心' : '私信';
   document.getElementById('profileMask').style.display = 'block';
 }
+
+// ===== 私信（云端 dm-records.json，与社区发帖同一套读写） =====
+const GH_DM_PATH = 'dm-records.json';
+let dmPeer = null;      // null = 私信中心
+let dmCache = [];
+
+function myUid(){ return sessionStorage.getItem('zx_user') || ''; }
+function myName(){ const acc = ACCOUNTS[myUid()]; return acc ? acc.name : myUid(); }
+function dmTime(ts){
+  const d = new Date(ts || Date.now());
+  const p2 = n => String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes());
+}
+async function loadDmData(){
+  let list = [];
+  try {
+    const r = await ghGetRecords(GH_DM_PATH);
+    list = r.list || [];
+    localStorage.setItem('zx_dms', JSON.stringify(list));
+  } catch(e){
+    try { list = JSON.parse(localStorage.getItem('zx_dms')||'[]'); } catch(x){ list = []; }
+  }
+  dmCache = list;
+  return list;
+}
+function profileDmAction(){
+  const uid = window._pfUid || '';
+  closeProfile();
+  if(uid === myUid()) openDmCenter();
+  else openDm(uid);
+}
+function closeDm(){
+  document.getElementById('dmMask').style.display = 'none';
+  dmPeer = null;
+}
+function refreshDm(){
+  if(dmPeer) openDm(dmPeer);
+  else openDmCenter();
+}
+async function openDm(uid){
+  const me = myUid();
+  dmPeer = uid;
+  const acc = ACCOUNTS[uid] || {};
+  document.getElementById('dmTitle').textContent = acc.name ? (acc.name + '（' + (acc.level||'用户') + '）') : uid;
+  document.getElementById('dmCompose').style.display = 'flex';
+  document.getElementById('dmMask').style.display = 'block';
+  const box = document.getElementById('dmList');
+  box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div>';
+  await loadDmData();
+  const msgs = dmCache.filter(m => (m.from === me && m.to === uid) || (m.from === uid && m.to === me))
+                     .sort((a,b)=>(a.ts||0)-(b.ts||0));
+  if(!msgs.length){
+    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:24px">还没有私信，说句话吧</div>';
+    return;
+  }
+  box.innerHTML = msgs.map(m=>{
+    const mine = m.from === me;
+    return '<div style="display:flex;justify-content:'+(mine?'flex-end':'flex-start')+';margin-bottom:10px">'+
+      '<div style="max-width:78%;padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.6;'+
+      (mine ? 'background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.3);color:#d4e4fb'
+            : 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c7d6ec')+'">'+
+      '<div>'+String(m.text||'').replace(/</g,'&lt;')+'</div>'+
+      '<div style="font-size:10px;margin-top:4px;color:#607494;text-align:'+(mine?'right':'left')+'">'+dmTime(m.ts)+'</div>'+
+      '</div></div>';
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+async function openDmCenter(){
+  const me = myUid();
+  dmPeer = null;
+  document.getElementById('dmTitle').textContent = '私信中心';
+  document.getElementById('dmCompose').style.display = 'none';
+  document.getElementById('dmMask').style.display = 'block';
+  const box = document.getElementById('dmList');
+  box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div>';
+  await loadDmData();
+  const mine = dmCache.filter(m => m.from === me || m.to === me).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  if(!mine.length){
+    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:24px">暂无会话，可在员工/用户资料页发起私信</div>';
+    return;
+  }
+  const conv = {};
+  mine.forEach(m=>{
+    const peer = m.from === me ? m.to : m.from;
+    if(!conv[peer]) conv[peer] = { peer: peer, last: m, count: 0 };
+    conv[peer].count++;
+  });
+  box.innerHTML = Object.values(conv).map(cv=>{
+    const acc = ACCOUNTS[cv.peer] || {};
+    const isMine = cv.last.from === me;
+    return '<div onclick="openDm(\''+cv.peer+'\')" style="display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;cursor:pointer">'+
+      '<div class="post-avatar">'+(acc.name||cv.peer).charAt(0)+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:14px;color:#d4e4fb">'+(acc.name||cv.peer)+' <span style="font-size:11px;color:#607494">'+cv.count+' 条</span></div>'+
+        '<div style="font-size:12px;color:#607494;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(isMine?'我：':'对方：')+String(cv.last.text||'').replace(/</g,'&lt;')+'</div>'+
+      '</div>'+
+      '<div style="font-size:11px;color:#4a5c78">'+dmTime(cv.last.ts)+'</div></div>';
+  }).join('');
+}
+async function submitDm(){
+  const me = myUid();
+  if(!me || !dmPeer) return;
+  const input = document.getElementById('dmInput');
+  const text = input.value.trim();
+  if(!text){ toastMsg('请输入私信内容'); return; }
+  const acc = ACCOUNTS[dmPeer] || {};
+  const rec = {
+    from: me, fromName: myName(),
+    to: dmPeer, toName: acc.name || dmPeer,
+    text: text, time: dmTime(Date.now()), ts: Date.now()
+  };
+  input.value = '';
+  try {
+    await ghAppendRecord(GH_DM_PATH, rec, 'zx_dms');
+    toastMsg('私信已发送并云端同步');
+  } catch(e){
+    let local = [];
+    try { local = JSON.parse(localStorage.getItem('zx_dms')||'[]'); } catch(x){}
+    local.push(rec);
+    localStorage.setItem('zx_dms', JSON.stringify(local));
+    toastMsg('网络异常，已先存本地');
+  }
+  openDm(dmPeer);
+}
+
 function closeProfile(){
   document.getElementById('profileMask').style.display = 'none';
 }
