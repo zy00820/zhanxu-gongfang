@@ -292,7 +292,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.5 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.6 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 用户列表按职位自动同步<br>· 社区发帖云端化+自动去重<br>· 修复密钥解析受限网络失败</div>
       </div>
     </div>
@@ -398,7 +398,7 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.5</span>
+        <span style="font-size:12px;color:#607494">v1.0.6</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -444,6 +444,41 @@ body.plain .ann-card.open{
         <div>安全密钥：<span id="pfKey" style="color:#fbbf24"></span></div>
       </div>
       <button onclick="closeProfile()" style="width:100%;margin-top:18px;padding:13px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:12px;font-size:15px;cursor:pointer">关闭</button>
+    </div>
+  </div>
+
+  <!-- 活动布置弹窗 -->
+  <div id="actMask" onclick="if(event.target===this)closeActForm()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:215;backdrop-filter:blur(6px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(14,19,29,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:16px" id="actFormTitle">布置活动</div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">活动标题</label>
+        <input id="actTitle" placeholder="如：有奖建议信" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">活动说明</label>
+        <textarea id="actDesc" rows="3" placeholder="活动内容、奖励说明…" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none;resize:none;font-family:inherit"></textarea>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">参与链接（选填）</label>
+        <input id="actLink" placeholder="https://…" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <div style="flex:1">
+          <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">截止时间</label>
+          <input id="actDeadline" placeholder="如：2026-11-15 或 永久" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
+        </div>
+        <div style="width:120px">
+          <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">状态</label>
+          <select id="actStatus" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
+            <option value="报名中" style="background:#1a2030">报名中</option>
+            <option value="已结束" style="background:#1a2030">已结束</option>
+          </select>
+        </div>
+      </div>
+      <div id="actErr" style="font-size:12px;color:#f87171;min-height:16px;text-align:center"></div>
+      <button onclick="saveAct()" style="width:100%;margin-top:6px;padding:13px;background:linear-gradient(135deg,#73b8ff,#5b8def);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
+      <button onclick="closeActForm()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
     </div>
   </div>
 
@@ -499,37 +534,16 @@ body.plain .ann-card.open{
       <button id="btnSign" onclick="doSign()" style="padding:10px 22px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">签到</button>
     </div>
 
-    <!-- 活动中心 -->
+    <!-- 活动中心（超管布置，活动与报名数据存仓库） -->
     <div class="card" style="margin-bottom:18px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:15px;font-weight:600;color:#f0f5ff">活动中心</div>
-        <span style="font-size:11px;color:#607494">由超管布置</span>
-      </div>
-      <div id="activityList">
-        <div class="card" style="margin-bottom:10px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div style="font-size:14px;font-weight:600;color:#f0f5ff">有奖建议信</div>
-            <span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(52,211,153,0.18);color:#34d399">报名中</span>
-          </div>
-          <div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:10px">向栈序团队提交产品建议，被采纳最高赢取666元。截止 2026-11-15。</div>
-          <button onclick="location.href='https://v.wjx.cn/vm/P4N9I4h.aspx'" style="width:100%;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer">立即报名</button>
-        </div>
-        <div class="card" style="margin-bottom:10px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div style="font-size:14px;font-weight:600;color:#f0f5ff">「我问你答」栈序知识问答</div>
-            <span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(52,211,153,0.18);color:#34d399">报名中</span>
-          </div>
-          <div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:10px">关于栈序OS、栈序工坊的知识问答比赛，答对最高赢取666元。</div>
-          <button onclick="activitySignup()" style="width:100%;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer">立即报名</button>
-        </div>
-        <div class="card" style="margin-bottom:10px;padding:14px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-            <div style="font-size:14px;font-weight:600;color:#f0f5ff">等级步步高</div>
-            <span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(167,139,250,0.18);color:#a78bfa">永久</span>
-          </div>
-          <div style="font-size:12px;color:#a0b4d2;line-height:1.7">持续签到、参与活动提升账号等级，解锁专属头像框与特权。截止时间：永久。</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:#607494" id="actHint">由超管布置</span>
+          <button id="btnAddAct" onclick="openActForm()" style="display:none;padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#73b8ff;font-size:12px;cursor:pointer">+ 布置活动</button>
         </div>
       </div>
+      <div id="activityList"><div style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div></div>
     </div>
 
     <!-- 开发者中心 -->
@@ -695,7 +709,7 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.5</span>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.6</span>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -855,6 +869,7 @@ function showApp(u){
   if(myBal) myBal.textContent = '¥' + Number(acc.balance || 0).toFixed(2);
   renderStaff(acc);
   currentIsSuper = acc.level === '超级管理员';
+  renderActivities();
   const decodeBtn = document.getElementById('wdDecodeBtn');
   if(decodeBtn) decodeBtn.style.display = currentIsSuper ? 'block' : 'none';
   const rpDecodeBtn = document.getElementById('rpDecodeBtn');
@@ -889,7 +904,7 @@ function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.5 已发布：公单处理并入员工服务，私信中心改名「消息」并占顶栏席位。');
+  await glassAlert('更新日志', 'v1.0.6 已发布：活动中心支持超管布置活动、开放报名与参与链接。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1150,6 +1165,7 @@ document.querySelectorAll('.subtab').forEach(s=>{
     ['ann','staff','meeting','ticket'].forEach(k=>{
       document.getElementById('sub-'+k).style.display = k===s.dataset.sub ? 'block' : 'none';
     });
+    if(s.dataset.sub === 'ann') renderActivities();
   }
 });
 
@@ -1941,6 +1957,12 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.6', date: '2026-11-08', items: [
+      '活动中心改为云端管理：活动存 activity-records.json，报名记录存 activity-signup-records.json',
+      '超管可布置、编辑、删除活动，可设置标题、说明、参与链接、截止时间与报名状态',
+      '管理员与用户可一键报名并跳转参与链接，报名状态自动显示「已报名 / 去参与」',
+      '活动按最新布置时间倒序展示，已结束活动置灰，等级步步高作为永久活动常驻'
+    ]},
     { ver: 'v1.0.5', date: '2026-11-08', items: [
       '公单处理移入员工服务，与公告、员工管理、会议并列二级页签',
       '私信中心改名为「消息」，顶栏新增消息入口替换原公单处理位置',
@@ -2241,6 +2263,160 @@ async function submitDm(){
     toastMsg('网络异常，已先存本地');
   }
   openDm(dmPeer);
+}
+
+
+// ===== 活动中心（活动存 activity-records.json，报名存 activity-signup-records.json） =====
+const GH_ACT_PATH = 'activity-records.json';
+const GH_SIGN_PATH = 'activity-signup-records.json';
+let actCache = [];
+let signCache = [];
+let actEditId = null;
+
+function actEsc(s){ return String(s==null?'':s).replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+async function loadActivities(){
+  try {
+    const r = await ghGetRecords(GH_ACT_PATH);
+    actCache = (r.list || []).slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
+    localStorage.setItem('zx_acts', JSON.stringify(actCache));
+  } catch(e){
+    try { actCache = JSON.parse(localStorage.getItem('zx_acts')||'[]'); } catch(x){ actCache = []; }
+  }
+  return actCache;
+}
+async function loadSignups(){
+  try {
+    const r = await ghGetRecords(GH_SIGN_PATH);
+    signCache = r.list || [];
+    localStorage.setItem('zx_act_signs', JSON.stringify(signCache));
+  } catch(e){
+    try { signCache = JSON.parse(localStorage.getItem('zx_act_signs')||'[]'); } catch(x){ signCache = []; }
+  }
+  return signCache;
+}
+function hasSigned(aid){
+  const me = myUid();
+  return signCache.some(s => s.aid === aid && s.uid === me);
+}
+async function renderActivities(){
+  const box = document.getElementById('activityList');
+  if(!box) return;
+  const btn = document.getElementById('btnAddAct');
+  if(btn) btn.style.display = currentIsSuper ? '' : 'none';
+  await loadActivities();
+  await loadSignups();
+  let html = '';
+  if(!actCache.length){
+    html += '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">暂无活动' + (currentIsSuper ? '，点击右上角布置' : '') + '</div>';
+  }
+  actCache.forEach(a=>{
+    const closed = a.status === '已结束';
+    const signed = hasSigned(a.id);
+    html += '<div class="card" style="margin-bottom:10px;' + (closed ? 'opacity:0.65;' : '') + '">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+        '<div style="font-size:14px;font-weight:600;color:#f0f5ff">' + actEsc(a.title) + '</div>' +
+        '<span style="font-size:10px;padding:2px 8px;border-radius:5px;' +
+        (closed ? 'background:rgba(148,163,184,0.18);color:#94a3b8' : 'background:rgba(52,211,153,0.18);color:#34d399') + '">' +
+        actEsc(a.status || '报名中') + '</span>' +
+      '</div>' +
+      '<div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:8px">' + actEsc(a.desc) + '</div>' +
+      (a.deadline ? '<div style="font-size:11px;color:#607494;margin-bottom:8px">截止：' + actEsc(a.deadline) + '</div>' : '') +
+      (signed ? '<div style="font-size:11px;color:#34d399;margin-bottom:8px">已报名</div>' : '') +
+      '<div style="display:flex;gap:8px;align-items:center">' +
+        '<button onclick="activitySignup(\'' + a.id + '\')" style="flex:1;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer;' +
+        (closed ? 'opacity:0.5' : '') + '">' + (closed ? '已结束' : (signed ? (a.link ? '去参与' : '已报名') : '立即报名')) + '</button>' +
+        (currentIsSuper ? '<button onclick="openActForm(\'' + a.id + '\')" style="padding:9px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:8px;font-size:12px;cursor:pointer">编辑</button>' +
+        '<button onclick="delAct(\'' + a.id + '\')" style="padding:9px 12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:12px;cursor:pointer">删除</button>' : '') +
+      '</div></div>';
+  });
+  // 等级步步高（永久，非超管可编辑）
+  html += '<div class="card" style="margin-bottom:10px;padding:14px">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+      '<div style="font-size:14px;font-weight:600;color:#f0f5ff">等级步步高</div>' +
+      '<span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(167,139,250,0.18);color:#a78bfa">永久</span>' +
+    '</div>' +
+    '<div style="font-size:12px;color:#a0b4d2;line-height:1.7">持续签到、参与活动提升账号等级，解锁专属头像框与特权。截止时间：永久。</div></div>';
+  box.innerHTML = html;
+}
+async function activitySignup(aid){
+  const me = myUid();
+  if(!me){ toastMsg('请先登录'); return; }
+  await loadActivities();
+  const act = actCache.find(a=>a.id === aid);
+  if(!act){ toastMsg('活动不存在'); return; }
+  if(act.status === '已结束'){ toastMsg('该活动已结束'); return; }
+  await loadSignups();
+  const signed = hasSigned(aid);
+  if(!signed){
+    const acc = ACCOUNTS[me] || {};
+    const rec = { aid: aid, title: act.title, uid: me, name: acc.name || me, time: dmTime(Date.now()), ts: Date.now() };
+    try { await ghAppendRecord(GH_SIGN_PATH, rec, 'zx_act_signs'); toastMsg('报名成功，已云端记录'); }
+    catch(e){
+      let local = []; try { local = JSON.parse(localStorage.getItem('zx_act_signs')||'[]'); } catch(x){}
+      local.push(rec); localStorage.setItem('zx_act_signs', JSON.stringify(local));
+      toastMsg('网络异常，已先存本地');
+    }
+    await loadSignups();
+    renderActivities();
+  } else {
+    toastMsg('你已报名');
+  }
+  if(act.link){
+    try { window.open(act.link, '_blank'); } catch(e){ location.href = act.link; }
+  }
+}
+function openActForm(aid){
+  actEditId = aid || null;
+  const a = actEditId ? actCache.find(x=>x.id === actEditId) : null;
+  document.getElementById('actFormTitle').textContent = actEditId ? '编辑活动' : '布置活动';
+  document.getElementById('actTitle').value = a ? (a.title||'') : '';
+  document.getElementById('actDesc').value = a ? (a.desc||'') : '';
+  document.getElementById('actLink').value = a ? (a.link||'') : '';
+  document.getElementById('actDeadline').value = a ? (a.deadline||'') : '';
+  document.getElementById('actStatus').value = a ? (a.status||'报名中') : '报名中';
+  document.getElementById('actErr').textContent = '';
+  document.getElementById('actMask').style.display = 'block';
+}
+function closeActForm(){
+  document.getElementById('actMask').style.display = 'none';
+  actEditId = null;
+}
+async function saveAct(){
+  const title = document.getElementById('actTitle').value.trim();
+  const desc = document.getElementById('actDesc').value.trim();
+  const link = document.getElementById('actLink').value.trim();
+  const deadline = document.getElementById('actDeadline').value.trim();
+  const status = document.getElementById('actStatus').value;
+  const err = document.getElementById('actErr');
+  if(!title){ err.textContent = '请填写活动标题'; return; }
+  if(!desc){ err.textContent = '请填写活动说明'; return; }
+  if(link && !/^https?:\/\//i.test(link)){ err.textContent = '链接需以 http:// 或 https:// 开头'; return; }
+  let list = actCache.slice();
+  if(actEditId){
+    const i = list.findIndex(x=>x.id === actEditId);
+    if(i >= 0) list[i] = Object.assign({}, list[i], { title, desc, link, deadline, status, ts: list[i].ts || Date.now() });
+  } else {
+    list.push({ id: 'ACT' + Date.now(), title: title, desc: desc, link: link, deadline: deadline, status: status,
+                by: myName(), time: dmTime(Date.now()), ts: Date.now() });
+  }
+  list.sort((a,b)=>(b.ts||0)-(a.ts||0));
+  try {
+    await ghWriteRecords(GH_ACT_PATH, list, 'zx_acts');
+    toastMsg(actEditId ? '活动已更新' : '活动已布置');
+  } catch(e){
+    toastMsg('云端写入失败，请检查网络');
+    return;
+  }
+  closeActForm();
+  renderActivities();
+}
+async function delAct(aid){
+  const ok = await glassConfirm('删除活动', '确定删除该活动吗？已报名记录保留。');
+  if(!ok) return;
+  const list = actCache.filter(a=>a.id !== aid);
+  try { await ghWriteRecords(GH_ACT_PATH, list, 'zx_acts'); } catch(e){ toastMsg('删除失败，请检查网络'); return; }
+  toastMsg('活动已删除');
+  renderActivities();
 }
 
 function closeProfile(){
