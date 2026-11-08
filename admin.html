@@ -292,7 +292,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.7 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.8 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -371,7 +371,6 @@ body.plain .ann-card.open{
       </div>
       <button onclick="toastMsg('暂无通知')" style="background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.25);color:#73b8ff;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer">🔔</button>
       <button onclick="doCheckin()" id="btnCheckin" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer">签到</button>
-      <button class="btn-logout" onclick="location.href='checkin.html'" style="font-size:13px;padding:6px 12px">签到</button>
       <button class="btn-logout" onclick="openSettings()" style="font-size:16px;padding:6px 10px">⚙</button>
     </div>
   </div>
@@ -398,7 +397,7 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.7</span>
+        <span style="font-size:12px;color:#607494">v1.0.8</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -532,7 +531,7 @@ body.plain .ann-card.open{
         <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">每日签到</div>
         <div style="font-size:12px;color:#607494">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">0</span> 天</div>
       </div>
-      <button id="btnSign" onclick="doSign()" style="padding:10px 22px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">签到</button>
+      <button id="btnSign" onclick="doCheckin()" style="padding:10px 22px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">签到</button>
     </div>
 
     <!-- 活动中心（超管布置，活动与报名数据存仓库） -->
@@ -710,7 +709,7 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.7</span>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.8</span>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -872,6 +871,7 @@ function showApp(u){
   renderStaff(acc);
   currentIsSuper = acc.level === '超级管理员';
   renderActivities();
+  syncCheckin(u);
   const decodeBtn = document.getElementById('wdDecodeBtn');
   if(decodeBtn) decodeBtn.style.display = currentIsSuper ? 'block' : 'none';
   const rpDecodeBtn = document.getElementById('rpDecodeBtn');
@@ -906,7 +906,7 @@ function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.7 已发布：封号真实生效，用户列表改由资料页统一管理。');
+  await glassAlert('更新日志', 'v1.0.8 已发布：签到记录云端同步，修复重复签到入口。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1963,6 +1963,12 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.8', date: '2026-11-08', items: [
+      '右上角去掉重复的签到入口，只保留一个签到按钮',
+      '签到改为云端记录（checkin-records.json），金币、经验、连续天数跨设备同步',
+      '同一账号每天只能签一次，换设备登录自动显示「已签到」并带回累计金币经验',
+      '签到中心与个人信息页金币经验实时同源'
+    ]},
     { ver: 'v1.0.7', date: '2026-11-08', items: [
       '用户列表精简：移除卡片右侧编辑、封号、删除三个按钮，改为点击头像进入资料页操作',
       '封号改为真实生效：封禁名单存仓库 user-bans.json，被封账号无法用密码或安全密钥登录',
@@ -2096,29 +2102,118 @@ initNormalUsers();
 renderUsers('');
 loadRemoteAccounts();
 
-// ===== 签到 & 个人信息 =====
+// ===== 签到 & 个人信息（签到记录存仓库 checkin-records.json，跨设备同步） =====
+const GH_CHECKIN_PATH = 'checkin-records.json';
+const CHECKIN_COIN = 10;
+const CHECKIN_EXP = 10;
+function dayStr(d){
+  const p = n => String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+}
+function todayStr(){ return dayStr(new Date()); }
+async function fetchMyCheckins(uid){
+  let all = [];
+  try {
+    const r = await ghGetRecords(GH_CHECKIN_PATH);
+    all = r.list || [];
+    localStorage.setItem('zx_checkin_all', JSON.stringify(all));
+  } catch(e){
+    try { all = JSON.parse(localStorage.getItem('zx_checkin_all')||'[]'); } catch(x){ all = []; }
+  }
+  const mine = all.filter(x => x.uid === uid);
+  const today = todayStr();
+  const checkedIn = mine.some(x => x.date === today);
+  const coin = mine.reduce((s,x)=>s + (Number(x.coin)||0), 0);
+  const exp  = mine.reduce((s,x)=>s + (Number(x.exp)||0), 0);
+  const dates = new Set(mine.map(x=>x.date));
+  let days = 0;
+  const cur = new Date();
+  if(!checkedIn) cur.setDate(cur.getDate() - 1);
+  for(let i=0;i<400;i++){
+    if(dates.has(dayStr(cur))){ days++; cur.setDate(cur.getDate()-1); }
+    else break;
+  }
+  return { coin, exp, checkedIn, days, list: mine };
+}
 function getUserStats(uid){
   const k = 'zx_stats_' + uid;
-  let s = JSON.parse(sessionStorage.getItem(k) || 'null');
-  if(!s){ s = { coin: 0, exp: 0, checkedIn: false }; sessionStorage.setItem(k, JSON.stringify(s)); }
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(k) || sessionStorage.getItem(k) || 'null'); } catch(e){ s = null; }
+  if(!s || typeof s.coin !== 'number'){
+    s = { coin: 0, exp: 0, checkedIn: false, days: 0 };
+  }
   return s;
 }
 function saveUserStats(uid, s){
-  sessionStorage.setItem('zx_stats_' + uid, JSON.stringify(s));
+  const k = 'zx_stats_' + uid;
+  try { localStorage.setItem(k, JSON.stringify(s)); sessionStorage.setItem(k, JSON.stringify(s)); } catch(e){}
 }
-function doCheckin(){
-  if(!currentUid) return;
-  const s = getUserStats(currentUid);
-  if(s.checkedIn){ toastMsg('今日已签到'); return; }
-  s.coin += 10; s.exp += 10; s.checkedIn = true;
-  saveUserStats(currentUid, s);
-  document.getElementById('btnCheckin').textContent = '已签到';
-  toastMsg('签到成功 +10金币 +10经验');
+function applySignUI(uid, stats){
+  const btn = document.getElementById('btnCheckin');
+  if(btn) btn.textContent = stats.checkedIn ? '已签到' : '签到';
+  const days = document.getElementById('signDays');
+  if(days) days.textContent = stats.days || 0;
+  const bs = document.getElementById('btnSign');
+  if(bs) bs.textContent = stats.checkedIn ? '已签到' : '签到';
+  const myCoin = document.getElementById('myCoin');
+  if(myCoin) myCoin.textContent = stats.coin;
+}
+async function syncCheckin(uid){
+  if(!uid) return;
+  try {
+    const s = await fetchMyCheckins(uid);
+    saveUserStats(uid, s);
+    applySignUI(uid, s);
+    return s;
+  } catch(e){ return getUserStats(uid); }
+}
+async function doCheckin(){
+  const uid = sessionStorage.getItem('zx_user');
+  if(!uid){ toastMsg('请先登录'); return; }
+  const acc = ACCOUNTS[uid] || {};
+  const today = todayStr();
+  let all = [];
+  let cur = null;
+  try {
+    const r = await ghGetRecords(GH_CHECKIN_PATH);
+    all = r.list || [];
+  } catch(e){
+    try { all = JSON.parse(localStorage.getItem('zx_checkin_all')||'[]'); } catch(x){ all = []; }
+  }
+  if(all.some(x => x.uid === uid && x.date === today)){
+    toastMsg('今日已签到');
+    await syncCheckin(uid);
+    return;
+  }
+  const mine = all.filter(x => x.uid === uid);
+  const dates = new Set(mine.map(x=>x.date));
+  let streak = 0;
+  const cur2 = new Date(); cur2.setDate(cur2.getDate() - 1);
+  for(let i=0;i<400;i++){
+    if(dates.has(dayStr(cur2))){ streak++; cur2.setDate(cur2.getDate()-1); } else break;
+  }
+  const rec = {
+    uid: uid, name: acc.name || uid, date: today,
+    coin: CHECKIN_COIN, exp: CHECKIN_EXP, days: streak + 1,
+    time: today + ' ' + new Date().toTimeString().slice(0,5), ts: Date.now()
+  };
+  try {
+    await ghAppendRecord(GH_CHECKIN_PATH, rec, 'zx_checkin_all');
+    toastMsg('签到成功 +' + CHECKIN_COIN + ' 金币 +' + CHECKIN_EXP + ' 经验');
+  } catch(e){
+    let local = [];
+    try { local = JSON.parse(localStorage.getItem('zx_checkin_all')||'[]'); } catch(x){}
+    local.push(rec);
+    localStorage.setItem('zx_checkin_all', JSON.stringify(local));
+    toastMsg('网络异常，签到已先存本地');
+  }
+  await syncCheckin(uid);
 }
 function openProfile(){ openProfileFor(sessionStorage.getItem('zx_user')); }
-function openProfileFor(uid){
+async function openProfileFor(uid){
   const acc = ACCOUNTS[uid];
   if(!acc) return;
+  try { await syncCheckin(uid); } catch(e){}
   const s = getUserStats(uid);
   const rank = Math.floor(s.exp / 100);
   document.getElementById('pfAvatar').textContent = acc.name.charAt(0);
