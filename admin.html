@@ -275,8 +275,12 @@ body.plain .ann-card.open{
         <h1>欢迎回来</h1>
         <p>登录栈序云，继续今天的工作</p>
       </div>
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <div id="lmAcc" onclick="setLoginMode('acc')" style="flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff">账号登录</div>
+        <div id="lmMail" onclick="setLoginMode('mail')" style="flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7">邮箱登录</div>
+      </div>
       <div class="field">
-        <label>账号</label>
+        <label id="loginLabel">账号</label>
         <input type="text" id="inpUser" placeholder="请输入账号" autocomplete="off">
       </div>
       <div class="field">
@@ -671,6 +675,21 @@ body.plain .ann-card.open{
     </div>
 
     <!-- 开发者中心 -->
+    <!-- 应用中心 -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#f0f5ff">应用中心</div>
+          <div style="font-size:11px;color:#607494;margin-top:3px">开发者上传 · 超管审核通过后上架</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button id="appTab-应用" onclick="appCenterTab('应用',this)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;font-size:12px;cursor:pointer">应用</button>
+          <button id="appTab-表盘" onclick="appCenterTab('表盘',this)" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">表盘</button>
+        </div>
+      </div>
+      <div id="appCenterList"><div style="text-align:center;color:#607494;font-size:13px;padding:16px">加载中…</div></div>
+    </div>
+
     <div class="card" onclick="openDevCenter()" style="cursor:pointer;margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
@@ -900,8 +919,8 @@ body.plain .ann-card.open{
           <input id="devVersion" placeholder="版本，如 1.0.0" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
           <input id="devDesc" placeholder="一句话说明" style="flex:1.6;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
         </div>
-        <input id="devFile" type="file" style="width:100%;margin-bottom:10px;font-size:12px;color:#94a8c7">
-        <div style="font-size:11px;color:#607494;margin-bottom:10px">支持 apk / exe / zip / 图片等，单个文件不超过 2MB；文件会存进仓库 dev-uploads/</div>
+        <input id="devFile" type="file" accept=".rpk" style="width:100%;margin-bottom:10px;font-size:12px;color:#94a8c7">
+        <div style="font-size:11px;color:#607494;margin-bottom:10px">仅支持 .rpk 文件（栈序 OS 应用/表盘包），单个文件不超过 2MB；文件会存进仓库 dev-uploads/</div>
         <button onclick="submitDevItem()" style="width:100%;padding:11px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:9px;font-size:14px;cursor:pointer">提交审核</button>
       </div>
 
@@ -1125,6 +1144,7 @@ async function showApp(u){
   renderActivities();
   syncCheckin(u);
   setTimeout(()=>renderShop(), 300);
+  setTimeout(()=>renderAppCenter(), 400);
   const decodeBtn = document.getElementById('wdDecodeBtn');
   if(decodeBtn) decodeBtn.style.display = 'none';
   const rpDecodeBtn = document.getElementById('rpDecodeBtn');
@@ -1195,6 +1215,7 @@ function renderStaff(currentAcc){
           <div style="font-size:14px;color:#d4e4fb;font-weight:500">${s.name}
             <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:${lvColor};margin-left:4px">${s.level}</span>
             ${banned?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(248,113,113,0.2);color:#f87171;margin-left:4px">已封号</span>':''}
+            ${isDevAuth(s.uid)?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(167,139,250,0.2);color:#a78bfa;margin-left:4px">开发者</span>':''}
           </div>
           <div style="font-size:11px;color:#607494;margin-top:2px">账号：${s.uid}</div>
           <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${s.balance ?? 0}</div>
@@ -1205,6 +1226,7 @@ function renderStaff(currentAcc){
           <button onclick="editStaff(${idx})" style="background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">编辑</button>
           <button onclick="toggleBan(${idx})" style="background:${banned?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.12)'};border:1px solid ${banned?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)'};color:${banned?'#34d399':'#f87171'};padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${banned?'解禁':'封号'}</button>
           <button onclick="delStaff(${idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">删除</button>
+          <button onclick="toggleDevAuth('${s.uid}', ${isDevAuth(s.uid) ? 'false' : 'true'})" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${isDevAuth(s.uid) ? '取消开发者' : '授权开发者'}</button>
         </div>` : ''}
       </div>`;
     }).join('');
@@ -1373,11 +1395,58 @@ async function sha256(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
+// ===== 登录方式切换（账号 / 邮箱） =====
+let loginMode = 'acc';
+function setLoginMode(m){
+  loginMode = m;
+  const accEl = document.getElementById('lmAcc');
+  const mailEl = document.getElementById('lmMail');
+  const label = document.getElementById('loginLabel');
+  const inp = document.getElementById('inpUser');
+  const on = 'flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff';
+  const off = 'flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7';
+  if(accEl) accEl.style.cssText = m === 'acc' ? on : off;
+  if(mailEl) mailEl.style.cssText = m === 'mail' ? on : off;
+  if(label) label.textContent = m === 'mail' ? '邮箱' : '账号';
+  if(inp){
+    inp.value = '';
+    inp.placeholder = m === 'mail' ? '请输入注册邮箱' : '请输入账号';
+    inp.type = m === 'mail' ? 'email' : 'text';
+  }
+  const err = document.getElementById('loginErr');
+  if(err) err.textContent = '';
+}
+async function findUidByEmail(mail){
+  const e = String(mail||'').trim().toLowerCase();
+  if(!e) return null;
+  try { await loadNameOverrides(); } catch(x){}
+  try { await loadRemoteAccounts(); } catch(x){}
+  let remote = [];
+  try { remote = JSON.parse(localStorage.getItem('zx_user_accounts')||'[]'); } catch(x){ remote = []; }
+  const uids = Object.keys(ACCOUNTS);
+  for(const uid of uids){
+    const acc = ACCOUNTS[uid] || {};
+    const mail1 = String(acc.email || '').trim().toLowerCase();
+    if(mail1 && mail1 === e) return uid;
+    const rec = remote.find(x=>String(x.uid) === String(uid));
+    const mail2 = rec ? String(rec.email || '').trim().toLowerCase() : '';
+    if(mail2 && mail2 === e) return uid;
+  }
+  return null;
+}
+
 async function doLogin(){
-  const u = document.getElementById('inpUser').value.trim();
+  const raw = document.getElementById('inpUser').value.trim();
   const p = document.getElementById('inpPwd').value;
   const err = document.getElementById('loginErr');
-  if(!u || !p){ err.textContent = '请输入账号和密码'; return; }
+  if(!raw || !p){ err.textContent = loginMode === 'mail' ? '请输入邮箱和密码' : '请输入账号和密码'; return; }
+  let u = raw;
+  if(loginMode === 'mail'){
+    if(!isValidEmail(raw)){ err.textContent = '邮箱格式不正确'; return; }
+    const found = await findUidByEmail(raw);
+    if(!found){ err.textContent = '该邮箱未绑定账号，请改用账号登录'; return; }
+    u = found;
+  }
   let acc = ACCOUNTS[u];
   if(!acc){ await loadRemoteAccounts(); acc = ACCOUNTS[u]; }
   if(!acc){ err.textContent = '账号或密码错误'; return; }
@@ -1493,6 +1562,43 @@ function showMaint(){
   clearTimeout(window._tt);
   window._tt=setTimeout(()=>t.classList.remove('show'),2200);
 }
+// ===== 应用中心（首页，单页展示已审核通过的应用 / 表盘） =====
+let appCenterCat = '应用';
+function appCenterTab(cat, el){
+  appCenterCat = cat;
+  ['应用','表盘'].forEach(k=>{
+    const b = document.getElementById('appTab-' + k);
+    if(!b) return;
+    const on = k === cat;
+    b.style.background = on ? 'rgba(115,184,255,0.16)' : 'rgba(255,255,255,0.05)';
+    b.style.border = on ? '1px solid rgba(115,184,255,0.35)' : '1px solid rgba(255,255,255,0.12)';
+    b.style.color = on ? '#73b8ff' : '#94a8c7';
+  });
+  renderAppCenter();
+}
+async function renderAppCenter(force){
+  const box = document.getElementById('appCenterList');
+  if(!box) return;
+  await loadDevItems(force);
+  const list = devCache
+    .filter(x=>x.status === '已通过' && x.type === appCenterCat)
+    .sort((a,b)=>(b.ts||0)-(a.ts||0));
+  if(!list.length){
+    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:16px">暂无上架的' + appCenterCat + '，开发者提交并通过审核后会出现在这里</div>';
+    return;
+  }
+  box.innerHTML = list.map(x=>
+    '<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+      '<div style="width:38px;height:38px;border-radius:10px;background:rgba(115,184,255,0.16);display:flex;align-items:center;justify-content:center;font-size:16px;color:#73b8ff">' + (x.type === '表盘' ? '◷' : '▣') + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:14px;color:#d4e4fb">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#607494">' + String(x.version||'') + '</span></div>' +
+        '<div style="font-size:11px;color:#607494;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + String(x.desc||'').replace(/</g,'&lt;') + ' · ' + String(x.byName||'') + '</div>' +
+      '</div>' +
+      (x.url ? '<a href="' + String(x.url) + '" target="_blank" rel="noopener" style="flex-shrink:0;padding:7px 13px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;border-radius:8px;font-size:12px;text-decoration:none">下载</a>'
+             : '<span style="font-size:11px;color:#607494">无文件</span>') +
+    '</div>').join('');
+}
+
 // ===== 开发者中心（单页，上传应用 / 表盘，超管审核，文件存仓库） =====
 const GH_DEV_PATH = 'dev-records.json';
 const GH_DEV_AUTH_PATH = 'dev-auth-records.json';
@@ -1513,6 +1619,7 @@ async function loadDevAuth(force){
   devAuthLoaded = true;
   return devAuthCache;
 }
+function isDevAuth(uid){ return devAuthCache.map(String).indexOf(String(uid)) >= 0; }
 function isDevAllowed(uid){
   if(currentIsSuper) return true;
   return devAuthCache.map(String).indexOf(String(uid)) >= 0;
@@ -1633,8 +1740,11 @@ async function toggleDevAuth(uid, on){
   devAuthCache = devAuthCache.map(String);
   if(on){ if(devAuthCache.indexOf(String(uid)) < 0) devAuthCache.push(String(uid)); }
   else { devAuthCache = devAuthCache.filter(x=>String(x) !== String(uid)); }
-  try { await ghWriteRecords(GH_DEV_AUTH_PATH, devAuthCache); toastMsg(on ? '已授权该账号' : '已取消授权'); }
+  try { await ghWriteRecords(GH_DEV_AUTH_PATH, devAuthCache); toastMsg(on ? '已授权开发者权限' : '已取消开发者权限'); }
   catch(e){ toastMsg('授权失败，请检查网络'); }
+  try { renderStaff(ACCOUNTS[myUid()]); } catch(e){}
+  try { initNormalUsers(); renderUsers(window._userSearchKw || ''); } catch(e){}
+  try { if(document.getElementById('view-dev') && document.getElementById('view-dev').classList.contains('active')) renderDevCenter(); } catch(e){}
 }
 function devSafeName(name){
   return String(name||'file').replace(/[^\w.\-\u4e00-\u9fa5]/g, '_').slice(0, 80);
@@ -1659,6 +1769,7 @@ async function submitDevItem(){
   const file = fileInput.files && fileInput.files[0];
   if(!name){ toastMsg('请填写作品名称'); return; }
   if(!file){ toastMsg('请选择要上传的文件'); return; }
+  if(!/\.rpk$/i.test(file.name)){ toastMsg('开发者中心仅支持上传 .rpk 文件'); return; }
   if(file.size > 2 * 1024 * 1024){ toastMsg('文件超过 2MB，请压缩后再上传'); return; }
   toastMsg('正在上传，请稍候…');
   try {
@@ -2144,7 +2255,7 @@ async function loadRemoteAccounts(){
     const list = r.list || [];
     list.forEach(a=>{
       if(a && a.uid && !ACCOUNTS[a.uid]){
-        ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', key:a.key, balance:a.balance||0 };
+        ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', key:a.key, balance:a.balance||0, email:a.email||'' };
       }
     });
     localStorage.setItem('zx_user_accounts', JSON.stringify(list));
@@ -2153,7 +2264,7 @@ async function loadRemoteAccounts(){
     try {
       JSON.parse(localStorage.getItem('zx_user_accounts')||'[]').forEach(a=>{
         if(a && a.uid && !ACCOUNTS[a.uid]){
-          ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', key:a.key, balance:a.balance||0 };
+          ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', key:a.key, balance:a.balance||0, email:a.email||'' };
         }
       });
     } catch(x){}
@@ -2844,10 +2955,12 @@ function renderUsers(kw){
         <div style="font-size:14px;color:#d4e4fb;font-weight:500">${u.name}
           <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(115,184,255,0.18);color:#73b8ff;margin-left:4px">用户</span>
           ${u.banned?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(248,113,113,0.2);color:#f87171;margin-left:4px">已封号</span>':''}
+          ${isDevAuth(u.uid)?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(167,139,250,0.2);color:#a78bfa;margin-left:4px">开发者</span>':''}
         </div>
         <div style="font-size:11px;color:#607494;margin-top:2px">UID：${u.uid}</div>
         <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${u.balance}</div>
       </div>
+      ${currentIsSuper ? `<button onclick="toggleDevAuth('${u.uid}', ${isDevAuth(u.uid) ? 'false' : 'true'})" style="flex-shrink:0;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${isDevAuth(u.uid) ? '取消开发者' : '授权开发者'}</button>` : ''}
     </div>
   `).join('');
 }
