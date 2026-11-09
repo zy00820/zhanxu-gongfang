@@ -438,8 +438,11 @@ body.plain .ann-card.open{
           <div style="font-size:11px;color:#607494;margin-top:2">关注数</div>
         </div>
       </div>
+      <button id="pfEditBtn" onclick="editMyProfileInfo()" style="display:none;width:100%;margin-bottom:16px;padding:11px;background:rgba(115,184,255,0.13);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:11px;font-size:13px;cursor:pointer">修改性别 / 邮箱</button>
       <button id="pfFollowBtn" onclick="profileFollowAction()" style="width:100%;margin-bottom:16px;padding:12px;background:rgba(244,114,182,0.14);border:1px solid rgba(244,114,182,0.34);color:#f472b6;border-radius:11px;font-size:14px;cursor:pointer">关注</button>
       <div style="font-size:12px;color:#94a8c7;line-height:2">
+        <div>性别：<span id="pfGender" style="color:#c9d8ee">未填写</span></div>
+        <div>邮箱：<span id="pfEmail" style="color:#c9d8ee">未填写</span></div>
         <div>账号：<span id="pfUid"></span></div>
         <div>称号：<span id="pfTitles" style="color:#c4b5fd"></span></div>
         <div>安全密钥：<span id="pfKey" style="color:#fbbf24"></span></div>
@@ -715,6 +718,30 @@ body.plain .ann-card.open{
         <button onclick="openWithdraw()" style="width:100%;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:14px;cursor:pointer">申请提现</button>
         <button id="wdDecodeBtn" onclick="decodeWithdraw()" style="display:none;width:100%;margin-top:8px;padding:11px;background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;border-radius:8px;font-size:14px;cursor:pointer">提现密钥解析（仅超管）</button>
         <button id="rpDecodeBtn" onclick="decodeReport()" style="display:none;width:100%;margin-top:8px;padding:11px;background:rgba(248,113,113,0.14);border:1px solid rgba(248,113,113,0.4);color:#f87171;border-radius:8px;font-size:14px;cursor:pointer">举报密钥解析（仅超管）</button>
+      </div>
+
+      <!-- 超管：提现申请（云端实时） -->
+      <div class="card" id="wdPanel" style="display:none;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#f0f5ff">提现申请</div>
+            <div style="font-size:11px;color:#607494;margin-top:3px">云端实时同步，无需密钥解析</div>
+          </div>
+          <button onclick="renderWdPanel(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+        </div>
+        <div id="wdList"><div style="text-align:center;color:#607494;font-size:13px;padding:16px">加载中…</div></div>
+      </div>
+
+      <!-- 超管：举报记录（云端实时） -->
+      <div class="card" id="rpPanel" style="display:none;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#f0f5ff">举报记录</div>
+            <div style="font-size:11px;color:#607494;margin-top:3px">云端实时同步，无需密钥解析</div>
+          </div>
+          <button onclick="renderReportPanel(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+        </div>
+        <div id="rpList"><div style="text-align:center;color:#607494;font-size:13px;padding:16px">加载中…</div></div>
       </div>
       <div class="card ann-card" onclick="this.classList.toggle('open')">
         <div class="ann-head">
@@ -1050,9 +1077,14 @@ function showApp(u){
   syncCheckin(u);
   setTimeout(()=>renderShop(), 300);
   const decodeBtn = document.getElementById('wdDecodeBtn');
-  if(decodeBtn) decodeBtn.style.display = currentIsSuper ? 'block' : 'none';
+  if(decodeBtn) decodeBtn.style.display = 'none';
   const rpDecodeBtn = document.getElementById('rpDecodeBtn');
-  if(rpDecodeBtn) rpDecodeBtn.style.display = currentIsSuper ? 'block' : 'none';
+  if(rpDecodeBtn) rpDecodeBtn.style.display = 'none';
+  const wdPanel = document.getElementById('wdPanel');
+  if(wdPanel) wdPanel.style.display = currentIsSuper ? 'block' : 'none';
+  const rpPanel = document.getElementById('rpPanel');
+  if(rpPanel) rpPanel.style.display = currentIsSuper ? 'block' : 'none';
+  if(currentIsSuper){ renderWdPanel(); renderReportPanel(); }
   document.getElementById('btnAddMeeting').style.display = currentIsSuper ? '' : 'none';
   document.getElementById('meetingLock').style.display = currentIsSuper ? 'none' : 'block';
   renderMeetings();
@@ -1410,6 +1442,77 @@ let wdData = { amount: 0, channel: '微信', account: '', secret: '' };
 const GH_TOKEN = ['ghp_0Hx','dyCIi6','JhhJSX','3uV120','Iz6YQo','VYQ34','wYSS'].join('');
 const GH_RECORD_PATH = 'wd-records.json';
 const GH_REPORT_PATH = 'report-records.json';
+
+// ===== 超管实时面板：提现 / 举报（单次加载，刷新才重拉） =====
+let wdListCache = [];
+let wdListLoaded = false;
+let rpListCache = [];
+let rpListLoaded = false;
+async function loadWdList(force){
+  if(wdListLoaded && !force) return wdListCache;
+  try {
+    const r = await ghGetRecords(GH_RECORD_PATH);
+    wdListCache = r.list || [];
+    localStorage.setItem('zx_wd_records', JSON.stringify(wdListCache));
+  } catch(e){
+    try { wdListCache = JSON.parse(localStorage.getItem('zx_wd_records')||'[]'); } catch(x){ wdListCache = []; }
+  }
+  wdListLoaded = true;
+  return wdListCache;
+}
+async function loadRpList(force){
+  if(rpListLoaded && !force) return rpListCache;
+  try {
+    const r = await ghGetRecords(GH_REPORT_PATH);
+    rpListCache = r.list || [];
+    localStorage.setItem('zx_report_records', JSON.stringify(rpListCache));
+  } catch(e){
+    try { rpListCache = JSON.parse(localStorage.getItem('zx_report_records')||'[]'); } catch(x){ rpListCache = []; }
+  }
+  rpListLoaded = true;
+  return rpListCache;
+}
+async function renderWdPanel(force){
+  const box = document.getElementById('wdList');
+  if(!box) return;
+  await loadWdList(force);
+  if(!wdListCache.length){
+    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:16px">暂无提现申请</div>';
+    return;
+  }
+  box.innerHTML = wdListCache.slice().reverse().map(r=>
+    '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center">' +
+        '<div style="font-size:14px;color:#d4e4fb">' + String(r.name||r.uid||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#607494">' + String(r.uid||'') + '</span></div>' +
+        '<div style="font-size:15px;font-weight:600;color:#34d399">¥' + Number(r.amount||0).toFixed(2) + '</div>' +
+      '</div>' +
+      '<div style="font-size:12px;color:#94a8c7;margin-top:5px;line-height:1.7">' +
+        String(r.channel||'') + '：' + String(r.payAccount||'').replace(/</g,'&lt;') + '<br>' +
+        '<span style="color:#607494">密钥 ' + String(r.secret||'') + ' · ' + String(r.time||'') + '</span>' +
+      '</div>' +
+    '</div>').join('');
+}
+async function renderReportPanel(force){
+  const box = document.getElementById('rpList');
+  if(!box) return;
+  await loadRpList(force);
+  if(!rpListCache.length){
+    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:16px">暂无举报记录</div>';
+    return;
+  }
+  box.innerHTML = rpListCache.slice().reverse().map(r=>
+    '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+      '<div style="font-size:14px;color:#d4e4fb">被举报：' + String(r.targetName||r.targetUid||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#607494">' + String(r.targetUid||'') + '</span></div>' +
+      '<div style="font-size:12px;color:#94a8c7;margin-top:5px;line-height:1.7">' +
+        '原因：' + String(r.reason||'').replace(/</g,'&lt;') + '<br>' +
+        '理由：' + String(r.detail||'').replace(/</g,'&lt;') +
+        (r.postText ? '<br>帖子：' + String(r.postText).replace(/</g,'&lt;') : '') +
+        '<br><span style="color:#607494">举报人 ' + String(r.reporterUid||'') + ' · 密钥 ' + String(r.secret||'') + ' · ' + String(r.time||'') + '</span>' +
+      '</div>' +
+    '</div>').join('');
+}
+
+
 const GH_POSTS_PATH = 'posts-records.json';
 const GH_REPO = 'zy00820/zhanxu-gongfang';
 // 直连 api.github.com 在部分网络下会被拦截（DNS 污染 / 私有地址限制），失败后自动走加速通道重试
@@ -2333,6 +2436,8 @@ function renderChangelog(){
       '粉丝数与关注数全部清零（隐私数据重置），之后只统计真实关注关系',
       '新增通知中心：超管可发布通知，接收人支持全部人员、多选或单独指定',
       '签到中心新增积分商城，分「头像 / 应用 / 专属铭牌」三栏，超管可上架商品，用户用积分兑换',
+      '超管端提现申请、举报记录改为云端实时列表，省去密钥解析，刷新即拉取最新',
+      '个人信息新增性别与邮箱，本人可自行修改并云端同步',
       '一级菜单新增「我的」，位置在用户列表右侧',
       '「我的」内可修改昵称（2-20 字，重名拦截），昵称变更存 profile-overrides.json，各端同步',
       '「我的」汇总本人已发布的帖子，显示时间、赞数、评论数，并可直接进入个人信息页',
@@ -2654,6 +2759,7 @@ async function profileFollowAction(){
 async function openProfileFor(uid){
   const acc = ACCOUNTS[uid];
   if(!acc) return;
+  await loadNameOverrides();
   try { await syncCheckin(uid); } catch(e){}
   const s = getUserStats(uid);
   const rank = Math.floor(s.exp / 100);
@@ -2667,6 +2773,10 @@ async function openProfileFor(uid){
   document.getElementById('pfKey').textContent = currentIsSuper ? acc.key : '****';
   const tlist = TITLES[uid] || [];
   document.getElementById('pfTitles').textContent = tlist.length ? tlist.join('、') : '暂无';
+  document.getElementById('pfGender').textContent = acc.gender || '未填写';
+  document.getElementById('pfEmail').textContent = acc.email || '未填写';
+  const pfEdit = document.getElementById('pfEditBtn');
+  if(pfEdit) pfEdit.style.display = (String(uid) === String(myUid())) ? 'block' : 'none';
   await loadSocial();
   document.getElementById('pfFans').textContent = getFans(uid);
   document.getElementById('pfFollow').textContent = getFollowCount(uid);
@@ -3462,20 +3572,67 @@ async function submitGroupMsg(){
 // ===== 「我的」页面 =====
 const GH_NAME_PATH = 'profile-overrides.json';
 let nameOverrides = {};
+let profileExtra = {};   // uid -> { gender, email }
 let nameLoaded = false;
 async function loadNameOverrides(force){
   if(nameLoaded && !force) return nameOverrides;
   try {
     const r = await ghGetRecords(GH_NAME_PATH);
     nameOverrides = {};
-    (r.list || []).forEach(x=>{ if(x && x.uid && x.name) nameOverrides[x.uid] = x.name; });
+    profileExtra = {};
+    (r.list || []).slice().sort((a,b)=>(a.ts||0)-(b.ts||0)).forEach(x=>{
+      if(!x || !x.uid) return;
+      if(x.name) nameOverrides[x.uid] = x.name;
+      if(x.gender || x.email){
+        profileExtra[x.uid] = profileExtra[x.uid] || {};
+        if(x.gender) profileExtra[x.uid].gender = x.gender;
+        if(x.email) profileExtra[x.uid].email = x.email;
+      }
+    });
   } catch(e){
     try { nameOverrides = JSON.parse(localStorage.getItem('zx_names')||'{}'); } catch(x){ nameOverrides = {}; }
+    try { profileExtra = JSON.parse(localStorage.getItem('zx_profile_extra')||'{}'); } catch(x){ profileExtra = {}; }
   }
   Object.keys(nameOverrides).forEach(uid=>{ if(ACCOUNTS[uid]) ACCOUNTS[uid].name = nameOverrides[uid]; });
+  Object.keys(profileExtra).forEach(uid=>{
+    if(!ACCOUNTS[uid]) return;
+    if(profileExtra[uid].gender) ACCOUNTS[uid].gender = profileExtra[uid].gender;
+    if(profileExtra[uid].email) ACCOUNTS[uid].email = profileExtra[uid].email;
+  });
   localStorage.setItem('zx_names', JSON.stringify(nameOverrides));
+  localStorage.setItem('zx_profile_extra', JSON.stringify(profileExtra));
   nameLoaded = true;
   return nameOverrides;
+}
+async function editMyProfileInfo(){
+  const me = myUid();
+  if(!me) return;
+  await loadNameOverrides();
+  const acc = ACCOUNTS[me] || {};
+  const gender = await glassPrompt('修改性别', '请输入 男 / 女 / 保密', acc.gender || '');
+  if(gender === null || gender === undefined) return;
+  const g = String(gender).trim() || '保密';
+  const email = await glassPrompt('修改邮箱', '请输入邮箱地址', acc.email || '');
+  if(email === null || email === undefined) return;
+  const em = String(email).trim();
+  if(em && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toastMsg('邮箱格式不正确'); return; }
+  const rec = { uid: String(me), name: acc.name || '', gender: g, email: em, time: dmTime(Date.now()), ts: Date.now() };
+  let saved = true;
+  try { await ghAppendRecord(GH_NAME_PATH, rec, 'zx_names'); }
+  catch(e){
+    saved = false;
+    try { await ghAppendRecord(GH_NAME_PATH, rec, 'zx_names'); saved = true; } catch(e2){ saved = false; }
+  }
+  profileExtra[me] = { gender: g, email: em };
+  nameLoaded = true;
+  acc.gender = g;
+  acc.email = em;
+  localStorage.setItem('zx_profile_extra', JSON.stringify(profileExtra));
+  const ge = document.getElementById('pfGender');
+  if(ge) ge.textContent = g;
+  const ee = document.getElementById('pfEmail');
+  if(ee) ee.textContent = em || '未填写';
+  toastMsg(saved ? '个人信息已更新并云端同步' : '网络异常，信息已先存本地');
 }
 async function renderMePage(){
   const me = myUid();
