@@ -292,7 +292,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.1.0 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.10 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -397,7 +397,7 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.1.0</span>
+        <span style="font-size:12px;color:#607494">v1.0.10</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -438,12 +438,25 @@ body.plain .ann-card.open{
           <div style="font-size:11px;color:#607494;margin-top:2">关注数</div>
         </div>
       </div>
+      <button id="pfFollowBtn" onclick="profileFollowAction()" style="width:100%;margin-bottom:16px;padding:12px;background:rgba(244,114,182,0.14);border:1px solid rgba(244,114,182,0.34);color:#f472b6;border-radius:11px;font-size:14px;cursor:pointer">关注</button>
       <div style="font-size:12px;color:#94a8c7;line-height:2">
         <div>账号：<span id="pfUid"></span></div>
         <div>称号：<span id="pfTitles" style="color:#c4b5fd"></span></div>
         <div>安全密钥：<span id="pfKey" style="color:#fbbf24"></span></div>
       </div>
       <button onclick="closeProfile()" style="width:100%;margin-top:18px;padding:13px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:12px;font-size:15px;cursor:pointer">关闭</button>
+    </div>
+  </div>
+
+  <!-- 帖子长按操作面板 -->
+  <div id="postSheetMask" onclick="if(event.target===this)closePostSheet()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:230;backdrop-filter:blur(4px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(15,20,30,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;font-size:13px;color:#607494;margin-bottom:12px" id="postSheetHint">帖子操作</div>
+      <div style="font-size:13px;color:#a0b4d2;line-height:1.6;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:11px;margin-bottom:14px;max-height:90px;overflow:hidden" id="postSheetText"></div>
+      <button onclick="sheetProfile()" style="width:100%;padding:13px;margin-bottom:9px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#73b8ff;border-radius:11px;font-size:14px;cursor:pointer">查看主页</button>
+      <button onclick="sheetReport()" style="width:100%;padding:13px;margin-bottom:9px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.32);color:#fbbf24;border-radius:11px;font-size:14px;cursor:pointer">举报该帖子</button>
+      <button id="postSheetDel" onclick="sheetDelete()" style="display:none;width:100%;padding:13px;margin-bottom:9px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.32);color:#f87171;border-radius:11px;font-size:14px;cursor:pointer">删除帖子（超管）</button>
+      <button onclick="closePostSheet()" style="width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:11px;font-size:14px;cursor:pointer">取消</button>
     </div>
   </div>
 
@@ -754,7 +767,7 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.1.0</span>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.10</span>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -985,7 +998,7 @@ function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.1.0 已发布：新增「我的」菜单，可修改昵称、查看已发帖；超管可在消息查看全部群聊。');
+  await glassAlert('更新日志', 'v1.0.10 已发布：粉丝关注数云端同步，帖子支持长按举报、超管删帖，点头像看资料并关注。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1049,7 +1062,43 @@ const FANS = {
 };
 // 关注数（未单独指定，统一默认值）
 const FOLLOW_DEFAULT = 128;
-function getFans(uid){ return FANS[uid] != null ? FANS[uid] : 3609; }
+
+// ===== 关注关系（云端 social-records.json，多端同步） =====
+const GH_SOCIAL_PATH = 'social-records.json';
+let socialCache = [];
+let socialLoaded = false;
+async function loadSocial(force){
+  if(socialLoaded && !force) return socialCache;
+  try {
+    const r = await ghGetRecords(GH_SOCIAL_PATH);
+    socialCache = r.list || [];
+    localStorage.setItem('zx_social', JSON.stringify(socialCache));
+  } catch(e){
+    try { socialCache = JSON.parse(localStorage.getItem('zx_social')||'[]'); } catch(x){ socialCache = []; }
+  }
+  socialLoaded = true;
+  return socialCache;
+}
+function followCountTo(uid){ return socialCache.filter(x=>x.type==='follow' && x.to===String(uid)).length; }
+function followCountFrom(uid){ return socialCache.filter(x=>x.type==='follow' && x.from===String(uid)).length; }
+function getFans(uid){ return (FANS[uid] != null ? FANS[uid] : 3609) + followCountTo(uid); }
+function getFollowCount(uid){ return FOLLOW_DEFAULT + followCountFrom(uid); }
+function isFollowing(from, to){
+  return socialCache.some(x=>x.type==='follow' && x.from===String(from) && x.to===String(to));
+}
+async function followUser(targetUid){
+  const me = myUid();
+  if(!me){ toastMsg('请先登录'); return false; }
+  if(String(me) === String(targetUid)){ toastMsg('不能关注自己'); return false; }
+  await loadSocial();
+  if(isFollowing(me, targetUid)){ toastMsg('已关注该用户'); return false; }
+  socialCache.push({ type:'follow', from:String(me), to:String(targetUid), ts:Date.now(), time: dmTime(Date.now()) });
+  let ok = true;
+  try { await ghWriteRecords(GH_SOCIAL_PATH, socialCache, 'zx_social'); }
+  catch(e){ ok = false; localStorage.setItem('zx_social', JSON.stringify(socialCache)); }
+  toastMsg(ok ? '已关注，粉丝数已同步' : '网络异常，关注已先存本地');
+  return true;
+}
 function initStaffData(){
   // 员工管理只包含超管与管理员；职位为「用户」的账号归入用户管理
   staffData = Object.entries(ACCOUNTS)
@@ -1503,9 +1552,9 @@ async function decodeWithdraw(){
 /* ===== 举报三步向导 ===== */
 let rpStep = 1;
 let rpData = { targetUid:'', targetName:'', reason:'', detail:'', secret:'' };
-function openReport(uid, name){
+function openReport(uid, name, postText){
   rpStep = 1;
-  rpData = { targetUid:uid, targetName:name, reason:'', detail:'', secret:'' };
+  rpData = { targetUid:uid, targetName:name, reason:'', detail:'', secret:'', postText: postText || '' };
   document.getElementById('rpTarget').textContent = '被举报人：' + name + '（' + uid + '）';
   document.getElementById('rpReason').value = '';
   document.getElementById('rpDetail').value = '';
@@ -1549,6 +1598,7 @@ async function rpNext(){
       reason: rpData.reason,
       detail: rpData.detail,
       reporterUid: reporterUid,
+      postText: rpData.postText || '',
       time: new Date().toLocaleString()
     };
     try {
@@ -1960,9 +2010,9 @@ function renderPosts(list){
     const cms = postComments(pid);
     const liked = iLiked(pid);
     const open = !!postsExpanded[pid];
-    html += `<div class="card">
+    html += `<div class="card" onpointerdown="ppStart(event,'${pid}')" onpointerup="ppEnd()" onpointercancel="ppEnd()" onpointermove="ppMove(event)" onpointerleave="ppEnd()">
       <div class="post-head">
-        <div class="post-avatar" style="background:${grad}">${(p.name||'?').charAt(0)}</div>
+        <div class="post-avatar" onclick="event.stopPropagation();postAvatarClick('${String(p.uid||'')}')" style="background:${grad};cursor:pointer">${(p.name||'?').charAt(0)}</div>
         <div class="post-info"><div class="post-name">${p.name}</div><div class="post-time">${p.time} · 来自 栈序工坊</div></div>
         <div class="post-tag">${p.tag||'综合'}</div>
       </div>
@@ -1984,6 +2034,77 @@ function renderPosts(list){
   const box = document.getElementById('extraPosts');
   if(box) box.innerHTML = html || '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:24px">还没有帖子，来发第一条吧</div>';
 }
+
+// ===== 帖子长按操作（举报 / 查看主页 / 超管删帖） =====
+let ppTimer = null;
+let ppXY = null;
+let ppLong = false;
+let ppTarget = null;
+function ppStart(e, pid){
+  const p = (postsCache || []).find(x => pidOf(x) === pid);
+  ppTarget = { pid: pid, uid: p ? String(p.uid||'') : '', name: p ? (p.name||'') : '', text: p ? (p.content||'') : '' };
+  ppLong = false;
+  ppXY = { x: e.clientX, y: e.clientY };
+  clearTimeout(ppTimer);
+  ppTimer = setTimeout(()=>{ ppLong = true; openPostSheet(); }, 550);
+}
+function ppMove(e){
+  if(!ppXY) return;
+  if(Math.abs(e.clientX - ppXY.x) > 10 || Math.abs(e.clientY - ppXY.y) > 10) ppEnd();
+}
+function ppEnd(){ clearTimeout(ppTimer); ppTimer = null; ppXY = null; }
+function postAvatarClick(uid){
+  if(ppLong){ ppLong = false; return; }
+  if(!uid || uid === 'undefined' || uid === 'null'){ toastMsg('该帖子未记录发帖账号'); return; }
+  openProfileFor(uid);
+}
+function openPostSheet(){
+  if(!ppTarget){ return; }
+  const txt = document.getElementById('postSheetText');
+  if(txt) txt.textContent = ppTarget.text;
+  const hint = document.getElementById('postSheetHint');
+  if(hint) hint.textContent = (ppTarget.name || '该用户') + ' 的帖子';
+  const del = document.getElementById('postSheetDel');
+  if(del) del.style.display = currentIsSuper ? 'block' : 'none';
+  document.getElementById('postSheetMask').style.display = 'block';
+}
+function closePostSheet(){
+  const m = document.getElementById('postSheetMask');
+  if(m) m.style.display = 'none';
+}
+function sheetProfile(){
+  const uid = ppTarget && ppTarget.uid;
+  closePostSheet();
+  if(!uid || uid === 'undefined' || uid === 'null'){ toastMsg('该帖子未记录发帖账号'); return; }
+  openProfileFor(uid);
+}
+function sheetReport(){
+  const t = ppTarget;
+  closePostSheet();
+  if(!t) return;
+  if(!t.uid || t.uid === 'undefined' || t.uid === 'null'){ toastMsg('该帖子未记录发帖账号，无法举报'); return; }
+  openReport(t.uid, t.name || t.uid, t.text || '');
+}
+async function sheetDelete(){
+  const t = ppTarget;
+  closePostSheet();
+  if(!t) return;
+  if(!currentIsSuper){ toastMsg('仅超级管理员可删除帖子'); return; }
+  const ok = await glassConfirm('删除帖子', '确认删除该帖子？删除后不可恢复。');
+  if(!ok) return;
+  postsCache = (postsCache || []).filter(p => pidOf(p) !== t.pid);
+  try {
+    await ghWriteRecords(GH_POSTS_PATH, postsCache, 'zx_posts');
+    toastMsg('帖子已删除并云端同步');
+  } catch(e){
+    toastMsg('删除失败，请检查网络');
+  }
+  renderPosts(postsCache);
+  const st = document.getElementById('statPosts');
+  if(st) st.textContent = postsCache.length;
+  renderMePage();
+}
+
 // 内容去重：忽略空格与大小写，同一内容只保留最新一条
 function dedupePosts(list){
   const norm = s => String(s==null?'':s).replace(/\s+/g,'').toLowerCase();
@@ -2081,6 +2202,7 @@ async function submitPost(){
   }
 }
 loadAndRenderPosts();
+loadSocial();
 
 function initTickets(){
   const titles = [
@@ -2128,7 +2250,13 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
-    { ver: 'v1.1.0', date: '2026-11-09', items: [
+    { ver: 'v1.0.10', date: '2026-11-09', items: [
+      '版本号调整为 v1.0.10',
+      '粉丝数与关注数改为云端同步（social-records.json），关注他人后对方粉丝 +1、自己关注 +1，各端一致',
+      '个人信息页新增「关注」按钮，已关注显示「已关注」',
+      '社区帖子支持长按操作：查看主页、举报该帖子',
+      '点击帖子头像可直接查看该用户信息并关注',
+      '超管长按帖子可删除，删除后云端同步',
       '一级菜单新增「我的」，位置在用户列表右侧',
       '「我的」内可修改昵称（2-20 字，重名拦截），昵称变更存 profile-overrides.json，各端同步',
       '「我的」汇总本人已发布的帖子，显示时间、赞数、评论数，并可直接进入个人信息页',
@@ -2390,6 +2518,21 @@ async function doCheckin(){
   await syncCheckin(uid);
 }
 function openProfile(){ openProfileFor(sessionStorage.getItem('zx_user')); }
+async function profileFollowAction(){
+  const t = window._pfUid;
+  if(!t) return;
+  const ok = await followUser(t);
+  if(ok){
+    document.getElementById('pfFans').textContent = getFans(t);
+    document.getElementById('pfFollow').textContent = getFollowCount(t);
+    const fbtn = document.getElementById('pfFollowBtn');
+    fbtn.textContent = '已关注';
+    fbtn.style.background = 'rgba(255,255,255,0.06)';
+    fbtn.style.borderColor = 'rgba(255,255,255,0.14)';
+    fbtn.style.color = '#94a8c7';
+    if(window._userSearchKw !== undefined) renderUsers(window._userSearchKw || '');
+  }
+}
 async function openProfileFor(uid){
   const acc = ACCOUNTS[uid];
   if(!acc) return;
@@ -2406,8 +2549,27 @@ async function openProfileFor(uid){
   document.getElementById('pfKey').textContent = currentIsSuper ? acc.key : '****';
   const tlist = TITLES[uid] || [];
   document.getElementById('pfTitles').textContent = tlist.length ? tlist.join('、') : '暂无';
+  await loadSocial();
   document.getElementById('pfFans').textContent = getFans(uid);
-  document.getElementById('pfFollow').textContent = FOLLOW_DEFAULT;
+  document.getElementById('pfFollow').textContent = getFollowCount(uid);
+  const fbtn = document.getElementById('pfFollowBtn');
+  if(fbtn){
+    const me = myUid();
+    if(String(uid) === String(me)){ fbtn.style.display = 'none'; }
+    else if(isFollowing(me, uid)){
+      fbtn.style.display = 'block';
+      fbtn.textContent = '已关注';
+      fbtn.style.background = 'rgba(255,255,255,0.06)';
+      fbtn.style.borderColor = 'rgba(255,255,255,0.14)';
+      fbtn.style.color = '#94a8c7';
+    } else {
+      fbtn.style.display = 'block';
+      fbtn.textContent = '关注';
+      fbtn.style.background = 'rgba(244,114,182,0.14)';
+      fbtn.style.borderColor = 'rgba(244,114,182,0.34)';
+      fbtn.style.color = '#f472b6';
+    }
+  }
   window._pfUid = uid;
   const dmBtn = document.getElementById('pfDmBtn');
   if(dmBtn) dmBtn.textContent = (uid === sessionStorage.getItem('zx_user')) ? '消息' : '私信';
