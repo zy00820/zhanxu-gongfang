@@ -460,6 +460,57 @@ body.plain .ann-card.open{
     </div>
   </div>
 
+  <!-- 发布通知 -->
+  <div id="noticeMask" onclick="if(event.target===this)closeNoticeForm()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:215;backdrop-filter:blur(6px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;max-height:88vh;display:flex;flex-direction:column;background:rgba(14,19,29,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:16px">发布通知</div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">标题</label>
+        <input id="noticeTitle" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" placeholder="如：社区规则更新">
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">通知内容</label>
+        <textarea id="noticeContent" rows="4" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none;resize:vertical" placeholder="填写通知正文"></textarea>
+      </div>
+      <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <label style="font-size:12px;color:#94a8c7">接收人（可多选，也可只选一人）</label>
+        <label style="font-size:12px;color:#73b8ff;cursor:pointer"><input type="checkbox" id="noticeAll" onchange="toggleNoticeAll(this.checked)" style="vertical-align:middle"> 全部人员</label>
+      </div>
+      <div id="noticeTargets" style="flex:1;max-height:34vh;overflow:auto;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 10px;margin-bottom:14px"></div>
+      <button onclick="saveNotice()" style="width:100%;padding:13px;background:linear-gradient(135deg,#34d399,#10b981);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">发布</button>
+      <button onclick="closeNoticeForm()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
+    </div>
+  </div>
+
+  <!-- 添加商城商品 -->
+  <div id="shopMask" onclick="if(event.target===this)closeShopForm()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:215;backdrop-filter:blur(6px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(14,19,29,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:16px">添加商品</div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">分类</label>
+        <select id="shopCat" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none">
+          <option value="头像" style="background:#1a2030">头像</option>
+          <option value="应用" style="background:#1a2030">应用</option>
+          <option value="专属铭牌" style="background:#1a2030">专属铭牌</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">商品名称</label>
+        <input id="shopName" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" placeholder="如：液态玻璃头像框">
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">商品说明</label>
+        <input id="shopDesc" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" placeholder="一句话说明">
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">所需积分</label>
+        <input id="shopPrice" type="number" min="1" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" placeholder="如：120">
+      </div>
+      <button onclick="saveShopItem()" style="width:100%;padding:13px;background:linear-gradient(135deg,#73b8ff,#5b8def);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
+      <button onclick="closeShopForm()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
+    </div>
+  </div>
+
   <!-- 活动布置弹窗 -->
   <div id="actMask" onclick="if(event.target===this)closeActForm()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:215;backdrop-filter:blur(6px)">
     <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(14,19,29,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom))">
@@ -587,6 +638,23 @@ body.plain .ann-card.open{
       <button id="btnSign" onclick="doCheckin()" style="padding:10px 22px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">签到</button>
     </div>
 
+    <!-- 积分商城 -->
+    <div class="card" style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#f0f5ff">积分商城</div>
+          <div style="font-size:12px;color:#607494;margin-top:3px">可用积分：<span id="shopCoin" style="color:#fbbf24;font-weight:600">0</span></div>
+        </div>
+        <button id="btnAddShop" onclick="openShopForm()" style="display:none;padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#73b8ff;font-size:12px;cursor:pointer">+ 添加商品</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px" id="shopTabs">
+        <button onclick="shopTab('头像',this)" class="shop-tab active" data-cat="头像" style="flex:1;padding:8px;border-radius:9px;border:1px solid rgba(115,184,255,0.35);background:rgba(115,184,255,0.16);color:#73b8ff;font-size:13px;cursor:pointer">头像</button>
+        <button onclick="shopTab('应用',this)" class="shop-tab" data-cat="应用" style="flex:1;padding:8px;border-radius:9px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#94a8c7;font-size:13px;cursor:pointer">应用</button>
+        <button onclick="shopTab('专属铭牌',this)" class="shop-tab" data-cat="专属铭牌" style="flex:1;padding:8px;border-radius:9px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#94a8c7;font-size:13px;cursor:pointer">专属铭牌</button>
+      </div>
+      <div id="shopList"><div style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div></div>
+    </div>
+
     <!-- 活动中心（超管布置，活动与报名数据存仓库） -->
     <div class="card" style="margin-bottom:18px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -616,6 +684,7 @@ body.plain .ann-card.open{
       <div class="tab active" data-view="staffSvc">员工服务</div>
       <div class="tab" data-view="post">社区发帖</div>
       <div class="tab" data-view="dm">消息</div>
+      <div class="tab" data-view="notice">通知</div>
       <div class="tab" data-view="changelog">更新日志</div>
       <div class="tab" data-view="users">用户列表</div>
       <div class="tab" data-view="me">我的</div>
@@ -779,6 +848,21 @@ body.plain .ann-card.open{
         <input type="text" id="userSearch" placeholder="搜索用户昵称 / 账号…" style="width:100%;padding:11px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" oninput="searchUsers(this.value)">
       </div>
       <div id="userList"></div>
+    </div>
+
+    <!-- 通知中心 -->
+    <div class="view" id="view-notice">
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#f0f5ff">通知中心</div>
+          <div style="font-size:12px;color:#607494;margin-top:3px">全员或指定人员通知</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onclick="renderNotices(true)" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+          <button id="btnAddNotice" onclick="openNoticeForm()" style="display:none;padding:7px 12px;border-radius:8px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;font-size:12px;cursor:pointer">+ 发布通知</button>
+        </div>
+      </div>
+      <div id="noticeList"></div>
     </div>
 
     <!-- 我的 -->
@@ -964,6 +1048,7 @@ function showApp(u){
   currentIsSuper = acc.level === '超级管理员';
   renderActivities();
   syncCheckin(u);
+  setTimeout(()=>renderShop(), 300);
   const decodeBtn = document.getElementById('wdDecodeBtn');
   if(decodeBtn) decodeBtn.style.display = currentIsSuper ? 'block' : 'none';
   const rpDecodeBtn = document.getElementById('rpDecodeBtn');
@@ -1053,15 +1138,9 @@ const TITLES = {
   "100000001": ["负责人"]
 };
 // 粉丝数：指定账号的具体值，其余默认 3609
-const FANS = {
-  "100000000": 430926,
-  "100000001": 294568,
-  "100000014": 224508,
-  "100000022": 6023,
-  "100000020": 123089
-};
-// 关注数（未单独指定，统一默认值）
-const FOLLOW_DEFAULT = 128;
+const FANS = {};
+// 关注数默认值（已按要求全部清零，之后只统计真实关注）
+const FOLLOW_DEFAULT = 0;
 
 // ===== 关注关系（云端 social-records.json，多端同步） =====
 const GH_SOCIAL_PATH = 'social-records.json';
@@ -1081,8 +1160,8 @@ async function loadSocial(force){
 }
 function followCountTo(uid){ return socialCache.filter(x=>x.type==='follow' && x.to===String(uid)).length; }
 function followCountFrom(uid){ return socialCache.filter(x=>x.type==='follow' && x.from===String(uid)).length; }
-function getFans(uid){ return (FANS[uid] != null ? FANS[uid] : 3609) + followCountTo(uid); }
-function getFollowCount(uid){ return FOLLOW_DEFAULT + followCountFrom(uid); }
+function getFans(uid){ return followCountTo(uid); }
+function getFollowCount(uid){ return followCountFrom(uid); }
 function isFollowing(from, to){
   return socialCache.some(x=>x.type==='follow' && x.from===String(from) && x.to===String(to));
 }
@@ -1292,6 +1371,7 @@ document.querySelectorAll('.tab').forEach(t=>{
     document.getElementById('subtabs').style.display = v==='staffSvc' ? 'flex' : 'none';
     if(v==='dm') renderDmCenterPage();
     if(v==='me') renderMePage();
+    if(v==='notice') renderNotices();
   }
 });
 // 二级Tab
@@ -2250,6 +2330,9 @@ function renderChangelog(){
       '社区帖子支持长按操作：查看主页、举报该帖子',
       '点击帖子头像可直接查看该用户信息并关注',
       '超管长按帖子可删除，删除后云端同步',
+      '粉丝数与关注数全部清零（隐私数据重置），之后只统计真实关注关系',
+      '新增通知中心：超管可发布通知，接收人支持全部人员、多选或单独指定',
+      '签到中心新增积分商城，分「头像 / 应用 / 专属铭牌」三栏，超管可上架商品，用户用积分兑换',
       '一级菜单新增「我的」，位置在用户列表右侧',
       '「我的」内可修改昵称（2-20 字，重名拦截），昵称变更存 profile-overrides.json，各端同步',
       '「我的」汇总本人已发布的帖子，显示时间、赞数、评论数，并可直接进入个人信息页',
@@ -2412,6 +2495,46 @@ function dayStr(d){
   return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
 }
 function todayStr(){ return dayStr(new Date()); }
+// ===== 积分商城（商品 shop-records.json，兑换 exchange-records.json） =====
+const GH_SHOP_PATH = 'shop-records.json';
+const GH_EXCH_PATH = 'exchange-records.json';
+let shopCache = [];
+let shopLoaded = false;
+let exchCache = [];
+let exchLoaded = false;
+const SHOP_CATS = ['头像', '应用', '专属铭牌'];
+async function loadShop(force){
+  if(shopLoaded && !force) return shopCache;
+  try {
+    const r = await ghGetRecords(GH_SHOP_PATH);
+    shopCache = r.list || [];
+    localStorage.setItem('zx_shop', JSON.stringify(shopCache));
+  } catch(e){
+    try { shopCache = JSON.parse(localStorage.getItem('zx_shop')||'[]'); } catch(x){ shopCache = []; }
+  }
+  shopLoaded = true;
+  return shopCache;
+}
+async function loadExch(force){
+  if(exchLoaded && !force) return exchCache;
+  try {
+    const r = await ghGetRecords(GH_EXCH_PATH);
+    exchCache = r.list || [];
+    localStorage.setItem('zx_exch', JSON.stringify(exchCache));
+  } catch(e){
+    try { exchCache = JSON.parse(localStorage.getItem('zx_exch')||'[]'); } catch(x){ exchCache = []; }
+  }
+  exchLoaded = true;
+  return exchCache;
+}
+function spentBy(uid){
+  return exchCache.filter(x=>String(x.uid)===String(uid)).reduce((s,x)=>s + (Number(x.price)||0), 0);
+}
+function myCoinBalance(uid){
+  const cached = getUserStats(uid).coin || 0;
+  return cached;
+}
+
 async function fetchMyCheckins(uid){
   let all = [];
   try {
@@ -2424,8 +2547,9 @@ async function fetchMyCheckins(uid){
   const mine = all.filter(x => x.uid === uid);
   const today = todayStr();
   const checkedIn = mine.some(x => x.date === today);
-  const coin = mine.reduce((s,x)=>s + (Number(x.coin)||0), 0);
+  let coin = mine.reduce((s,x)=>s + (Number(x.coin)||0), 0);
   const exp  = mine.reduce((s,x)=>s + (Number(x.exp)||0), 0);
+  try { await loadExch(); coin = Math.max(0, coin - spentBy(uid)); } catch(e){}
   const dates = new Set(mine.map(x=>x.date));
   let days = 0;
   const cur = new Date();
@@ -2501,6 +2625,7 @@ async function doCheckin(){
   try {
     await ghAppendRecord(GH_CHECKIN_PATH, rec, 'zx_checkin_all');
     toastMsg('签到成功 +' + CHECKIN_COIN + ' 金币 +' + CHECKIN_EXP + ' 经验');
+  renderShop();
   } catch(e){
     let local = [];
     try { local = JSON.parse(localStorage.getItem('zx_checkin_all')||'[]'); } catch(x){}
@@ -2764,6 +2889,221 @@ function hasSigned(aid){
   const me = myUid();
   return signCache.some(s => s.aid === aid && s.uid === me);
 }
+// ===== 通知中心（notice-records.json） =====
+const GH_NOTICE_PATH = 'notice-records.json';
+let noticeCache = [];
+let noticeLoaded = false;
+async function loadNotices(force){
+  if(noticeLoaded && !force) return noticeCache;
+  try {
+    const r = await ghGetRecords(GH_NOTICE_PATH);
+    noticeCache = r.list || [];
+    localStorage.setItem('zx_notices', JSON.stringify(noticeCache));
+  } catch(e){
+    try { noticeCache = JSON.parse(localStorage.getItem('zx_notices')||'[]'); } catch(x){ noticeCache = []; }
+  }
+  noticeLoaded = true;
+  return noticeCache;
+}
+function visibleNotices(){
+  const me = String(myUid() || '');
+  return noticeCache
+    .filter(n => {
+      const t = (n.targets || []).map(String);
+      return t.indexOf('all') >= 0 || (me && t.indexOf(me) >= 0);
+    })
+    .sort((a,b)=>(b.ts||0)-(a.ts||0));
+}
+async function renderNotices(force){
+  const box = document.getElementById('noticeList');
+  if(!box) return;
+  box.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div>';
+  await loadNotices(force);
+  const addBtn = document.getElementById('btnAddNotice');
+  if(addBtn) addBtn.style.display = currentIsSuper ? '' : 'none';
+  const list = visibleNotices();
+  if(!list.length){
+    box.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:26px">暂无通知</div>';
+    return;
+  }
+  box.innerHTML = list.map(n=>{
+    const scope = (n.targets||[]).indexOf('all') >= 0 ? '全体人员' : ('指定 ' + (n.targets||[]).length + ' 人');
+    return '<div class="card" style="margin-bottom:10px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
+        '<div style="font-size:15px;font-weight:600;color:#f0f5ff;line-height:1.5">' + String(n.title||'').replace(/</g,'&lt;') + '</div>' +
+        (currentIsSuper ? '<button onclick="delNotice(\'' + n.id + '\')" style="flex-shrink:0;padding:4px 10px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:11px;cursor:pointer">删除</button>' : '') +
+      '</div>' +
+      '<div style="font-size:13px;color:#a0b4d2;line-height:1.7;margin-top:8px;white-space:pre-wrap">' + String(n.content||'').replace(/</g,'&lt;') + '</div>' +
+      '<div style="font-size:11px;color:#607494;margin-top:10px">' + String(n.fromName||'') + ' · ' + String(n.time||'') + (currentIsSuper ? ' · ' + scope : '') + '</div>' +
+    '</div>';
+  }).join('');
+}
+function openNoticeForm(){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可发布通知'); return; }
+  document.getElementById('noticeTitle').value = '';
+  document.getElementById('noticeContent').value = '';
+  document.getElementById('noticeAll').checked = false;
+  const box = document.getElementById('noticeTargets');
+  const uids = Object.keys(ACCOUNTS).sort((a,b)=>String(a).localeCompare(String(b)));
+  box.innerHTML = uids.map(uid=>{
+    const a = ACCOUNTS[uid];
+    return '<label style="display:flex;align-items:center;gap:9px;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;color:#c9d8ee;cursor:pointer">' +
+      '<input type="checkbox" class="notice-uid" value="' + uid + '" style="accent-color:#34d399">' +
+      '<span style="flex:1">' + String(a.name||uid).replace(/</g,'&lt;') + '</span>' +
+      '<span style="font-size:11px;color:#607494">' + uid + ' · ' + String(a.level||'') + '</span></label>';
+  }).join('');
+  document.getElementById('noticeMask').style.display = 'block';
+}
+function closeNoticeForm(){
+  document.getElementById('noticeMask').style.display = 'none';
+}
+function toggleNoticeAll(on){
+  document.querySelectorAll('.notice-uid').forEach(cb=>{ cb.checked = !!on; });
+}
+async function saveNotice(){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可发布通知'); return; }
+  const title = document.getElementById('noticeTitle').value.trim();
+  const content = document.getElementById('noticeContent').value.trim();
+  if(!title){ toastMsg('请填写通知标题'); return; }
+  if(!content){ toastMsg('请填写通知内容'); return; }
+  let targets = [];
+  if(document.getElementById('noticeAll').checked){
+    targets = ['all'];
+  } else {
+    targets = [...document.querySelectorAll('.notice-uid')].filter(cb=>cb.checked).map(cb=>cb.value);
+    if(!targets.length){ toastMsg('请至少选择一位接收人'); return; }
+  }
+  const acc = ACCOUNTS[myUid()] || {};
+  const rec = { id: 'NT' + Date.now(), title: title, content: content, targets: targets,
+                from: String(myUid()), fromName: acc.name || '', time: dmTime(Date.now()), ts: Date.now() };
+  noticeCache.push(rec);
+  noticeLoaded = true;
+  try { await ghWriteRecords(GH_NOTICE_PATH, noticeCache, 'zx_notices'); }
+  catch(e){ localStorage.setItem('zx_notices', JSON.stringify(noticeCache)); toastMsg('网络异常，通知已先存本地'); }
+  closeNoticeForm();
+  toastMsg(targets[0] === 'all' ? '已发布给全体人员' : ('已发布给 ' + targets.length + ' 位接收人'));
+  renderNotices();
+}
+async function delNotice(id){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可删除通知'); return; }
+  const ok = await glassConfirm('删除通知', '确认删除该通知？');
+  if(!ok) return;
+  noticeCache = noticeCache.filter(n=>n.id !== id);
+  try { await ghWriteRecords(GH_NOTICE_PATH, noticeCache, 'zx_notices'); } catch(e){}
+  toastMsg('通知已删除');
+  renderNotices();
+}
+
+// ===== 积分商城 UI =====
+let currentShopCat = '头像';
+function shopTab(cat, el){
+  currentShopCat = cat;
+  document.querySelectorAll('.shop-tab').forEach(b=>{
+    const on = b.dataset.cat === cat;
+    b.style.border = on ? '1px solid rgba(115,184,255,0.35)' : '1px solid rgba(255,255,255,0.12)';
+    b.style.background = on ? 'rgba(115,184,255,0.16)' : 'rgba(255,255,255,0.05)';
+    b.style.color = on ? '#73b8ff' : '#94a8c7';
+  });
+  renderShop();
+}
+async function renderShop(force){
+  const box = document.getElementById('shopList');
+  if(!box) return;
+  await loadShop(force);
+  await loadExch();
+  const me = myUid();
+  const coinEl = document.getElementById('shopCoin');
+  if(coinEl && me) coinEl.textContent = getUserStats(me).coin || 0;
+  const addBtn = document.getElementById('btnAddShop');
+  if(addBtn) addBtn.style.display = currentIsSuper ? '' : 'none';
+  const items = shopCache.filter(x=>x.cat === currentShopCat).sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0));
+  if(!items.length){
+    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:18px">该分类暂无商品' + (currentIsSuper ? '，点右上角「添加商品」上架' : '') + '</div>';
+    return;
+  }
+  box.innerHTML = items.map(it=>{
+    const owned = exchCache.some(x=>x.uid === me && x.id === it.id);
+    return '<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+      '<div style="width:38px;height:38px;border-radius:10px;background:rgba(167,139,250,0.18);display:flex;align-items:center;justify-content:center;font-size:16px;color:#a78bfa">' + (it.cat === '头像' ? '◍' : it.cat === '应用' ? '▣' : '◆') + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:14px;color:#d4e4fb">' + String(it.name||'').replace(/</g,'&lt;') + '</div>' +
+        '<div style="font-size:11px;color:#607494;margin-top:3px">' + String(it.desc||'').replace(/</g,'&lt;') + '</div>' +
+      '</div>' +
+      '<div style="text-align:right;flex-shrink:0">' +
+        '<div style="font-size:13px;color:#fbbf24;font-weight:600">' + (Number(it.price)||0) + ' 积分</div>' +
+        (owned
+          ? '<div style="font-size:11px;color:#34d399;margin-top:5px">已兑换</div>'
+          : '<button onclick="redeemShop(\'' + it.id + '\')" style="margin-top:5px;padding:5px 12px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.34);color:#34d399;border-radius:7px;font-size:11px;cursor:pointer">兑换</button>') +
+        (currentIsSuper ? '<div><button onclick="delShopItem(\'' + it.id + '\')" style="margin-top:6px;padding:4px 10px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:11px;cursor:pointer">下架</button></div>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+function openShopForm(){
+  document.getElementById('shopCat').value = currentShopCat;
+  document.getElementById('shopName').value = '';
+  document.getElementById('shopDesc').value = '';
+  document.getElementById('shopPrice').value = '';
+  document.getElementById('shopMask').style.display = 'block';
+}
+function closeShopForm(){
+  document.getElementById('shopMask').style.display = 'none';
+}
+async function saveShopItem(){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可添加商品'); return; }
+  const cat = document.getElementById('shopCat').value;
+  const name = document.getElementById('shopName').value.trim();
+  const desc = document.getElementById('shopDesc').value.trim();
+  const price = Number(document.getElementById('shopPrice').value);
+  if(!name){ toastMsg('请填写商品名称'); return; }
+  if(!price || price <= 0){ toastMsg('请填写正确的积分价格'); return; }
+  const rec = { id: 'SHOP' + Date.now(), cat: cat, name: name, desc: desc, price: price, by: myUid(), time: dmTime(Date.now()), ts: Date.now() };
+  shopCache.push(rec);
+  shopLoaded = true;
+  try { await ghWriteRecords(GH_SHOP_PATH, shopCache, 'zx_shop'); }
+  catch(e){ localStorage.setItem('zx_shop', JSON.stringify(shopCache)); }
+  closeShopForm();
+  currentShopCat = cat;
+  document.querySelectorAll('.shop-tab').forEach(b=>{
+    const on = b.dataset.cat === cat;
+    b.style.border = on ? '1px solid rgba(115,184,255,0.35)' : '1px solid rgba(255,255,255,0.12)';
+    b.style.background = on ? 'rgba(115,184,255,0.16)' : 'rgba(255,255,255,0.05)';
+    b.style.color = on ? '#73b8ff' : '#94a8c7';
+  });
+  toastMsg('商品已上架');
+  renderShop();
+}
+async function delShopItem(id){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可下架商品'); return; }
+  const ok = await glassConfirm('下架商品', '确认下架该商品？');
+  if(!ok) return;
+  shopCache = shopCache.filter(x=>x.id !== id);
+  try { await ghWriteRecords(GH_SHOP_PATH, shopCache, 'zx_shop'); } catch(e){}
+  toastMsg('已下架');
+  renderShop();
+}
+async function redeemShop(id){
+  const me = myUid();
+  if(!me){ toastMsg('请先登录'); return; }
+  await loadShop();
+  await loadExch();
+  const it = shopCache.find(x=>x.id === id);
+  if(!it){ toastMsg('商品不存在'); return; }
+  if(exchCache.some(x=>String(x.uid)===String(me) && x.id === id)){ toastMsg('你已兑换过该商品'); return; }
+  const bal = getUserStats(me).coin || 0;
+  if(bal < (Number(it.price)||0)){ toastMsg('积分不足，还差 ' + ((Number(it.price)||0) - bal) + ' 积分'); return; }
+  const ok = await glassConfirm('兑换商品', '确认用 ' + it.price + ' 积分兑换「' + it.name + '」？');
+  if(!ok) return;
+  const rec = { uid: me, id: it.id, name: it.name, cat: it.cat, price: Number(it.price)||0, time: dmTime(Date.now()), ts: Date.now() };
+  exchCache.push(rec);
+  exchLoaded = true;
+  try { await ghWriteRecords(GH_EXCH_PATH, exchCache, 'zx_exch'); }
+  catch(e){ localStorage.setItem('zx_exch', JSON.stringify(exchCache)); }
+  await syncCheckin(me);
+  toastMsg('兑换成功，「' + it.name + '」已记录，剩余 ' + (getUserStats(me).coin||0) + ' 积分');
+  renderShop();
+}
+
 async function renderActivities(){
   const box = document.getElementById('activityList');
   if(!box) return;
