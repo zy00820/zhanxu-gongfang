@@ -725,7 +725,7 @@ body.plain .ann-card.open{
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div>
             <div style="font-size:15px;font-weight:600;color:#f0f5ff">提现申请</div>
-            <div style="font-size:11px;color:#607494;margin-top:3px">云端实时同步，无需密钥解析</div>
+            <div style="font-size:11px;color:#607494;margin-top:3px">云端实时同步；每笔申请有效期 72 小时</div>
           </div>
           <button onclick="renderWdPanel(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
         </div>
@@ -737,7 +737,7 @@ body.plain .ann-card.open{
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div>
             <div style="font-size:15px;font-weight:600;color:#f0f5ff">举报记录</div>
-            <div style="font-size:11px;color:#607494;margin-top:3px">云端实时同步，无需密钥解析</div>
+            <div style="font-size:11px;color:#607494;margin-top:3px">云端实时同步；举报记录长期有效，不限时</div>
           </div>
           <button onclick="renderReportPanel(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
         </div>
@@ -1051,7 +1051,8 @@ function showLogin(){
   document.getElementById('loginPage').style.display = 'flex';
   document.getElementById('app').classList.remove('logged-in');
 }
-function showApp(u){
+async function showApp(u){
+  try { await loadNameOverrides(); } catch(e){}
   const acc = ACCOUNTS[u];
   // 顶部栏动态渲染用户
   document.getElementById('avatarText').textContent = acc.name.charAt(0);
@@ -1338,10 +1339,28 @@ async function doLogin(){
   if(isBanned(u)){ err.textContent = '该账号已被封禁，无法登录'; return; }
   sessionStorage.setItem('zx_user', u);
   err.textContent = '';
+  try { localStorage.setItem('zx_saved_login', JSON.stringify({ uid: u, ts: Date.now() })); } catch(e){}
   showApp(u);
 }
+async function autoLogin(){
+  try {
+    const s = JSON.parse(localStorage.getItem('zx_saved_login') || 'null');
+    if(!s || !s.uid) return;
+    if(sessionStorage.getItem('zx_user')) return;
+    let acc = ACCOUNTS[s.uid];
+    if(!acc){ await loadRemoteAccounts(); acc = ACCOUNTS[s.uid]; }
+    if(!acc){ localStorage.removeItem('zx_saved_login'); return; }
+    await loadBans();
+    if(isBanned(s.uid)){ localStorage.removeItem('zx_saved_login'); sessionStorage.removeItem('zx_user'); return; }
+    sessionStorage.setItem('zx_user', s.uid);
+    showApp(s.uid);
+    setTimeout(()=>toastMsg('已自动登录：' + (acc.name || s.uid)), 600);
+  } catch(e){}
+}
+setTimeout(autoLogin, 900);
 function doLogout(){
   sessionStorage.removeItem('zx_user');
+  try { localStorage.removeItem('zx_saved_login'); } catch(e){}
   document.getElementById('inpPwd').value = '';
   showLogin();
 }
@@ -1472,6 +1491,22 @@ async function loadRpList(force){
   rpListLoaded = true;
   return rpListCache;
 }
+const WD_VALID_MS = 72 * 60 * 60 * 1000;   // 提现有效期 72 小时
+function wdExpire(r){
+  let t = Number(r.ts);
+  if(!t || isNaN(t)){
+    const d = new Date(String(r.time||'').replace(/-/g,'/'));
+    t = isNaN(d.getTime()) ? 0 : d.getTime();
+  }
+  const left = (t ? t + WD_VALID_MS : 0) - Date.now();
+  return { left: left, expired: left <= 0 };
+}
+function wdLeftText(left){
+  if(left <= 0) return '已过期';
+  const h = Math.floor(left / 3600000);
+  const m = Math.floor((left % 3600000) / 60000);
+  return '剩余 ' + h + ' 小时 ' + m + ' 分';
+}
 async function renderWdPanel(force){
   const box = document.getElementById('wdList');
   if(!box) return;
@@ -1489,6 +1524,7 @@ async function renderWdPanel(force){
       '<div style="font-size:12px;color:#94a8c7;margin-top:5px;line-height:1.7">' +
         String(r.channel||'') + '：' + String(r.payAccount||'').replace(/</g,'&lt;') + '<br>' +
         '<span style="color:#607494">密钥 ' + String(r.secret||'') + ' · ' + String(r.time||'') + '</span>' +
+        '<div style="margin-top:4px;font-size:11px;color:' + (wdExpire(r).expired ? '#f87171' : '#34d399') + '">' + wdLeftText(wdExpire(r).left) + '（有效期 72 小时）</div>' +
       '</div>' +
     '</div>').join('');
 }
@@ -1674,7 +1710,8 @@ async function wdNext(){
       amount: wdData.amount,
       channel: wdData.channel,
       payAccount: wdData.account,
-      time: new Date().toLocaleString()
+      time: new Date().toLocaleString(),
+      ts: Date.now()
     };
     try {
       await ghAppendRecord(GH_RECORD_PATH, rec, 'zx_wd_records');
@@ -2438,6 +2475,8 @@ function renderChangelog(){
       '签到中心新增积分商城，分「头像 / 应用 / 专属铭牌」三栏，超管可上架商品，用户用积分兑换',
       '超管端提现申请、举报记录改为云端实时列表，省去密钥解析，刷新即拉取最新',
       '个人信息新增性别与邮箱，本人可自行修改并云端同步',
+      '提现申请增加 72 小时有效期，超管端实时显示剩余时间与「已过期」状态；举报记录不限时',
+      '登录信息本地保存，重开网页自动登录（退出登录会清除）',
       '一级菜单新增「我的」，位置在用户列表右侧',
       '「我的」内可修改昵称（2-20 字，重名拦截），昵称变更存 profile-overrides.json，各端同步',
       '「我的」汇总本人已发布的帖子，显示时间、赞数、评论数，并可直接进入个人信息页',
