@@ -292,7 +292,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.9 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.1.0 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -397,7 +397,7 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.9</span>
+        <span style="font-size:12px;color:#607494">v1.1.0</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -558,6 +558,7 @@ body.plain .ann-card.open{
   </div>
 
   <div class="container">
+    <div id="homeDash">
     <div class="stats">
       <div class="stat"><div class="num">3</div><div class="label">待审公告</div></div>
       <div class="stat"><div class="num" id="statPosts">0</div><div class="label">社区帖子</div></div>
@@ -597,12 +598,14 @@ body.plain .ann-card.open{
     </div>
 
 
+    </div>
     <div class="tabs">
       <div class="tab active" data-view="staffSvc">员工服务</div>
       <div class="tab" data-view="post">社区发帖</div>
       <div class="tab" data-view="dm">消息</div>
       <div class="tab" data-view="changelog">更新日志</div>
       <div class="tab" data-view="users">用户列表</div>
+      <div class="tab" data-view="me">我的</div>
     </div>
 
     <!-- 员工服务二级tab -->
@@ -751,7 +754,7 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.9</span>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.1.0</span>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -763,6 +766,40 @@ body.plain .ann-card.open{
         <input type="text" id="userSearch" placeholder="搜索用户昵称 / 账号…" style="width:100%;padding:11px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" oninput="searchUsers(this.value)">
       </div>
       <div id="userList"></div>
+    </div>
+
+    <!-- 我的 -->
+    <div class="view" id="view-me">
+      <div class="card" style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+          <div class="post-avatar" id="meAvatar" style="width:52px;height:52px;font-size:20px">张</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:17px;font-weight:600;color:#f0f5ff" id="meName">—</div>
+            <div style="font-size:12px;color:#607494;margin-top:3px" id="meSub">—</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;color:#34d399;font-weight:600" id="meCoin">0</div>
+            <div style="font-size:11px;color:#607494;margin-top:2px">金币</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;color:#73b8ff;font-weight:600" id="mePostCount">0</div>
+            <div style="font-size:11px;color:#607494;margin-top:2px">已发帖</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="renameMe()" style="flex:1;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#73b8ff;border-radius:10px;font-size:13px;cursor:pointer">修改昵称</button>
+          <button onclick="openProfile()" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:10px;font-size:13px;cursor:pointer">个人信息</button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:15px;font-weight:600;color:#f0f5ff">我发布的帖子</div>
+          <span style="font-size:11px;color:#607494" id="mePostHint"></span>
+        </div>
+        <div id="myPosts"></div>
+      </div>
     </div>
   </div>
 
@@ -948,7 +985,7 @@ function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.9 已发布：消息支持创建 10 人以内群聊，纯白界面。');
+  await glassAlert('更新日志', 'v1.1.0 已发布：新增「我的」菜单，可修改昵称、查看已发帖；超管可在消息查看全部群聊。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1201,8 +1238,11 @@ document.querySelectorAll('.tab').forEach(t=>{
     const v = t.dataset.view;
     document.getElementById('view-'+v).classList.add('active');
     // 员工服务才显示二级tab
+    const dash = document.getElementById('homeDash');
+    if(dash) dash.style.display = v==='staffSvc' ? 'block' : 'none';
     document.getElementById('subtabs').style.display = v==='staffSvc' ? 'flex' : 'none';
     if(v==='dm') renderDmCenterPage();
+    if(v==='me') renderMePage();
   }
 });
 // 二级Tab
@@ -2088,6 +2128,13 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.1.0', date: '2026-11-09', items: [
+      '一级菜单新增「我的」，位置在用户列表右侧',
+      '「我的」内可修改昵称（2-20 字，重名拦截），昵称变更存 profile-overrides.json，各端同步',
+      '「我的」汇总本人已发布的帖子，显示时间、赞数、评论数，并可直接进入个人信息页',
+      '超管进入消息页可查看全部群聊（含自己未加入的），普通账号仍只显示自己的群聊',
+      '切换一级菜单时自动隐藏首页仪表盘，页面更清爽'
+    ]},
     { ver: 'v1.0.9', date: '2026-11-08', items: [
       '消息页右上角新增「创建群聊」，可自选成员并命名群名',
       '群成员上限 10 人（含创建者），超出自动拦截并提示',
@@ -2468,10 +2515,10 @@ async function renderDmCenterPage(force){
   box.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div>';
   await loadDmData(force);
   await loadGroups(force);
-  const groups = myGroups();
+  const groups = currentIsSuper ? groupCache.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)) : myGroups();
   let gHtml = '';
   if(groups.length){
-    gHtml = '<div style="font-size:12px;color:#607494;margin:2px 0 8px">我的群聊</div>' + groups.map(g=>
+    gHtml = '<div style="font-size:12px;color:#607494;margin:2px 0 8px">' + (currentIsSuper ? '全部群聊（超管可见）' : '我的群聊') + '</div>' + groups.map(g=>
       '<div onclick="openGroupChat(\'' + g.gid + '\')" class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer">' +
       '<div class="post-avatar" style="background:linear-gradient(135deg,#a78bfa,#8b5cf6)">群</div>' +
       '<div style="flex:1;min-width:0">' +
@@ -2906,6 +2953,84 @@ async function submitGroupMsg(){
     toastMsg('网络异常，已先存本地');
   }
   openGroupChat(gchatGid);
+}
+
+
+// ===== 「我的」页面 =====
+const GH_NAME_PATH = 'profile-overrides.json';
+let nameOverrides = {};
+let nameLoaded = false;
+async function loadNameOverrides(force){
+  if(nameLoaded && !force) return nameOverrides;
+  try {
+    const r = await ghGetRecords(GH_NAME_PATH);
+    nameOverrides = {};
+    (r.list || []).forEach(x=>{ if(x && x.uid && x.name) nameOverrides[x.uid] = x.name; });
+  } catch(e){
+    try { nameOverrides = JSON.parse(localStorage.getItem('zx_names')||'{}'); } catch(x){ nameOverrides = {}; }
+  }
+  Object.keys(nameOverrides).forEach(uid=>{ if(ACCOUNTS[uid]) ACCOUNTS[uid].name = nameOverrides[uid]; });
+  localStorage.setItem('zx_names', JSON.stringify(nameOverrides));
+  nameLoaded = true;
+  return nameOverrides;
+}
+async function renderMePage(){
+  const me = myUid();
+  if(!me) return;
+  await loadNameOverrides();
+  await loadAndRenderPosts();
+  const acc = ACCOUNTS[me] || {};
+  const stats = getUserStats(me);
+  const av = document.getElementById('meAvatar');
+  if(av) av.textContent = (acc.name||'?').charAt(0);
+  const nm = document.getElementById('meName');
+  if(nm) nm.textContent = acc.name || me;
+  const sb = document.getElementById('meSub');
+  if(sb) sb.textContent = (acc.level||'') + ' · ' + me;
+  const coin = document.getElementById('meCoin');
+  if(coin) coin.textContent = stats.coin || 0;
+  const mine = (postsCache||[]).filter(p=>String(p.uid) === String(me));
+  const cnt = document.getElementById('mePostCount');
+  if(cnt) cnt.textContent = mine.length;
+  const hint = document.getElementById('mePostHint');
+  if(hint) hint.textContent = mine.length ? ('共 ' + mine.length + ' 条') : '';
+  const box = document.getElementById('myPosts');
+  if(box){
+    box.innerHTML = mine.length ? mine.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).map(p=>{
+      const pid = pidOf(p);
+      return '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+        '<div style="font-size:13px;color:#d4e4fb;line-height:1.6">' + String(p.content||'').replace(/</g,'&lt;') + '</div>' +
+        '<div style="font-size:11px;color:#607494;margin-top:5px">' + (p.time||'') + ' · ' + postLikes(pid) + ' 赞 · ' + postComments(pid).length + ' 评论</div>' +
+      '</div>';
+    }).join('') : '<div style="text-align:center;color:#607494;font-size:13px;padding:18px">还没有发过帖子</div>';
+  }
+}
+async function renameMe(){
+  const me = myUid();
+  if(!me) return;
+  const cur = (ACCOUNTS[me]||{}).name || '';
+  const val = await glassPrompt('修改昵称', '请输入新的昵称（2-20 个字）', cur);
+  if(val === null || val === undefined) return;
+  const name = String(val).trim();
+  if(name.length < 2 || name.length > 20){ toastMsg('昵称需 2-20 个字'); return; }
+  const dup = Object.keys(ACCOUNTS).some(uid => uid !== me && ACCOUNTS[uid].name === name);
+  if(dup){ toastMsg('该昵称已被使用'); return; }
+  const rec = { uid: me, name: name, time: dmTime(Date.now()), ts: Date.now() };
+  try {
+    await ghAppendRecord(GH_NAME_PATH, rec, 'zx_names');
+  } catch(e){}
+  nameOverrides[me] = name;
+  nameLoaded = true;
+  localStorage.setItem('zx_names', JSON.stringify(nameOverrides));
+  if(ACCOUNTS[me]) ACCOUNTS[me].name = name;
+  document.getElementById('avatarText').textContent = name.charAt(0);
+  document.getElementById('unameText').textContent = name;
+  initNormalUsers();
+  renderUsers(window._userSearchKw || '');
+  renderStaff(ACCOUNTS[me]);
+  renderMePage();
+  renderDmCenterPage(true);
+  toastMsg('昵称已更新并云端同步');
 }
 
 function closeProfile(){
