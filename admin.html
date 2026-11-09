@@ -1314,13 +1314,6 @@ function showMaint(){
   clearTimeout(window._tt);
   window._tt=setTimeout(()=>t.classList.remove('show'),2200);
 }
-function activitySignup(){
-  const t=document.getElementById('toast');
-  document.getElementById('toastText').textContent='服务器压力过大，请稍后重试';
-  t.classList.add('show');
-  clearTimeout(window._tt);
-  window._tt=setTimeout(()=>t.classList.remove('show'),2200);
-}
 function openDevCenter(){
   if(currentIsSuper){
     location.href='dev.html';
@@ -2796,8 +2789,10 @@ async function renderActivities(){
       (a.deadline ? '<div style="font-size:11px;color:#607494;margin-bottom:8px">截止：' + actEsc(a.deadline) + '</div>' : '') +
       (signed ? '<div style="font-size:11px;color:#34d399;margin-bottom:8px">已报名</div>' : '') +
       '<div style="display:flex;gap:8px;align-items:center">' +
-        '<button onclick="activitySignup(\'' + a.id + '\')" style="flex:1;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer;' +
-        (closed ? 'opacity:0.5' : '') + '">' + (closed ? '已结束' : (signed ? (a.link ? '去参与' : '已报名') : '立即报名')) + '</button>' +
+        (signed && a.link && !closed
+          ? '<a href="' + String(a.link).replace(/"/g,'&quot;') + '" target="_blank" rel="noopener" style="flex:1;padding:9px;background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.35);color:#34d399;border-radius:8px;font-size:13px;cursor:pointer;text-align:center;text-decoration:none;box-sizing:border-box">去参与</a>'
+          : '<button onclick="activitySignup(\'' + a.id + '\')" style="flex:1;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer;' +
+            (closed ? 'opacity:0.5' : '') + '">' + (closed ? '已结束' : (signed ? '已报名' : '立即报名')) + '</button>') +
         (currentIsSuper ? '<button onclick="openActForm(\'' + a.id + '\')" style="padding:9px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:8px;font-size:12px;cursor:pointer">编辑</button>' +
         '<button onclick="delAct(\'' + a.id + '\')" style="padding:9px 12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:12px;cursor:pointer">删除</button>' : '') +
       '</div></div>';
@@ -2818,6 +2813,11 @@ async function activitySignup(aid){
   const act = actCache.find(a=>a.id === aid);
   if(!act){ toastMsg('活动不存在'); return; }
   if(act.status === '已结束'){ toastMsg('该活动已结束'); return; }
+  // 报名前先同步打开活动链接，借用户点击手势避免被浏览器拦截新窗口
+  let win = null;
+  if(act.link){
+    try { win = window.open(act.link, '_blank'); } catch(e){ win = null; }
+  }
   await loadSignups();
   const signed = hasSigned(aid);
   if(!signed){
@@ -2832,10 +2832,11 @@ async function activitySignup(aid){
     await loadSignups();
     renderActivities();
   } else {
-    toastMsg('你已报名');
+    toastMsg('你已报名，正在打开活动链接');
   }
-  if(act.link){
-    try { window.open(act.link, '_blank'); } catch(e){ location.href = act.link; }
+  if(act.link && (!win || win.closed)){
+    // 新窗口被拦截时，退回当前页跳转，保证一定有反应
+    try { location.href = act.link; } catch(e){}
   }
 }
 function openActForm(aid){
