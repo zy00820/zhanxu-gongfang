@@ -706,7 +706,6 @@ body.plain .ann-card.open{
       <div class="tab active" data-view="staffSvc">员工服务</div>
       <div class="tab" data-view="post">社区发帖</div>
       <div class="tab" data-view="dm">消息</div>
-      <div class="tab" data-view="notice">通知</div>
       <div class="tab" data-view="changelog">更新日志</div>
       <div class="tab" data-view="users">用户列表</div>
       <div class="tab" data-view="me">我的</div>
@@ -862,11 +861,30 @@ body.plain .ann-card.open{
           <button class="btn-send" onclick="submitPost()">发布</button>
         </div>
       </div>
+      <div id="postTabs" style="display:flex;gap:8px;margin-bottom:12px">
+        <div id="pst-all" onclick="postFilterTab('all')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff">首先</div>
+        <div id="pst-follow" onclick="postFilterTab('follow')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7">关注</div>
+      </div>
       <div id="extraPosts"></div>
     </div>
 
     <!-- 消息（原公单处理主 tab 位置） -->
     <div class="view" id="view-dm">
+      <!-- 通知中心（置顶） -->
+      <div class="card" style="margin-bottom:12px;border:1px solid rgba(115,184,255,0.22)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#f0f5ff">通知中心 <span style="font-size:10px;padding:2px 6px;border-radius:5px;background:rgba(251,191,36,0.16);color:#fbbf24;margin-left:4px;vertical-align:middle">置顶</span></div>
+            <div style="font-size:11px;color:#607494;margin-top:3px">全员或指定人员通知</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button onclick="renderNotices(true)" style="padding:6px 11px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+            <button id="btnAddNotice" onclick="openNoticeForm()" style="display:none;padding:6px 11px;border-radius:8px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;font-size:12px;cursor:pointer">+ 发布通知</button>
+          </div>
+        </div>
+        <div id="noticeList"></div>
+      </div>
+
       <div class="card" style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
         <div style="font-size:14px;color:#d4e4fb;font-weight:500">消息中心</div>
         <div style="display:flex;gap:8px">
@@ -945,20 +963,6 @@ body.plain .ann-card.open{
     </div>
 
     <!-- 通知中心 -->
-    <div class="view" id="view-notice">
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div>
-          <div style="font-size:15px;font-weight:600;color:#f0f5ff">通知中心</div>
-          <div style="font-size:12px;color:#607494;margin-top:3px">全员或指定人员通知</div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button onclick="renderNotices(true)" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
-          <button id="btnAddNotice" onclick="openNoticeForm()" style="display:none;padding:7px 12px;border-radius:8px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;font-size:12px;cursor:pointer">+ 发布通知</button>
-        </div>
-      </div>
-      <div id="noticeList"></div>
-    </div>
-
     <!-- 我的 -->
     <div class="view" id="view-me">
       <div class="card" style="margin-bottom:14px">
@@ -1537,9 +1541,8 @@ document.querySelectorAll('.tab').forEach(t=>{
     const dash = document.getElementById('homeDash');
     if(dash) dash.style.display = v==='staffSvc' ? 'block' : 'none';
     document.getElementById('subtabs').style.display = v==='staffSvc' ? 'flex' : 'none';
-    if(v==='dm') renderDmCenterPage();
+    if(v==='dm'){ renderDmCenterPage(); renderNotices(); }
     if(v==='me') renderMePage();
-    if(v==='notice') renderNotices();
   }
 });
 // 二级Tab
@@ -2577,8 +2580,32 @@ async function addComment(pid){
   renderPosts(postsCache);
   toastMsg(ok ? '评论已发布并云端同步' : '网络异常，评论已先存本地');
 }
+let postFilter = 'all';
+function postIsFollowing(uid){
+  const me = myUid();
+  if(!me) return false;
+  return socialCache.some(x=>x.type==='follow' && String(x.from)===String(me) && String(x.to)===String(uid));
+}
+async function postFilterTab(k){
+  postFilter = k;
+  const on = 'flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff';
+  const off = 'flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7';
+  const a = document.getElementById('pst-all'), f = document.getElementById('pst-follow');
+  if(a) a.style.cssText = k === 'all' ? on : off;
+  if(f) f.style.cssText = k === 'follow' ? on : off;
+  if(k === 'follow'){ try { await loadSocial(); } catch(e){} }
+  renderPosts(postsCache || []);
+}
 function renderPosts(list){
+  if(postFilter === 'follow'){
+    list = list.filter(p=>postIsFollowing(p.uid));
+  }
   const sorted = list.slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
+  if(postFilter === 'follow' && !sorted.length){
+    const box = document.getElementById('extraPosts');
+    if(box) box.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:26px">还没有关注的人发帖<br><span style="font-size:11px">在个人信息页点击「关注」后会出现在这里</span></div>';
+    return;
+  }
   let html = '';
   sorted.forEach(p=>{
     const grad = p.grad || 'linear-gradient(135deg,#60a5fa,#3b82f6)';
@@ -2832,6 +2859,8 @@ function renderChangelog(){
       '开发者可在页面直接上传应用或表盘（单文件 ≤2MB），文件存入仓库 dev-uploads/',
       '上传后进入待审核状态，超管审核通过才上架，拒绝可填写原因',
       '超管可在开发者中心勾选授权其他账号上传作品',
+      '通知中心并入「消息」页并置顶显示，取消独立「通知」菜单',
+      '社区发帖新增「首先 / 关注」二级菜单，关注栏只看已关注人的帖子',
       '版本号调整为 v1.0.11',
       '粉丝数与关注数改为云端同步（social-records.json），关注他人后对方粉丝 +1、自己关注 +1，各端一致',
       '个人信息页新增「关注」按钮，已关注显示「已关注」',
