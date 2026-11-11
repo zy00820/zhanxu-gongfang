@@ -296,7 +296,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.11 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.12 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -401,7 +401,7 @@ body.plain .ann-card.open{
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.11</span>
+        <span style="font-size:12px;color:#607494">v1.0.12</span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -411,6 +411,7 @@ body.plain .ann-card.open{
   <!-- 个人信息弹窗 -->
   <div id="profileMask" onclick="if(event.target===this)closeProfile()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))">
+      <button id="pfDevBtn" onclick="profileDevAuthAction()" style="display:none;position:absolute;top:16px;right:150px;padding:7px 14px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.34);color:#a78bfa;font-size:12px;cursor:pointer">授权开发者</button>
       <button id="pfBanBtn" onclick="profileBanAction()" style="display:none;position:absolute;top:16px;right:82px;padding:7px 14px;border-radius:8px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.32);color:#f87171;font-size:12px;cursor:pointer">封号</button>
       <button id="pfDmBtn" onclick="profileDmAction()" style="position:absolute;top:16px;right:16px;padding:7px 14px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;font-size:12px;cursor:pointer">私信</button>
       <div style="text-align:center;margin-bottom:18px">
@@ -900,7 +901,7 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.11</span>
+          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.12</span>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -1188,7 +1189,7 @@ async function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.11 已发布：开发者中心改为单页，可直接上传应用/表盘，超管审核后上架。');
+  await glassAlert('更新日志', 'v1.0.12 已发布：超管可直接调整金额与积分，开发者授权移至个人信息页，群聊上限 30 人。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1230,7 +1231,6 @@ function renderStaff(currentAcc){
           <button onclick="editStaff(${idx})" style="background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">编辑</button>
           <button onclick="toggleBan(${idx})" style="background:${banned?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.12)'};border:1px solid ${banned?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)'};color:${banned?'#34d399':'#f87171'};padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${banned?'解禁':'封号'}</button>
           <button onclick="delStaff(${idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">删除</button>
-          <button onclick="toggleDevAuth('${s.uid}', ${isDevAuth(s.uid) ? 'false' : 'true'})" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${isDevAuth(s.uid) ? '取消开发者' : '授权开发者'}</button>
           <button onclick="superEditBalance('${s.uid}')" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">改金额</button>
           <button onclick="superEditCoin('${s.uid}')" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">改积分</button>
         </div>` : ''}
@@ -2926,15 +2926,24 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.12', date: '2026-11-11', items: [
+      '超管可在用户列表 / 员工管理中直接调整账号金额与积分，改动实时同步',
+      '开发者授权移到个人信息页：点击头像后由超管授权或取消开发者权限',
+      '群聊成员上限提升至 30 人',
+      '通知中心并入「消息」页并置顶显示，取消独立「通知」菜单',
+      '社区发帖新增「首先 / 关注」二级菜单，关注栏只看已关注人的帖子',
+      '首页新增应用中心，展示审核通过的应用与表盘并可下载',
+      '登录页新增邮箱登录入口，账号与邮箱二选一'
+    ]},
     { ver: 'v1.0.11', date: '2026-11-09', items: [
-      '开发者中心改为内嵌单页，不再跳转 dev.html',
-      '开发者可在页面直接上传应用或表盘（单文件 ≤2MB），文件存入仓库 dev-uploads/',
+      '开发者中心改为内嵌单页，不再跳转独立页面',
+      '开发者可直接上传应用或表盘（单文件 ≤2MB），提交进入审核队列',
       '上传后进入待审核状态，超管审核通过才上架，拒绝可填写原因',
       '超管可在开发者中心勾选授权其他账号上传作品',
       '通知中心并入「消息」页并置顶显示，取消独立「通知」菜单',
       '社区发帖新增「首先 / 关注」二级菜单，关注栏只看已关注人的帖子',
       '版本号调整为 v1.0.11',
-      '粉丝数与关注数改为云端同步（social-records.json），关注他人后对方粉丝 +1、自己关注 +1，各端一致',
+      '粉丝数与关注数改为云端同步，关注他人后对方粉丝 +1、自己关注 +1，各端一致',
       '个人信息页新增「关注」按钮，已关注显示「已关注」',
       '社区帖子支持长按操作：查看主页、举报该帖子',
       '点击帖子头像可直接查看该用户信息并关注',
@@ -2947,7 +2956,7 @@ function renderChangelog(){
       '提现申请增加 72 小时有效期，超管端实时显示剩余时间与「已过期」状态；举报记录不限时',
       '登录信息本地保存，重开网页自动登录（退出登录会清除）',
       '一级菜单新增「我的」，位置在用户列表右侧',
-      '「我的」内可修改昵称（2-20 字，重名拦截），昵称变更存 profile-overrides.json，各端同步',
+      '「我的」内可修改昵称（2-20 字，重名拦截），昵称变更云端同步，各端一致',
       '「我的」汇总本人已发布的帖子，显示时间、赞数、评论数，并可直接进入个人信息页',
       '超管进入消息页可查看全部群聊（含自己未加入的），普通账号仍只显示自己的群聊',
       '切换一级菜单时自动隐藏首页仪表盘，页面更清爽'
@@ -2955,24 +2964,24 @@ function renderChangelog(){
     { ver: 'v1.0.9', date: '2026-11-08', items: [
       '消息页右上角新增「创建群聊」，可自选成员并命名群名',
       '群成员上限 30 人（含创建者），超出自动拦截并提示',
-      '群聊与消息分别存 group-records.json / group-msg-records.json，多端实时拉取',
+      '群聊与消息云端保存，多端实时同步',
       '群聊界面为纯白背景，成员与消息按账号权限可见',
-      '社区发帖新增点赞与评论，互动记录存 post-interact-records.json，多端同步',
+      '社区发帖新增点赞与评论，互动记录云端同步',
       '社区帖子、私信、群聊改为首次加载后本地缓存，切换页面不再重复请求云端，仅「刷新」强制拉取'
     ]},
     { ver: 'v1.0.8', date: '2026-11-08', items: [
       '右上角去掉重复的签到入口，只保留一个签到按钮',
-      '签到改为云端记录（checkin-records.json），金币、经验、连续天数跨设备同步',
+      '签到改为云端记录，金币、经验、连续天数跨设备同步',
       '同一账号每天只能签一次，换设备登录自动显示「已签到」并带回累计金币经验',
       '签到中心与个人信息页金币经验实时同源'
     ]},
     { ver: 'v1.0.7', date: '2026-11-08', items: [
       '用户列表精简：移除卡片右侧编辑、封号、删除三个按钮，改为点击头像进入资料页操作',
-      '封号改为真实生效：封禁名单存仓库 user-bans.json，被封账号无法用密码或安全密钥登录',
+      '封号改为真实生效：封禁名单云端保存，被封账号无法用密码或安全密钥登录',
       '资料页封禁按钮实时显示封号 / 解禁状态，操作后全端同步'
     ]},
     { ver: 'v1.0.6', date: '2026-11-08', items: [
-      '活动中心改为云端管理：活动存 activity-records.json，报名记录存 activity-signup-records.json',
+      '活动中心改为云端管理：活动与报名记录实时同步',
       '超管可布置、编辑、删除活动，可设置标题、说明、参与链接、截止时间与报名状态',
       '管理员与用户可一键报名并跳转参与链接，报名状态自动显示「已报名 / 去参与」',
       '活动按最新布置时间倒序展示，已结束活动置灰，等级步步高作为永久活动常驻'
@@ -2983,13 +2992,13 @@ function renderChangelog(){
       '消息页汇总全部会话，点击任一会话进入聊天面板'
     ]},
     { ver: 'v1.0.4', date: '2026-11-08', items: [
-      '新增私信功能：私信记录存于仓库 dm-records.json，与社区发帖同一套云端读写',
+      '新增私信功能：私信记录云端保存，与社区发帖同一套读写逻辑',
       '员工管理与用户管理点击头像可查看个人信息，右上角可发起私信',
       '个人资料页为自己时显示「私信中心」，可查看全部会话与未读汇总',
       '私信面板支持会话气泡、时间戳、刷新与本地兜底'
     ]},
     { ver: 'v1.0.3', date: '2026-11-07', items: [
-      '开放注册：输入昵称与密码即可创建用户账号，账号、哈希密码、安全密钥自动生成并存仓库',
+      '开放注册：输入昵称与密码即可创建用户账号，账号、哈希密码、安全密钥自动生成并云端保存',
       '新注册账号自动出现在用户列表，支持编辑、封号、删除',
       '用户列表按职位自动同步，所有职位为「用户」的账号自动显示，无需手工维护',
       '员工管理自动排除普通用户账号，两个列表不再重复',
@@ -3064,7 +3073,6 @@ function renderUsers(kw){
       ${currentIsSuper ? `<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
         <button onclick="superEditBalance('${u.uid}')" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:5px 9px;border-radius:7px;font-size:11px;cursor:pointer">改金额</button>
         <button onclick="superEditCoin('${u.uid}')" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:5px 9px;border-radius:7px;font-size:11px;cursor:pointer">改积分</button>
-        <button onclick="toggleDevAuth('${u.uid}', ${isDevAuth(u.uid) ? 'false' : 'true'})" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;padding:5px 9px;border-radius:7px;font-size:11px;cursor:pointer">${isDevAuth(u.uid) ? '取消开发者' : '授权开发者'}</button>
       </div>` : ''}
     </div>
   `).join('');
@@ -3315,6 +3323,20 @@ async function openProfileFor(uid){
   window._pfUid = uid;
   const dmBtn = document.getElementById('pfDmBtn');
   if(dmBtn) dmBtn.textContent = (uid === sessionStorage.getItem('zx_user')) ? '消息' : '私信';
+  const devBtn = document.getElementById('pfDevBtn');
+  if(devBtn){
+    let showDev = false;
+    if(currentIsSuper && String(uid) !== String(myUid())){
+      try { await loadDevAuth(); } catch(e){}
+      showDev = true;
+      const on = isDevAuth(uid);
+      devBtn.textContent = on ? '取消开发者' : '授权开发者';
+      devBtn.style.color = on ? '#f0a3c8' : '#a78bfa';
+      devBtn.style.borderColor = on ? 'rgba(244,114,182,0.34)' : 'rgba(167,139,250,0.34)';
+      devBtn.style.background = on ? 'rgba(244,114,182,0.12)' : 'rgba(167,139,250,0.14)';
+    }
+    devBtn.style.display = showDev ? 'block' : 'none';
+  }
   const banBtn = document.getElementById('pfBanBtn');
   if(banBtn){
     banBtn.style.display = isManageable(uid) ? 'block' : 'none';
@@ -3330,6 +3352,16 @@ async function openProfileFor(uid){
   document.getElementById('profileMask').style.display = 'block';
 }
 
+async function profileDevAuthAction(){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可授权'); return; }
+  const uid = window._pfUid;
+  if(!uid || String(uid) === String(myUid())) return;
+  await loadDevAuth();
+  const on = isDevAuth(uid);
+  await toggleDevAuth(String(uid), !on);
+  closeProfile();
+  setTimeout(()=>openProfileFor(uid), 900);
+}
 // ===== 私信（云端 dm-records.json，与社区发帖同一套读写） =====
 const GH_DM_PATH = 'dm-records.json';
 let dmPeer = null;      // null = 私信中心
