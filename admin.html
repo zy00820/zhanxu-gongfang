@@ -557,7 +557,7 @@ body.plain .ann-card.open{
   <div id="gcCreateMask" onclick="if(event.target===this)closeCreateGroup()" style="display:none;position:fixed;inset:0;z-index:212;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px)">
     <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:#ffffff;border-radius:20px 20px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom));max-height:85vh;overflow-y:auto">
       <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:4px">创建群聊</div>
-      <div style="text-align:center;font-size:12px;color:#9ca3af;margin-bottom:16px">群成员上限 10 人（含自己）</div>
+      <div style="text-align:center;font-size:12px;color:#9ca3af;margin-bottom:16px">群成员上限 30 人（含自己）</div>
       <div style="margin-bottom:14px">
         <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">群名称</label>
         <input id="gcName" maxlength="20" placeholder="给群聊起个名字" style="width:100%;padding:12px 14px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:10px;color:#111827;font-size:14px;outline:none">
@@ -2954,7 +2954,7 @@ function renderChangelog(){
     ]},
     { ver: 'v1.0.9', date: '2026-11-08', items: [
       '消息页右上角新增「创建群聊」，可自选成员并命名群名',
-      '群成员上限 10 人（含创建者），超出自动拦截并提示',
+      '群成员上限 30 人（含创建者），超出自动拦截并提示',
       '群聊与消息分别存 group-records.json / group-msg-records.json，多端实时拉取',
       '群聊界面为纯白背景，成员与消息按账号权限可见',
       '社区发帖新增点赞与评论，互动记录存 post-interact-records.json，多端同步',
@@ -3921,10 +3921,10 @@ async function profileBanAction(){
 }
 
 
-// ===== 群聊（群存 group-records.json，消息存 group-msg-records.json，上限 10 人） =====
+// ===== 群聊（群存 group-records.json，消息存 group-msg-records.json，上限 30 人） =====
 const GH_GROUP_PATH = 'group-records.json';
 const GH_GMSG_PATH = 'group-msg-records.json';
-const GROUP_LIMIT = 10;
+const GROUP_LIMIT = 30;
 let groupCache = [];
 let gchatGid = null;
 
@@ -3989,7 +3989,7 @@ function updateGcCount(){
   if(chks.length > GROUP_LIMIT - 1){
     chks[chks.length-1].checked = false;
     document.getElementById('gcCount').textContent = document.querySelectorAll('.gcMemberChk:checked').length;
-    err.textContent = '群成员上限 10 人（含自己），最多再选 9 人';
+    err.textContent = '群成员上限 30 人（含自己），最多再选 29 人';
   } else {
     err.textContent = '';
   }
@@ -4002,7 +4002,7 @@ async function createGroup(){
   const err = document.getElementById('gcErr');
   if(!name){ err.textContent = '请填写群名称'; return; }
   if(members.length < 1){ err.textContent = '至少选择 1 位成员'; return; }
-  if(members.length > GROUP_LIMIT - 1){ err.textContent = '群成员上限 10 人'; return; }
+  if(members.length > GROUP_LIMIT - 1){ err.textContent = '群成员上限 30 人'; return; }
   const rec = {
     gid: 'G' + Date.now(), name: name, owner: me,
     members: [me].concat(members),
