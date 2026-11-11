@@ -246,7 +246,7 @@ footer{
 .toast{
   position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
   background:rgba(20,28,40,0.95);border:1px solid var(--border-strong);
-  color:var(--text);padding:10px 20px;border-radius:10px;font-size:14px;
+  color:var(--text);padding:12px 18px;border-radius:10px;font-size:13.5px;line-height:1.7;text-align:center;max-width:calc(100vw - 36px);
   opacity:0;pointer-events:none;transition:all .25s;z-index:100;
   backdrop-filter:blur(10px);
 }
@@ -342,7 +342,7 @@ body{position:relative;overflow-x:hidden}
       <a onclick="document.getElementById('docs').scrollIntoView({behavior:'smooth'})">开发者</a>
       
     </nav>
-    <button class="btn btn-primary" onclick="location.href='admin.html'">登录</button>
+    <button class="btn btn-primary" onclick="migratedLogin()">登录</button>
   </div>
 </header>
 
@@ -896,6 +896,13 @@ body{position:relative;overflow-x:hidden}
 <div class="toast" id="toast"></div>
 
 <script>
+function migratedLogin(){
+  const t=document.getElementById('toast');
+  t.innerHTML='入口已迁移，迁移至<br><span style="font-size:11px;color:#9cc8ff">https://zy00820.github.io/zhanxu-gongfang/promo.html</span>';
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>t.classList.remove('show'),6000);
+}
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;
