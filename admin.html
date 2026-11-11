@@ -1222,7 +1222,7 @@ function renderStaff(currentAcc){
             ${isDevAuth(s.uid)?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(167,139,250,0.2);color:#a78bfa;margin-left:4px">开发者</span>':''}
           </div>
           <div style="font-size:11px;color:#607494;margin-top:2px">账号：${s.uid}</div>
-          <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${s.balance ?? 0}</div>
+          <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${s.balance ?? 0} <span style="color:#fbbf24;margin-left:6px">积分：${getUserStats(s.uid).coin || 0}</span></div>
           <button onclick="openReport('${s.uid}','${s.name}')" style="margin-top:8px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">举报</button>
           ${isSuper ? `<div style="font-size:11px;color:#fbbf24;margin-top:2px">安全密钥：${s.key||'未设置'}</div>` : ''}
         </div>
@@ -1231,6 +1231,8 @@ function renderStaff(currentAcc){
           <button onclick="toggleBan(${idx})" style="background:${banned?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.12)'};border:1px solid ${banned?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)'};color:${banned?'#34d399':'#f87171'};padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${banned?'解禁':'封号'}</button>
           <button onclick="delStaff(${idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">删除</button>
           <button onclick="toggleDevAuth('${s.uid}', ${isDevAuth(s.uid) ? 'false' : 'true'})" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${isDevAuth(s.uid) ? '取消开发者' : '授权开发者'}</button>
+          <button onclick="superEditBalance('${s.uid}')" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">改金额</button>
+          <button onclick="superEditCoin('${s.uid}')" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">改积分</button>
         </div>` : ''}
       </div>`;
     }).join('');
@@ -1479,6 +1481,7 @@ async function autoLogin(){
   } catch(e){}
 }
 setTimeout(autoLogin, 900);
+setTimeout(()=>{ loadWallets().then(()=>{ try { renderStaff(ACCOUNTS[myUid()] || {level:''}); } catch(e){} }); }, 600);
 function doLogout(){
   sessionStorage.removeItem('zx_user');
   try { localStorage.removeItem('zx_saved_login'); } catch(e){}
@@ -1565,6 +1568,75 @@ function showMaint(){
   clearTimeout(window._tt);
   window._tt=setTimeout(()=>t.classList.remove('show'),2200);
 }
+
+// ===== 超管：用户 / 员工 金额与积分管理 =====
+const GH_WALLET_PATH = 'wallet-records.json';
+let walletCache = [];
+let walletLoaded = false;
+async function loadWallets(force){
+  if(walletLoaded && !force) return walletCache;
+  try {
+    const r = await ghGetRecords(GH_WALLET_PATH);
+    walletCache = r.list || [];
+    localStorage.setItem('zx_wallets', JSON.stringify(walletCache));
+  } catch(e){
+    try { walletCache = JSON.parse(localStorage.getItem('zx_wallets')||'[]'); } catch(x){ walletCache = []; }
+  }
+  walletCache.forEach(w=>{
+    const acc = ACCOUNTS[w.uid];
+    if(acc && w.balance !== undefined && w.balance !== null && !isNaN(Number(w.balance))) acc.balance = Number(w.balance);
+  });
+  walletLoaded = true;
+  return walletCache;
+}
+async function writeWallet(uid, balance){
+  if(ACCOUNTS[uid]) ACCOUNTS[uid].balance = Number(balance);
+  walletCache = walletCache.filter(x=>String(x.uid) !== String(uid));
+  walletCache.push({ uid: String(uid), balance: Number(balance), time: dmTime(Date.now()), ts: Date.now() });
+  try { await ghWriteRecords(GH_WALLET_PATH, walletCache, 'zx_wallets'); return true; }
+  catch(e){ localStorage.setItem('zx_wallets', JSON.stringify(walletCache)); return false; }
+}
+async function superEditBalance(uid){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可操作'); return; }
+  const acc = ACCOUNTS[uid];
+  if(!acc) return;
+  const v = await glassPrompt('修改金额', (acc.name||uid) + ' 当前余额 ¥' + Number(acc.balance||0).toFixed(2) + '\n输入新的余额（元）', String(Number(acc.balance||0)));
+  if(v === null || v === undefined) return;
+  const n = parseFloat(v);
+  if(isNaN(n) || n < 0){ toastMsg('请输入不小于 0 的数字'); return; }
+  const ok = await writeWallet(uid, n);
+  const st = staffData.find(x=>String(x.uid)===String(uid));
+  if(st) st.balance = n;
+  const nu = normalUsers.find(x=>String(x.uid)===String(uid));
+  if(nu) nu.balance = n;
+  try { renderStaff(ACCOUNTS[myUid()]); } catch(e){}
+  try { renderUsers(window._userSearchKw || ''); } catch(e){}
+  if(String(uid) === String(myUid())){ const el = document.getElementById('myBalance'); if(el) el.textContent = '¥' + n.toFixed(2); }
+  toastMsg(ok ? '金额已更新并云端同步' : '网络异常，金额已先存本地');
+}
+async function superEditCoin(uid){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可操作'); return; }
+  const acc = ACCOUNTS[uid];
+  if(!acc) return;
+  let cur = 0;
+  try { cur = (await fetchMyCheckins(String(uid))).coin || 0; } catch(e){ cur = getUserStats(uid).coin || 0; }
+  const v = await glassPrompt('修改积分', (acc.name||uid) + ' 当前积分 ' + cur + '\n输入新的积分', String(cur));
+  if(v === null || v === undefined) return;
+  const n = parseInt(v, 10);
+  if(isNaN(n) || n < 0){ toastMsg('请输入不小于 0 的整数'); return; }
+  const delta = n - cur;
+  if(delta === 0){ toastMsg('积分未变化'); return; }
+  const rec = { uid: String(uid), type: 'adjust', coin: delta, exp: 0, date: 'adjust' + Date.now(), time: dmTime(Date.now()), ts: Date.now(), note: '超管调整' };
+  let ok = false;
+  try { ok = await ghAppendRecord(GH_CHECKIN_PATH, rec, 'zx_checkin_all'); } catch(e){ ok = false; }
+  try {
+    const s = await fetchMyCheckins(String(uid));
+    saveUserStats(String(uid), s);
+    if(String(uid) === String(myUid())){ applySignUI(String(uid), s); const c = document.getElementById('shopCoin'); if(c) c.textContent = s.coin; }
+  } catch(e){}
+  toastMsg(ok ? '积分已调整为 ' + n : '网络异常，积分调整失败');
+}
+
 // ===== 应用中心（首页，单页展示已审核通过的应用 / 表盘） =====
 let appCenterCat = '应用';
 function appCenterTab(cat, el){
@@ -2987,9 +3059,13 @@ function renderUsers(kw){
           ${isDevAuth(u.uid)?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(167,139,250,0.2);color:#a78bfa;margin-left:4px">开发者</span>':''}
         </div>
         <div style="font-size:11px;color:#607494;margin-top:2px">UID：${u.uid}</div>
-        <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${u.balance}</div>
+        <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${u.balance} <span style="color:#fbbf24;margin-left:6px">积分：${getUserStats(u.uid).coin || 0}</span></div>
       </div>
-      ${currentIsSuper ? `<button onclick="toggleDevAuth('${u.uid}', ${isDevAuth(u.uid) ? 'false' : 'true'})" style="flex-shrink:0;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${isDevAuth(u.uid) ? '取消开发者' : '授权开发者'}</button>` : ''}
+      ${currentIsSuper ? `<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+        <button onclick="superEditBalance('${u.uid}')" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:5px 9px;border-radius:7px;font-size:11px;cursor:pointer">改金额</button>
+        <button onclick="superEditCoin('${u.uid}')" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:5px 9px;border-radius:7px;font-size:11px;cursor:pointer">改积分</button>
+        <button onclick="toggleDevAuth('${u.uid}', ${isDevAuth(u.uid) ? 'false' : 'true'})" style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;padding:5px 9px;border-radius:7px;font-size:11px;cursor:pointer">${isDevAuth(u.uid) ? '取消开发者' : '授权开发者'}</button>
+      </div>` : ''}
     </div>
   `).join('');
 }
