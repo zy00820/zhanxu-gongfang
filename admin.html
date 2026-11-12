@@ -296,7 +296,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.12 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.13 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -399,9 +399,12 @@ body.plain .ann-card.open{
         <span style="font-size:14px;color:#d4e4fb">消息通知</span>
         <span style="font-size:12px;color:#34d399">已开启</span>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
+      <div onclick="versionTap()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
-        <span style="font-size:12px;color:#607494">v1.0.12</span>
+        <span style="display:flex;align-items:center;gap:5px">
+          <span style="font-size:10px;color:#607494">当前版本</span>
+          <span id="settingsVersion" style="font-size:12px;color:#607494">v1.0.13</span>
+        </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
       <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
@@ -707,7 +710,6 @@ body.plain .ann-card.open{
       <div class="tab active" data-view="staffSvc">员工服务</div>
       <div class="tab" data-view="post">社区发帖</div>
       <div class="tab" data-view="dm">消息</div>
-      <div class="tab" data-view="changelog">更新日志</div>
       <div class="tab" data-view="users">用户列表</div>
       <div class="tab" data-view="me">我的</div>
     </div>
@@ -900,8 +902,14 @@ body.plain .ann-card.open{
     <div class="view" id="view-changelog">
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-          <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.12</span>
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
+            <div style="font-size:11px;color:#607494;margin-top:3px">设置 · 连点版本号 3 次进入</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.13</span>
+            <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+          </div>
         </div>
         <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
       </div>
@@ -1189,7 +1197,7 @@ async function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.12 已发布：超管可直接调整金额与积分，开发者授权移至个人信息页，群聊上限 30 人。');
+  await glassAlert('更新日志', 'v1.0.13 已发布：更新日志移入设置，连点版本号 3 次即可查看。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -1489,6 +1497,42 @@ function doLogout(){
   showLogin();
 }
 function openSettings(){ document.getElementById('settingsMask').style.display='block'; }
+let _verTaps = 0, _verTapTimer = null;
+function versionTap(){
+  _verTaps++;
+  clearTimeout(_verTapTimer);
+  _verTapTimer = setTimeout(()=>{ _verTaps = 0; }, 1300);
+  if(_verTaps >= 3){
+    _verTaps = 0;
+    clearTimeout(_verTapTimer);
+    closeSettings();
+    openChangelog();
+  }
+}
+function openChangelog(){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  const v = document.getElementById('view-changelog');
+  if(v) v.classList.add('active');
+  const dash = document.getElementById('homeDash');
+  if(dash) dash.style.display = 'none';
+  const st = document.getElementById('subtabs');
+  if(st) st.style.display = 'none';
+  try { renderChangelog(); } catch(e){}
+  window.scrollTo(0,0);
+}
+function closeChangelog(){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  const t = document.querySelector('.tab[data-view="staffSvc"]');
+  if(t) t.classList.add('active');
+  const v = document.getElementById('view-staffSvc');
+  if(v) v.classList.add('active');
+  const dash = document.getElementById('homeDash');
+  if(dash) dash.style.display = 'block';
+  const st = document.getElementById('subtabs');
+  if(st) st.style.display = 'flex';
+  window.scrollTo(0,0);
+}
 function closeSettings(){ document.getElementById('settingsMask').style.display='none'; }
 let isLiquid = true;
 function toggleTheme(){
@@ -2926,6 +2970,11 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.13', date: '2026-11-12', items: [
+      '更新日志移入「设置」：连点版本号 3 次进入，不再占用一级菜单',
+      '更新日志改为内嵌单页，与开发者中心一致，可一键返回',
+      '更新日志中最新版本号左侧标注「当前版本」'
+    ]},
     { ver: 'v1.0.12', date: '2026-11-11', items: [
       '超管可在用户列表 / 员工管理中直接调整账号金额与积分，改动实时同步',
       '开发者授权移到个人信息页：点击头像后由超管授权或取消开发者权限',
@@ -3030,6 +3079,7 @@ function renderChangelog(){
   document.getElementById('changelogList').innerHTML = logs.map(l=>`
     <div style="margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        ${l === logs[0] ? '<span style="font-size:10px;color:#607494">当前版本</span>' : ''}
         <span style="font-size:13px;color:#73b8ff;font-weight:600">${l.ver}</span>
         <span style="font-size:11px;color:#607494">${l.date}</span>
       </div>
