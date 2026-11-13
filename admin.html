@@ -586,7 +586,10 @@ body.plain .ann-card.open{
           <div style="font-size:15px;color:#111827;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="gchatTitle">群聊</div>
           <div style="font-size:11px;color:#9ca3af;margin-top:2px" id="gchatSub"></div>
         </div>
-        <button onclick="refreshGroupChat()" style="padding:7px 12px;border-radius:8px;background:#eff6ff;border:1px solid #dbeafe;color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="refreshGroupChat()" style="padding:7px 12px;border-radius:8px;background:#eff6ff;border:1px solid #dbeafe;color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+          <button onclick="openGrpSetting(gchatGid)" style="padding:7px 12px;border-radius:8px;background:#f5f3ff;border:1px solid #ddd6fe;color:#7c3aed;font-size:12px;cursor:pointer">设置</button>
+        </div>
       </div>
       <div id="gchatList" style="flex:1;overflow-y:auto;padding:16px;background:#ffffff"></div>
       <div style="display:flex;gap:8px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #eef0f4;background:#ffffff">
@@ -602,7 +605,10 @@ body.plain .ann-card.open{
       <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08)">
         <button onclick="closeDm()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
         <div style="flex:1;text-align:center;font-size:15px;color:#f0f5ff;font-weight:600" id="dmTitle">消息</div>
-        <button onclick="refreshDm()" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="refreshDm()" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+          <button onclick="openDmSetting(dmPeer)" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">设置</button>
+        </div>
       </div>
       <div id="dmList" style="flex:1;overflow-y:auto;padding:14px 16px"></div>
       <div id="dmCompose" style="display:none;gap:8px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,0.08)">
@@ -918,7 +924,6 @@ body.plain .ann-card.open{
           <div style="display:flex;gap:8px">
             <button onclick="openCreateGroup()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">+ 创建群聊</button>
             <button onclick="renderDmCenterPage(true)" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
-            <button onclick="openGrpSetting()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">设置</button>
           </div>
         </div>
         <div id="groupListBox"></div>
@@ -929,7 +934,6 @@ body.plain .ann-card.open{
           <div style="font-size:14px;color:#d4e4fb;font-weight:500">私信</div>
           <div style="display:flex;gap:8px">
             <button onclick="renderDmCenterPage(true)" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
-            <button onclick="openDmSetting()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">设置</button>
           </div>
         </div>
         <div id="dmListBox"></div>
@@ -2998,6 +3002,10 @@ async function submitPost(){
   }
 }
 loadAndRenderPosts();
+setInterval(()=>{
+  const v = document.getElementById('view-post');
+  if(v && v.classList.contains('active')){ try { loadAndRenderPosts(true); } catch(e){} }
+}, 60000);
 loadSocial();
 
 function initTickets(){
@@ -4248,31 +4256,26 @@ async function openGroupChat(gid){
   box.scrollTop = box.scrollHeight;
 }
 // ===== 私信设置：清空记录 / 拉黑 =====
-async function openDmSetting(){
+async function openDmSetting(uid){
   await loadDmData();
-  const me = myUid();
-  const peers = {};
-  dmCache.forEach(m=>{ const p = m.from === me ? m.to : m.from; if(p && p !== me) peers[p] = true; });
+  uid = uid || dmPeer;
   const box = document.getElementById('dmSetBox');
-  const uids = Object.keys(peers);
-  if(!uids.length){
-    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">暂无私信会话</div>';
+  if(!uid){
+    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">未选择会话</div>';
   } else {
-    box.innerHTML = uids.map(uid=>{
-      const a = ACCOUNTS[uid] || {};
-      const banned = isBanned(uid);
-      return '<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
-          '<div style="min-width:0">' +
-            '<div style="font-size:14px;color:#d4e4fb">'+String(a.name||uid).replace(/</g,'&lt;')+' <span style="font-size:11px;color:#607494">'+uid+'</span></div>' +
-            '<div style="font-size:11px;color:'+(banned?'#f87171':'#607494')+';margin-top:3px">'+(banned?'已拉黑':'未拉黑')+'</div>' +
-          '</div>' +
-          '<div style="display:flex;gap:6px;flex-shrink:0">' +
-            '<button onclick="clearDmPeer(\''+uid+'\')" style="padding:6px 10px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;border-radius:7px;font-size:11px;cursor:pointer">清空记录</button>' +
-            '<button onclick="blockDmPeer(\''+uid+'\')" style="padding:6px 10px;background:'+(banned?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.1)')+';border:1px solid '+(banned?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)')+';color:'+(banned?'#34d399':'#f87171')+';border-radius:7px;font-size:11px;cursor:pointer">'+(banned?'解禁':'拉黑')+'</button>' +
-          '</div>' +
-        '</div></div>';
-    }).join('');
+    const a = ACCOUNTS[uid] || {};
+    const banned = isBanned(uid);
+    box.innerHTML = '<div style="padding:12px 0">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
+        '<div style="min-width:0">' +
+          '<div style="font-size:14px;color:#d4e4fb">'+String(a.name||uid).replace(/</g,'&lt;')+' <span style="font-size:11px;color:#607494">'+uid+'</span></div>' +
+          '<div style="font-size:11px;color:'+(banned?'#f87171':'#607494')+';margin-top:3px">'+(banned?'已拉黑':'未拉黑')+'</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;flex-shrink:0">' +
+          '<button onclick="clearDmPeer(\''+uid+'\')" style="padding:6px 10px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;border-radius:7px;font-size:11px;cursor:pointer">清空记录</button>' +
+          '<button onclick="blockDmPeer(\''+uid+'\')" style="padding:6px 10px;background:'+(banned?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.1)')+';border:1px solid '+(banned?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)')+';color:'+(banned?'#34d399':'#f87171')+';border-radius:7px;font-size:11px;cursor:pointer">'+(banned?'解禁':'拉黑')+'</button>' +
+        '</div>' +
+      '</div></div>';
   }
   document.getElementById('dmSetMask').style.display = 'block';
 }
@@ -4286,7 +4289,7 @@ async function clearDmPeer(uid){
     await ghWriteRecords(GH_DM_PATH, dmCache, 'zx_dms');
     toastMsg('聊天记录已清空');
   } catch(e){ toastMsg('保存失败，请检查网络'); }
-  openDmSetting();
+  openDmSetting(uid);
   renderDmCenterPage();
 }
 async function blockDmPeer(uid){
@@ -4295,15 +4298,17 @@ async function blockDmPeer(uid){
   if(!ok) return;
   await setUserBan(uid, !banned);
   toastMsg(banned ? '已解除拉黑' : '已拉黑');
-  openDmSetting();
+  openDmSetting(uid);
 }
 
 async function persistGroups(){
   await ghWriteRecords(GH_GROUP_PATH, groupCache, 'zx_groups');
   groupsLoaded = true;
 }
-async function openGrpSetting(){
+let _grpSetGid = null;
+async function openGrpSetting(gid){
   await loadGroups();
+  _grpSetGid = gid || gchatGid;
   renderGrpSetting();
   document.getElementById('grpSetMask').style.display = 'block';
 }
@@ -4315,11 +4320,12 @@ function grpMemberTag(g, uid){
 }
 function renderGrpSetting(){
   const box = document.getElementById('grpSetBox');
-  if(!groupCache.length){
+  const list = _grpSetGid ? groupCache.filter(x=>x.gid === _grpSetGid) : groupCache;
+  if(!list.length){
     box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">暂无群聊</div>';
     return;
   }
-  box.innerHTML = groupCache.map(g=>{
+  box.innerHTML = list.map(g=>{
     const admins = g.admins || [];
     const members = (g.members||[]).filter(Boolean);
     const nonMembers = Object.keys(ACCOUNTS).filter(u=>members.indexOf(u) < 0);
