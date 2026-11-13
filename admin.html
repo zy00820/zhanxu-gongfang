@@ -296,7 +296,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.13 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.14 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -402,8 +402,8 @@ body.plain .ann-card.open{
       <div onclick="versionTap()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
-          <span style="font-size:10px;color:#607494">当前版本</span>
-          <span id="settingsVersion" style="font-size:12px;color:#607494">v1.0.13</span>
+          <span style="font-size:10px;color:#607494">点击3次即可查看更新日志</span>
+          <span id="settingsVersion" style="font-size:12px;color:#607494">v1.0.14</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -913,7 +913,7 @@ body.plain .ann-card.open{
             <div style="font-size:11px;color:#607494;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.13</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.14</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -1204,7 +1204,7 @@ async function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.13 已发布：更新日志移入设置，连点版本号 3 次即可查看。');
+  await glassAlert('更新日志', 'v1.0.14 已发布：开发者中心入口移至「我的」，未授权仅提示申请权限。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -3014,6 +3014,11 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.14', date: '2026-11-13', items: [
+      '开发者中心入口移至「我的」页面，排在我发布的帖子上方',
+      '移除入口右侧授权徽标；未授权进入开发者中心仅提示「请先申请开发者权限」',
+      '设置版本号左侧标注「点击3次即可查看更新日志」'
+    ]},
     { ver: 'v1.0.13', date: '2026-11-12', items: [
       '更新日志移入「设置」：连点版本号 3 次进入，不再占用一级菜单',
       '更新日志改为内嵌单页，与开发者中心一致，可一键返回',
