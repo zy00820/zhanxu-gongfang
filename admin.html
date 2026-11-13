@@ -2117,10 +2117,10 @@ const GH_REPO = 'zy00820/zhanxu-gongfang';
 // 直连 api.github.com 在部分网络下会被拦截（DNS 污染 / 私有地址限制），失败后自动走加速通道重试
 const GH_APIS = [
   'https://api.github.com/repos/' + GH_REPO + '/contents/',
-  'https://gh-provy.com/https://api.github.com/repos/' + GH_REPO + '/contents/'
+  'https://gh-proxy.com/https://api.github.com/repos/' + GH_REPO + '/contents/'
 ];
 // 只读兜底：通过加速通道读 raw 文件（无需鉴权）
-const GH_RAW = 'https://gh-provy.com/https://raw.githubusercontent.com/' + GH_REPO + '/main/';
+const GH_RAW = 'https://gh-proxy.com/https://raw.githubusercontent.com/' + GH_REPO + '/main/';
 
 function b64encode(str){
   return btoa(unescape(encodeURIComponent(str)));
