@@ -694,16 +694,6 @@ body.plain .ann-card.open{
       <div id="appCenterList"><div style="text-align:center;color:#607494;font-size:13px;padding:16px">加载中…</div></div>
     </div>
 
-    <div class="card" onclick="openDevCenter()" style="cursor:pointer;margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">开发者中心</div>
-          <div style="font-size:12px;color:#607494">API 文档 / 表盘 SDK / 应用发布</div>
-        </div>
-        <span id="devBadge" style="font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(167,139,250,0.18);color:#a78bfa">需超管授权</span>
-      </div>
-    </div>
-
 
     </div>
     <div class="tabs">
@@ -949,6 +939,11 @@ body.plain .ann-card.open{
         <button onclick="closeDevCenter()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
       </div>
 
+      <div class="card" id="devGateCard" style="display:none;text-align:center;padding:34px 16px">
+        <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:8px">开发者中心</div>
+        <div style="font-size:13px;color:#607494;line-height:1.8">请先申请开发者权限</div>
+      </div>
+
       <div class="card" id="devUploadCard" style="margin-bottom:12px">
         <div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:10px">上传新作品</div>
         <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -1011,6 +1006,15 @@ body.plain .ann-card.open{
         <div style="display:flex;gap:8px">
           <button onclick="renameMe()" style="flex:1;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#73b8ff;border-radius:10px;font-size:13px;cursor:pointer">修改昵称</button>
           <button onclick="openProfile()" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:10px;font-size:13px;cursor:pointer">个人信息</button>
+        </div>
+      </div>
+      <div class="card" onclick="openDevCenter()" style="cursor:pointer;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">开发者中心</div>
+            <div style="font-size:12px;color:#607494">API 文档 / 表盘 SDK / 应用发布</div>
+          </div>
+          <span style="font-size:11px;color:#607494">›</span>
         </div>
       </div>
       <div class="card">
@@ -1191,19 +1195,6 @@ async function showApp(u){
   if(!window._ticketInit){ initTickets(); window._ticketInit = true; }
   renderTickets();
   renderChangelog();
-  // 开发者中心权限标签
-  const devBadge = document.getElementById('devBadge');
-  if(devBadge){
-    if(currentIsSuper){
-      devBadge.textContent='超管已授权';
-      devBadge.style.background='rgba(52,211,153,0.18)';
-      devBadge.style.color='#34d399';
-    } else {
-      devBadge.textContent='需超管授权';
-      devBadge.style.background='rgba(167,139,250,0.18)';
-      devBadge.style.color='#a78bfa';
-    }
-  }
   const myAvatar = document.getElementById('postMyAvatar');
   if(myAvatar) myAvatar.textContent = acc.name.charAt(0);
   // 登录后依次提醒
@@ -1771,14 +1762,13 @@ async function loadDevItems(force){
   devLoaded = true;
   return devCache;
 }
+let _devReturnView = 'staffSvc';
 async function openDevCenter(){
   const me = myUid();
   if(!me){ toastMsg('请先登录'); return; }
   await loadDevAuth();
-  if(!isDevAllowed(me)){
-    toastMsg('开发者中心需超管授权，请联系张岳 / 徐文桐');
-    return;
-  }
+  const active = document.querySelector('.view.active');
+  if(active && active.id === 'view-me') _devReturnView = 'me'; else _devReturnView = 'staffSvc';
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   const v = document.getElementById('view-dev');
@@ -1793,15 +1783,17 @@ async function openDevCenter(){
 }
 function closeDevCenter(){
   currentDevView = false;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
-  const t = document.querySelector('.tab[data-view="staffSvc"]');
+  const rv = _devReturnView || 'staffSvc';
+  const t = document.querySelector('.tab[data-view="' + rv + '"]');
   if(t) t.classList.add('active');
-  const v = document.getElementById('view-staffSvc');
+  const v = document.getElementById('view-' + rv);
   if(v) v.classList.add('active');
   const dash = document.getElementById('homeDash');
-  if(dash) dash.style.display = 'block';
+  if(dash) dash.style.display = rv === 'staffSvc' ? 'block' : 'none';
   const st = document.getElementById('subtabs');
-  if(st) st.style.display = 'flex';
+  if(st) st.style.display = rv === 'staffSvc' ? 'flex' : 'none';
   window.scrollTo(0,0);
 }
 function devStatusColor(s){
@@ -1813,12 +1805,16 @@ async function renderDevCenter(force){
   const me = myUid();
   await loadDevItems(force);
   await loadDevAuth();
+  const allowed = isDevAllowed(me);
+  const gate = document.getElementById('devGateCard');
+  if(gate) gate.style.display = allowed ? 'none' : 'block';
   const upload = document.getElementById('devUploadCard');
-  if(upload) upload.style.display = isDevAllowed(me) ? 'block' : 'none';
+  if(upload) upload.style.display = allowed ? 'block' : 'none';
   const review = document.getElementById('devReviewCard');
-  if(review) review.style.display = currentIsSuper ? 'block' : 'none';
+  if(review) review.style.display = (currentIsSuper && allowed) ? 'block' : 'none';
   const authCard = document.getElementById('devAuthCard');
-  if(authCard) authCard.style.display = currentIsSuper ? 'block' : 'none';
+  if(authCard) authCard.style.display = (currentIsSuper && allowed) ? 'block' : 'none';
+  const myCard = document.querySelector('#view-dev .card:last-child');
 
   // 待审核
   const pbox = document.getElementById('devPendingList');
@@ -1840,6 +1836,8 @@ async function renderDevCenter(force){
   }
 
   // 我的提交
+  const myCardWrap = document.getElementById('devMyList').closest('.card');
+  if(myCardWrap) myCardWrap.style.display = allowed ? 'block' : 'none';
   const mbox = document.getElementById('devMyList');
   if(mbox){
     const mine = devCache.filter(x=>String(x.by) === String(me)).sort((a,b)=>(b.ts||0)-(a.ts||0));
