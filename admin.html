@@ -612,7 +612,35 @@ body.plain .ann-card.open{
     </div>
   </div>
 
-  <!-- 编辑员工弹窗 -->
+    <!-- 私信设置（单页） -->
+  <div id="dmSetMask" onclick="if(event.target===this)closeDmSetting()" style="display:none;position:fixed;inset:0;z-index:216;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(15,20,30,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 18px calc(20px + env(safe-area-inset-bottom));max-height:85vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div>
+          <div style="font-size:16px;font-weight:600;color:#f0f5ff">私信设置</div>
+          <div style="font-size:11px;color:#607494;margin-top:3px">清空聊天记录 / 拉黑对方</div>
+        </div>
+        <button onclick="closeDmSetting()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+      </div>
+      <div id="dmSetBox"></div>
+    </div>
+  </div>
+
+  <!-- 群聊设置 / 群管理（单页） -->
+  <div id="grpSetMask" onclick="if(event.target===this)closeGrpSetting()" style="display:none;position:fixed;inset:0;z-index:216;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(15,20,30,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 18px calc(20px + env(safe-area-inset-bottom));max-height:85vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div>
+          <div style="font-size:16px;font-weight:600;color:#f0f5ff">群聊设置 · 群管理</div>
+          <div style="font-size:11px;color:#607494;margin-top:3px">增减成员 / 设置群管理员（上限 30 人）</div>
+        </div>
+        <button onclick="closeGrpSetting()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+      </div>
+      <div id="grpSetBox"></div>
+    </div>
+  </div>
+
+<!-- 编辑员工弹窗 -->
   <div id="editStaffMask" onclick="if(event.target===this)closeEditStaff()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))">
       <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:16px">编辑员工</div>
@@ -890,6 +918,7 @@ body.plain .ann-card.open{
           <div style="display:flex;gap:8px">
             <button onclick="openCreateGroup()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">+ 创建群聊</button>
             <button onclick="renderDmCenterPage(true)" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+            <button onclick="openGrpSetting()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">设置</button>
           </div>
         </div>
         <div id="groupListBox"></div>
@@ -898,7 +927,10 @@ body.plain .ann-card.open{
       <div class="card" id="dmPane-dm" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div style="font-size:14px;color:#d4e4fb;font-weight:500">私信</div>
-          <button onclick="renderDmCenterPage(true)" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+          <div style="display:flex;gap:8px">
+            <button onclick="renderDmCenterPage(true)" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+            <button onclick="openDmSetting()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">设置</button>
+          </div>
         </div>
         <div id="dmListBox"></div>
       </div>
@@ -4214,6 +4246,151 @@ async function openGroupChat(gid){
       '</div></div>';
   }).join('');
   box.scrollTop = box.scrollHeight;
+}
+// ===== 私信设置：清空记录 / 拉黑 =====
+async function openDmSetting(){
+  await loadDmData();
+  const me = myUid();
+  const peers = {};
+  dmCache.forEach(m=>{ const p = m.from === me ? m.to : m.from; if(p && p !== me) peers[p] = true; });
+  const box = document.getElementById('dmSetBox');
+  const uids = Object.keys(peers);
+  if(!uids.length){
+    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">暂无私信会话</div>';
+  } else {
+    box.innerHTML = uids.map(uid=>{
+      const a = ACCOUNTS[uid] || {};
+      const banned = isBanned(uid);
+      return '<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
+          '<div style="min-width:0">' +
+            '<div style="font-size:14px;color:#d4e4fb">'+String(a.name||uid).replace(/</g,'&lt;')+' <span style="font-size:11px;color:#607494">'+uid+'</span></div>' +
+            '<div style="font-size:11px;color:'+(banned?'#f87171':'#607494')+';margin-top:3px">'+(banned?'已拉黑':'未拉黑')+'</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px;flex-shrink:0">' +
+            '<button onclick="clearDmPeer(\''+uid+'\')" style="padding:6px 10px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;border-radius:7px;font-size:11px;cursor:pointer">清空记录</button>' +
+            '<button onclick="blockDmPeer(\''+uid+'\')" style="padding:6px 10px;background:'+(banned?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.1)')+';border:1px solid '+(banned?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)')+';color:'+(banned?'#34d399':'#f87171')+';border-radius:7px;font-size:11px;cursor:pointer">'+(banned?'解禁':'拉黑')+'</button>' +
+          '</div>' +
+        '</div></div>';
+    }).join('');
+  }
+  document.getElementById('dmSetMask').style.display = 'block';
+}
+function closeDmSetting(){ document.getElementById('dmSetMask').style.display = 'none'; }
+async function clearDmPeer(uid){
+  const me = myUid();
+  const ok = await glassConfirm('清空聊天记录', '确认清空与「' + ((ACCOUNTS[uid]||{}).name||uid) + '」的全部私信？删除后不可恢复');
+  if(!ok) return;
+  dmCache = dmCache.filter(m=>!((m.from===me&&m.to===uid)||(m.from===uid&&m.to===me)));
+  try {
+    await ghWriteRecords(GH_DM_PATH, dmCache, 'zx_dms');
+    toastMsg('聊天记录已清空');
+  } catch(e){ toastMsg('保存失败，请检查网络'); }
+  openDmSetting();
+  renderDmCenterPage();
+}
+async function blockDmPeer(uid){
+  const banned = isBanned(uid);
+  const ok = await glassConfirm(banned ? '解除拉黑' : '拉黑账号', banned ? ('确定解除「' + ((ACCOUNTS[uid]||{}).name||uid) + '」的拉黑？') : ('拉黑后对方将无法登录，确定继续？'));
+  if(!ok) return;
+  await setUserBan(uid, !banned);
+  toastMsg(banned ? '已解除拉黑' : '已拉黑');
+  openDmSetting();
+}
+
+async function persistGroups(){
+  await ghWriteRecords(GH_GROUP_PATH, groupCache, 'zx_groups');
+  groupsLoaded = true;
+}
+async function openGrpSetting(){
+  await loadGroups();
+  renderGrpSetting();
+  document.getElementById('grpSetMask').style.display = 'block';
+}
+function closeGrpSetting(){ document.getElementById('grpSetMask').style.display = 'none'; }
+function grpMemberTag(g, uid){
+  if(g.owner === uid) return '<span style="font-size:10px;padding:2px 6px;border-radius:5px;background:rgba(251,191,36,0.16);color:#fbbf24;margin-left:4px">群主</span>';
+  if((g.admins||[]).indexOf(uid) >= 0) return '<span style="font-size:10px;padding:2px 6px;border-radius:5px;background:rgba(167,139,250,0.2);color:#a78bfa;margin-left:4px">管理员</span>';
+  return '';
+}
+function renderGrpSetting(){
+  const box = document.getElementById('grpSetBox');
+  if(!groupCache.length){
+    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">暂无群聊</div>';
+    return;
+  }
+  box.innerHTML = groupCache.map(g=>{
+    const admins = g.admins || [];
+    const members = (g.members||[]).filter(Boolean);
+    const nonMembers = Object.keys(ACCOUNTS).filter(u=>members.indexOf(u) < 0);
+    const memberRows = members.map(uid=>{
+      const a = ACCOUNTS[uid] || {};
+      const isOwner = g.owner === uid;
+      const isAdmin = admins.indexOf(uid) >= 0;
+      let act = '';
+      if(!isOwner){
+        if(isAdmin) act = '<button onclick="grpDemote(\''+g.gid+'\',\''+uid+'\')" style="padding:5px 9px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:7px;font-size:11px;cursor:pointer">取消管理</button>';
+        else act = '<button onclick="grpPromote(\''+g.gid+'\',\''+uid+'\')" style="padding:5px 9px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;border-radius:7px;font-size:11px;cursor:pointer">设为管理</button>';
+        act += ' <button onclick="grpRemoveMember(\''+g.gid+'\',\''+uid+'\')" style="padding:5px 9px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:11px;cursor:pointer">移出</button>';
+      }
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">' +
+        '<div style="min-width:0;font-size:13px;color:#c9d8ee">'+String(a.name||uid).replace(/</g,'&lt;')+grpMemberTag(g,uid)+'</div>' +
+        '<div style="display:flex;gap:6px;flex-shrink:0">'+act+'</div></div>';
+    }).join('');
+    const addSel = nonMembers.length
+      ? '<select id="addSel-'+g.gid+'" style="flex:1;padding:9px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(115,184,255,0.22);border-radius:9px;color:#fff;font-size:13px;outline:none">' +
+          nonMembers.map(u=>'<option value="'+u+'" style="background:#1a2030">'+String((ACCOUNTS[u]||{}).name||u)+'（'+u+'）</option>').join('') +
+        '</select>'
+      : '<span style="flex:1;font-size:12px;color:#607494">无可添加成员</span>';
+    return '<div style="margin-bottom:16px;padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+        '<div style="font-size:14px;color:#f0f5ff;font-weight:600">'+String(g.name||'群聊').replace(/</g,'&lt;')+'</div>' +
+        '<div style="font-size:11px;color:#607494">'+members.length+'/'+GROUP_LIMIT+' 人</div>' +
+      '</div>' +
+      '<div style="font-size:11px;color:#607494;margin-bottom:6px">成员 / 管理员</div>' +
+      memberRows +
+      '<div style="display:flex;gap:8px;margin-top:10px">' +
+        addSel +
+        '<button onclick="grpAddMember(\''+g.gid+'\')" style="padding:9px 13px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;border-radius:9px;font-size:12px;cursor:pointer">添加</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+async function grpAddMember(gid){
+  const sel = document.getElementById('addSel-'+gid);
+  const uid = sel && sel.value;
+  const g = groupCache.find(x=>x.gid === gid);
+  if(!g || !uid) return;
+  if((g.members||[]).length >= GROUP_LIMIT){ toastMsg('群成员已达上限 30 人'); return; }
+  g.members.push(uid);
+  try { await persistGroups(); toastMsg('已加入群聊'); } catch(e){ toastMsg('保存失败，请检查网络'); return; }
+  renderGrpSetting(); renderDmCenterPage();
+}
+async function grpRemoveMember(gid, uid){
+  const g = groupCache.find(x=>x.gid === gid);
+  if(!g) return;
+  if(uid === g.owner){ toastMsg('群主不可移出'); return; }
+  const ok = await glassConfirm('移出群聊', '确定将「' + ((ACCOUNTS[uid]||{}).name||uid) + '」移出该群？');
+  if(!ok) return;
+  g.members = (g.members||[]).filter(x=>x!==uid);
+  g.admins = (g.admins||[]).filter(x=>x!==uid);
+  try { await persistGroups(); toastMsg('已移出群聊'); } catch(e){ toastMsg('保存失败'); return; }
+  renderGrpSetting(); renderDmCenterPage();
+}
+async function grpPromote(gid, uid){
+  const g = groupCache.find(x=>x.gid === gid);
+  if(!g) return;
+  if(!g.admins) g.admins = [];
+  if(g.admins.indexOf(uid) < 0) g.admins.push(uid);
+  try { await persistGroups(); toastMsg('已设为群管理员'); } catch(e){ toastMsg('保存失败'); return; }
+  renderGrpSetting();
+}
+async function grpDemote(gid, uid){
+  const g = groupCache.find(x=>x.gid === gid);
+  if(!g) return;
+  g.admins = (g.admins||[]).filter(x=>x!==uid);
+  try { await persistGroups(); toastMsg('已取消管理员'); } catch(e){ toastMsg('保存失败'); return; }
+  renderGrpSetting();
 }
 async function submitGroupMsg(){
   const me = myUid();
