@@ -309,10 +309,10 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 /* ===== 弹层浅色同步 ===== */
 #settingsMask, #dmMask, #dmSetMask, #grpSetMask, #postEditorMask,
 #profileMask, #postSheetMask, #noticeMask, #shopMask, #actMask, #gcCreateMask,
-#editStaffMask, #checkinLotteryMask, #postDetailMask, #glassMask, #wdMask, #rpMask { background:rgba(15,23,42,0.35) !important; }
+#editStaffMask, #checkinLotteryMask, #postDetailMask, #boardMask, #hotMask, #glassMask, #wdMask, #rpMask { background:rgba(15,23,42,0.35) !important; }
 #settingsMask > div, #dmMask > div, #dmSetMask > div, #grpSetMask > div, #postEditorMask > div,
 #profileMask > div, #postSheetMask > div, #noticeMask > div, #shopMask > div, #actMask > div, #gcCreateMask > div,
-#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #glassMask > div, #wdMask > div, #rpMask > div { background:#fff !important; border-color:#eef1f5 !important; }
+#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #boardMask > div, #hotMask > div, #glassMask > div, #wdMask > div, #rpMask > div { background:#fff !important; border-color:#eef1f5 !important; }
 #dmList, #dmSetBox, #grpSetBox, #gchatList, #gcMembers { background:#fff; }
 #peMentionPanel { background:#f7f8fa !important; border-color:#e5e7eb !important; }
 #glassMsg{white-space:pre-line;text-align:left !important}
@@ -480,10 +480,10 @@ option{background:#fff;color:#1f2937}
       <span style="color:#9ca3af">›</span>
     </div>
     <div class="drawer-menu">
-      <div class="drawer-item" onclick="drawerGo('post')"><span class="di-ico">🔥</span>社区热榜</div>
-      <div class="drawer-item" onclick="drawerGo('post')"><span class="di-ico">▦</span>全部板块</div>
+      <div class="drawer-item" onclick="openHot()"><span class="di-ico">🔥</span>社区热榜</div>
+      <div class="drawer-item" onclick="openBoard()"><span class="di-ico">▦</span>全部板块</div>
       <div class="drawer-item" onclick="closeDrawer();openPostEditor()"><span class="di-ico">✎</span>发布帖子</div>
-      <div class="drawer-item" onclick="drawerGo('me')"><span class="di-ico">⬇</span>App 福利</div>
+      <div class="drawer-item" onclick="glassAlert('App 福利','功能开发中，敬请期待。')"><span class="di-ico">⬇</span>App 福利</div>
       <div class="drawer-item" onclick="openQqGroup()"><span class="di-ico">👥</span>官方 QQ 群</div>
       <div class="drawer-item" onclick="toastMsg('可在帖子或用户详情页发起意见反馈')"><span class="di-ico">❗</span>意见反馈</div>
       <div class="drawer-item" onclick="closeDrawer();openDevCenter()"><span class="di-ico">‹›</span>开发者中心</div>
@@ -1192,6 +1192,27 @@ option{background:#fff;color:#1f2937}
     <div id="postDetailBody" style="flex:1;overflow-y:auto;padding:18px 16px"></div>
   </div>
 </div>
+<div id="boardMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(15,23,42,0.35)">
+  <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:#fff">
+    <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid #eef1f5">
+      <button onclick="closeBoard()" style="padding:7px 12px;border-radius:8px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+      <div style="flex:1;text-align:center;font-size:15px;font-weight:600;color:#111827">全部板块</div>
+      <span style="width:56px"></span>
+    </div>
+    <div id="boardChips" class="chip-row" style="padding:12px 16px 4px"></div>
+    <div id="boardList" style="flex:1;overflow-y:auto;padding:12px 16px"></div>
+  </div>
+</div>
+<div id="hotMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(15,23,42,0.35)">
+  <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:#fff">
+    <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid #eef1f5">
+      <button onclick="closeHot()" style="padding:7px 12px;border-radius:8px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+      <div style="flex:1;text-align:center;font-size:15px;font-weight:600;color:#111827">社区热榜</div>
+      <span style="width:56px"></span>
+    </div>
+    <div id="hotList" style="flex:1;overflow-y:auto;padding:12px 16px"></div>
+  </div>
+</div>
 <div id="postEditorMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(4,6,12,0.6);backdrop-filter:blur(16px)">
   <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.96);backdrop-filter:blur(30px) saturate(180%)">
     <div id="peStepTopic" style="display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:18px 16px">
@@ -1354,7 +1375,7 @@ function checkAuth(){
   if(u && ACCOUNTS[u]){ showApp(u); } else { showLogin(); }
 }
 const AGREEMENT_TEXT = '欢迎使用栈序云。使用本应用即表示您同意以下条款：\n1. 账号：您应妥善保管账号与密码，因本人泄露或转借造成的损失自行承担。\n2. 内容：您发布的帖子、评论、私信等应遵守法律法规，不得发布违规、侵权、骚扰或虚假信息。\n3. 规范：禁止恶意刷屏、骚扰他人、诈骗、传播违规资源或破坏平台秩序的行为。\n4. 管理：平台有权对违规内容进行删除，并对违规账号采取提醒、限制功能或封禁等措施。\n5. 责任：用户对自己发布的内容负责，因内容引发的纠纷由发布者承担相应责任。\n6. 本协议可能随版本更新调整，最终解释权归栈序云运营团队所有。';
-const PRIVACY_TEXT = '我们仅记录登录、发帖、私信、签到、抽奖等功能所必需的信息，用于账号识别与数据同步。\n我们不会向第三方出售您的个人信息；除法律法规要求外，不对外披露您的私信与账号资料。\n清除本地缓存或退出登录不会删除仓库中的历史记录，如需删除个人内容请联系管理员。';
+const PRIVACY_TEXT = '1. 收集信息：我们记录账号、昵称、发帖、私信、签到、抽奖、点赞评论等功能所必需的信息，用于登录识别、内容展示与数据同步。\n2. 信息使用：信息仅用于本应用的功能运行与内部管理，不用于无关的商业推广。\n3. 信息保护：除法律法规要求或征得您本人同意外，不向任何第三方披露您的私信、账号资料与互动数据。\n4. 信息存储：数据保存在仓库与浏览器本地缓存中；退出登录不会删除历史记录，如需删除本人内容请联系管理员。\n5. 您的权利：您可以修改昵称、管理本人发布的内容；涉及账号注销请联系超级管理员处理。\n6. 政策更新：本政策可能随版本调整，更新后将在应用内公示。';
 function openQqGroup(){
   const qq = '586352356';
   glassAlert('官方 QQ 群', '群号：' + qq + '\n请在 QQ 中搜索该群号加入，交流表盘、应用与社区问题。');
@@ -3111,6 +3132,51 @@ function openPostDetail(pid){
   document.getElementById('postDetailMask').style.display = 'block';
 }
 function closePostDetail(){ document.getElementById('postDetailMask').style.display = 'none'; }
+
+let boardTopic = '全部';
+function openBoard(){ boardTopic = '全部'; renderBoard(); document.getElementById('boardMask').style.display = 'block'; }
+function closeBoard(){ document.getElementById('boardMask').style.display = 'none'; }
+function setBoardTopic(t){ boardTopic = t; renderBoard(); }
+function boardPostCard(p, rank){
+  const pid = pidOf(p);
+  const likes = postLikes(pid), cms = postComments(pid);
+  const grad = p.grad || 'linear-gradient(135deg,#60a5fa,#3b82f6)';
+  let rankHtml = '';
+  if(rank != null){
+    const bg = rank===0 ? '#f59e0b' : rank===1 ? '#9ca3af' : rank===2 ? '#d97706' : '#f3f4f6';
+    const fg = rank<3 ? '#fff' : '#6b7280';
+    rankHtml = '<div style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:'+fg+';background:'+bg+';flex-shrink:0">'+(rank+1)+'</div>';
+  }
+  return '<div class="card post-card" onclick="closeBoardOrHot();openPostDetail(\''+pid+'\')" style="display:flex;gap:12px;margin-bottom:12px">'+
+    rankHtml+
+    '<div style="flex:1;min-width:0">'+
+      '<div class="post-head" style="margin-bottom:6px">'+
+        '<div class="post-avatar" style="background:'+grad+'">'+(p.name||'?').charAt(0)+'</div>'+
+        '<div class="post-info"><div class="post-name">'+String(p.name||'').replace(/</g,'&lt;')+'</div><div class="post-time">'+String(p.time||'')+'</div></div>'+
+        '<div class="post-tag">'+String(p.tag||'综合')+'</div>'+
+      '</div>'+
+      (p.title ? '<div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:4px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : '')+
+      '<div class="post-content" style="font-size:13px">'+peRenderText(p.content)+'</div>'+
+      '<div class="post-actions"><span>♡ '+likes+'</span><span>'+cms.length+' 评论</span></div>'+
+    '</div></div>';
+}
+function renderBoard(){
+  const chips = ['全部'].concat(PE_TOPICS);
+  document.getElementById('boardChips').innerHTML = chips.map(t=>'<button class="chip '+(t===boardTopic?'active':'')+'" onclick="setBoardTopic(\''+t+'\')">'+t+'</button>').join('');
+  let list = (postsCache||[]).slice();
+  if(boardTopic !== '全部') list = list.filter(p=>(p.tag||'综合')===boardTopic);
+  list.sort((a,b)=>(b.ts||0)-(a.ts||0));
+  document.getElementById('boardList').innerHTML = list.length ? list.map(p=>boardPostCard(p,null)).join('') : '<div class="card" style="text-align:center;color:#6b7280;padding:26px">该板块还没有帖子</div>';
+}
+function openHot(){ renderHot(); document.getElementById('hotMask').style.display='block'; }
+function closeHot(){ document.getElementById('hotMask').style.display='none'; }
+function hotScore(p){ const pid=pidOf(p); return postLikes(pid)*2 + postComments(pid).length + lotteryJoiners(pid).length; }
+function renderHot(){
+  const list = (postsCache||[]).slice().sort((a,b)=>hotScore(b)-hotScore(a) || (b.ts||0)-(a.ts||0));
+  document.getElementById('hotList').innerHTML = list.length ? list.map((p,i)=>boardPostCard(p,i)).join('') : '<div class="card" style="text-align:center;color:#6b7280;padding:26px">暂无热榜帖子</div>';
+}
+function closeBoardOrHot(){ closeBoard(); closeHot(); }
+
 function refreshIfDetail(){
   const m = document.getElementById('postDetailMask');
   if(m && m.style.display === 'block') renderPostDetail();
@@ -3612,7 +3678,8 @@ function renderChangelog(){
     { ver: 'v1.1.1', date: '2026-11-14', items: [
       '补充官方 QQ 群号 586352356，点击可复制群号',
       '补充用户协议与隐私政策说明',
-      '侧边抽屉菜单入口完善'
+      '侧边抽屉菜单入口完善',
+      '全部板块独立单页，按综合/技术/生活/求助/活动/闲聊筛选帖子；社区热榜独立单页，按点赞、评论、抽奖参与数排序；App 福利暂提示开发中'
     ]},
     { ver: 'v1.1.0', date: '2026-11-14', items: [
       '首页「活跃用户」入口改为「签到抽奖」，点击进入独立抽奖单页，每日可抽一次金币或经验',
