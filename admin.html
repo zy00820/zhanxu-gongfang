@@ -314,7 +314,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.15 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.1.0 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -421,7 +421,7 @@ body.plain .ann-card.open{
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#607494">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#607494">v1.0.15</span>
+          <span id="settingsVersion" style="font-size:12px;color:#607494">v1.1.0</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -687,7 +687,7 @@ body.plain .ann-card.open{
     <div class="stats">
       <div class="stat"><div class="num">3</div><div class="label">待审公告</div></div>
       <div class="stat"><div class="num" id="statPosts">0</div><div class="label">社区帖子</div></div>
-      <div class="stat"><div class="num">876</div><div class="label">活跃用户</div></div>
+      <div class="stat" onclick="openCheckinLottery()" style="cursor:pointer"><div class="num" id="statLottery">抽奖</div><div class="label">签到抽奖</div></div>
     </div>
 
     <!-- 签到中心 -->
@@ -953,7 +953,7 @@ body.plain .ann-card.open{
             <div style="font-size:11px;color:#607494;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.15</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.1.0</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -1069,6 +1069,17 @@ body.plain .ann-card.open{
 
   <!-- 发帖两步单页：话题 -> 内容编辑 -->
 <!-- 帖子详情单页 -->
+<!-- 签到抽奖单页 -->
+<div id="checkinLotteryMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(4,6,12,0.6);backdrop-filter:blur(16px)">
+  <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.96);backdrop-filter:blur(30px) saturate(180%)">
+    <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08)">
+      <button onclick="closeCheckinLottery()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+      <div style="flex:1;text-align:center;font-size:15px;font-weight:600;color:#f0f5ff">签到抽奖</div>
+      <span style="width:56px"></span>
+    </div>
+    <div id="checkinLotteryBody" style="flex:1;overflow-y:auto;padding:18px 16px"></div>
+  </div>
+</div>
 <div id="postDetailMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(4,6,12,0.6);backdrop-filter:blur(16px)">
   <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.96);backdrop-filter:blur(30px) saturate(180%)">
     <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08)">
@@ -1299,7 +1310,7 @@ async function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.15 已发布：私信与群聊每 30 秒自动刷新，手动刷新按钮已移除。');
+  await glassAlert('更新日志', 'v1.1.0 已发布：首页新增签到抽奖单页，每日可抽一次奖励。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -3395,6 +3406,10 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.1.0', date: '2026-11-14', items: [
+      '首页「活跃用户」入口改为「签到抽奖」，点击进入独立抽奖单页，每日可抽一次金币或经验',
+      '帖子列表多列卡片与独立详情页，抽奖参与后不可退出'
+    ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
       '社区发帖仍保持每 1 分钟自动刷新',
@@ -3712,6 +3727,81 @@ async function syncCheckin(uid){
     applySignUI(uid, s);
     return s;
   } catch(e){ return getUserStats(uid); }
+}
+const LOTTERY_POOL = [
+  { label: '5 金币', coin: 5, exp: 0 },
+  { label: '10 金币', coin: 10, exp: 0 },
+  { label: '15 金币', coin: 15, exp: 0 },
+  { label: '20 金币', coin: 20, exp: 0 },
+  { label: '30 金币', coin: 30, exp: 0 },
+  { label: '10 经验', coin: 0, exp: 10 }
+];
+async function openCheckinLottery(){
+  document.getElementById('checkinLotteryMask').style.display = 'block';
+  await renderCheckinLottery();
+}
+function closeCheckinLottery(){ document.getElementById('checkinLotteryMask').style.display = 'none'; }
+async function loadLotteryRecords(){
+  let all = [];
+  try {
+    const r = await ghGetRecords(GH_CHECKIN_PATH);
+    all = r.list || [];
+  } catch(e){
+    try { all = JSON.parse(localStorage.getItem('zx_checkin_all')||'[]'); } catch(x){ all = []; }
+  }
+  return all;
+}
+async function renderCheckinLottery(){
+  const box = document.getElementById('checkinLotteryBody');
+  if(!box) return;
+  const uid = myUid();
+  const all = await loadLotteryRecords();
+  const today = todayStr();
+  const mine = all.filter(x => String(x.uid) === String(uid) && x.type === 'lottery');
+  const drawn = mine.some(x => x.date === today);
+  const poolHtml = LOTTERY_POOL.map(p =>
+    '<div style="padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);text-align:center;font-size:13px;color:#d4e4fb">'+p.label+'</div>').join('');
+  const history = mine.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,10);
+  const histHtml = history.length
+    ? history.map(x => '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px"><span style="color:#a0b4d2">'+String(x.label||'奖励')+'</span><span style="color:#607494">'+String(x.date||'')+'</span></div>').join('')
+    : '<div style="font-size:12px;color:#607494;padding:10px 0">暂无抽奖记录</div>';
+  box.innerHTML =
+    '<div style="text-align:center;margin-bottom:16px"><div style="font-size:13px;color:#607494">每日可抽奖一次，奖励金币或经验</div></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">'+poolHtml+'</div>'+
+    '<div style="text-align:center;margin-bottom:18px">'+
+      (drawn
+        ? '<div style="font-size:13px;color:#fbbf24">今日已抽奖，明天再来</div>'
+        : '<button onclick="drawCheckinLottery()" style="padding:12px 30px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">立即抽奖</button>')+
+    '</div>'+
+    '<div style="font-size:13px;color:#d4e4fb;margin-bottom:8px">我的抽奖记录</div>'+histHtml;
+}
+async function drawCheckinLottery(){
+  const uid = myUid();
+  if(!uid){ toastMsg('请先登录'); return; }
+  const today = todayStr();
+  const all = await loadLotteryRecords();
+  if(all.some(x => String(x.uid) === String(uid) && x.type === 'lottery' && x.date === today)){
+    toastMsg('今日已抽奖，明天再来'); return;
+  }
+  const win = LOTTERY_POOL[Math.floor(Math.random() * LOTTERY_POOL.length)];
+  const acc = ACCOUNTS[uid] || {};
+  const rec = {
+    uid: uid, name: acc.name || uid, date: today, type: 'lottery',
+    label: win.label, coin: win.coin, exp: win.exp,
+    time: today + ' ' + new Date().toTimeString().slice(0,5), ts: Date.now()
+  };
+  try {
+    await ghAppendRecord(GH_CHECKIN_PATH, rec, 'zx_checkin_all');
+  } catch(e){
+    let local = [];
+    try { local = JSON.parse(localStorage.getItem('zx_checkin_all')||'[]'); } catch(x){ local = []; }
+    local.push(rec);
+    localStorage.setItem('zx_checkin_all', JSON.stringify(local));
+  }
+  await syncCheckin(uid);
+  renderShop();
+  toastMsg('抽奖成功：' + win.label);
+  renderCheckinLottery();
 }
 async function doCheckin(){
   const uid = sessionStorage.getItem('zx_user');
