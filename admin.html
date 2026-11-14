@@ -216,6 +216,15 @@ body{
 .post-actions{display:flex;gap:18px;font-size:12px;color:#607494}
 .post-actions span{display:flex;align-items:center;gap:4px;cursor:pointer}
 .post-actions svg{width:14px;height:14px}
+.post-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(16,24,40,0.08);transition:all .25s}
+.post-card:hover{box-shadow:0 12px 32px -12px rgba(16,24,40,0.35)}
+.post-card:active{transform:scale(.99)}
+.post-card .post-avatar{width:40px;height:40px}
+.post-card .post-name{font-size:14px;color:#f0f5ff;font-weight:600}
+.post-card .post-time{font-size:11px;color:#8a97ad}
+.post-card .post-tag{background:rgba(47,107,255,0.12);color:#5b8def;border-radius:8px}
+.post-card .post-content{font-size:14px;color:#dbe5f5;line-height:1.65}
+.post-card .post-actions{gap:20px;color:#8a97ad}
 /* ===== Toast ===== */
 .toast{
   position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
@@ -2840,8 +2849,9 @@ function renderPosts(list){
     const likes = postLikes(pid);
     const cms = postComments(pid);
     const liked = iLiked(pid);
+    const joinedLot = iJoinedLottery(pid);
     const open = !!postsExpanded[pid];
-    html += `<div class="card" onpointerdown="ppStart(event,'${pid}')" onpointerup="ppEnd()" onpointercancel="ppEnd()" onpointermove="ppMove(event)" onpointerleave="ppEnd()">
+    html += `<div class="card post-card" onpointerdown="ppStart(event,'${pid}')" onpointerup="ppEnd()" onpointercancel="ppEnd()" onpointermove="ppMove(event)" onpointerleave="ppEnd()">
       <div class="post-head">
         <div class="post-avatar" onclick="event.stopPropagation();postAvatarClick('${String(p.uid||'')}')" style="background:${grad};cursor:pointer">${(p.name||'?').charAt(0)}</div>
         <div class="post-info"><div class="post-name">${p.name}</div><div class="post-time">${p.time} · 来自 栈序工坊</div></div>
@@ -2849,7 +2859,7 @@ function renderPosts(list){
       </div>
       ${p.title ? '<div style="font-size:15px;font-weight:600;color:#e8f0ff;margin-bottom:6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : ''}
       <div class="post-content">${peRenderText(p.content)}</div>
-      ${p.lottery && p.lottery.on ? '<div style="margin-bottom:10px"><div style="font-size:11px;color:#34d399">'+lotteryCard(p)+'</div>'+(!p.lottery.drawn ? '<div style="display:flex;align-items:center;gap:10px;margin-top:8px"><button onclick="toggleLotteryJoin(\''+pid+'\')" style="padding:6px 13px;border-radius:8px;background:'+(iJoinedLottery(pid)?'rgba(52,211,153,0.18)':'rgba(115,184,255,0.12)')+';border:1px solid rgba(115,184,255,0.3);color:'+(iJoinedLottery(pid)?'#34d399':'#73b8ff')+';font-size:12px;cursor:pointer">'+(iJoinedLottery(pid)?'已参与':'参与抽奖')+'</button><span style="font-size:11px;color:#607494">'+lotteryJoiners(pid).length+' 人已参与</span></div>' : '')+'</div>' : ''}
+      ${p.lottery && p.lottery.on ? '<div style="margin-bottom:10px"><div style="font-size:11px;color:#34d399">'+lotteryCard(p)+'</div>'+(!p.lottery.drawn ? '<div style="display:flex;align-items:center;gap:10px;margin-top:8px"><button onclick="toggleLotteryJoin(\''+pid+'\')" style="padding:6px 13px;border-radius:8px;background:'+(joinedLot?'rgba(52,211,153,0.18)':'rgba(115,184,255,0.12)')+';border:1px solid rgba(115,184,255,0.3);color:'+(joinedLot?'#34d399':'#73b8ff')+';font-size:12px;cursor:'+(joinedLot?'default':'pointer')+';opacity:'+(joinedLot?'.75':'1')+'">'+(joinedLot?'已参与':'参与抽奖')+'</button><span style="font-size:11px;color:#607494">'+lotteryJoiners(pid).length+' 人已参与</span></div>' : '')+'</div>' : ''}
       <div class="post-actions">
         <span onclick="toggleLike('${pid}')" style="cursor:pointer;color:${liked?'#f472b6':'inherit'}">${liked?'♥':'♡'} ${likes} 赞</span>
         <span onclick="toggleComments('${pid}')" style="cursor:pointer">${cms.length} 评论</span>
@@ -3057,7 +3067,7 @@ function peRenderText(text){
   const esc = String(text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   return esc.replace(/(@[^\s#@]+|#[^\s#@]+)/g, m => m[0] === '@'
     ? '<span style="color:#73b8ff">'+m+'</span>'
-    : '<span style="color:#c4b5fd">'+m+'</span>');
+    : '<span style="color:#5b8def">'+m+'</span>');
 }
 function lotteryCard(p){
   const L = p.lottery;
@@ -3076,14 +3086,11 @@ async function toggleLotteryJoin(pid){
   const me = myUid();
   if(!me){ toastMsg('请先登录'); return; }
   await loadInteractOnce();
-  const idx = interactCache.findIndex(x => x.pid === pid && x.type === 'lottery' && String(x.uid) === String(me));
-  if(idx >= 0){ interactCache.splice(idx, 1); }
-  else {
-    interactCache.push({ pid: pid, type: 'lottery', uid: me, name: (ACCOUNTS[me]||{}).name || me, ts: Date.now(), time: dmTime(Date.now()) });
-  }
+  if(iJoinedLottery(pid)){ toastMsg('已参与抽奖，不可退出'); return; }
+  interactCache.push({ pid: pid, type: 'lottery', uid: me, name: (ACCOUNTS[me]||{}).name || me, ts: Date.now(), time: dmTime(Date.now()) });
   const ok = await saveInteract();
   renderPosts(postsCache);
-  toastMsg(ok ? (idx >= 0 ? '已退出抽奖' : '已参与抽奖') : '网络异常，参与状态已先存本地');
+  toastMsg(ok ? '已参与抽奖' : '网络异常，参与状态已先存本地');
 }
 async function checkLotteries(){
   if(!postsCache || !postsCache.length) return;
@@ -3336,7 +3343,8 @@ function renderChangelog(){
       '站内消息提醒：未读角标、提示音与浏览器通知，新私信 / 群消息自动检测',
       '发帖改为右下角加号两步流程：先选话题，再填标题与 500 字以内内容，支持 @提及、#话题与发帖者开关抽奖',
       '抽奖支持奖品名称、个数与开奖时间；到期自动开奖，中奖人在通知中心与私信收到提醒',
-      '抽奖改为独立「参与抽奖」按钮，帖子显示已参与人数，开奖从参与者中抽取'
+      '抽奖改为独立「参与抽奖」按钮，帖子显示已参与人数，开奖从参与者中抽取',
+      '抽奖参与后不可退出；帖子卡片参照轻腕社区调整圆角、阴影与排版'
     ]},
     { ver: 'v1.0.14', date: '2026-11-13', items: [
       '开发者中心入口移至「我的」页面，排在我发布的帖子上方',
