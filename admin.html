@@ -8,13 +8,9 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
 body{
   min-height:100vh;
-  background:#080b12;
-  background-image:
-    linear-gradient(rgba(20,40,80,0.18) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(20,40,80,0.18) 1px,transparent 1px);
-  background-size:40px 40px;
-  color:#e8edf7;
-  padding:0 0 80px;
+  background:#f3f4f6;
+  color:#1f2937;
+  padding:0 0 96px;
 }
 /* ===== 登录页（液态玻璃） ===== */
 .login-page{
@@ -37,7 +33,7 @@ body{
 .login-box{
   position:relative;z-index:1;
   width:100%;max-width:380px;
-  background:rgba(255,255,255,0.08);
+  background:rgba(15,20,30,0.78);
   backdrop-filter:blur(28px) saturate(180%);
   -webkit-backdrop-filter:blur(28px) saturate(180%);
   border:1px solid rgba(255,255,255,0.18);
@@ -51,7 +47,7 @@ body{
 .login-logo{text-align:center;margin-bottom:26px}
 .login-logo .mark{
   width:56px;height:56px;border-radius:16px;
-  background:linear-gradient(135deg,#73b8ff,#a78bfa);
+  background:linear-gradient(135deg,#2563eb,#a78bfa);
   display:inline-flex;align-items:center;justify-content:center;
   font-size:26px;font-weight:700;color:#fff;margin-bottom:14px;
   box-shadow:0 6px 20px rgba(115,184,255,0.4),inset 0 1px 0 rgba(255,255,255,0.4);
@@ -78,7 +74,7 @@ body{
 .field input::placeholder{color:rgba(255,255,255,0.3)}
 .btn-login{
   width:100%;padding:14px;margin-top:10px;
-  background:linear-gradient(135deg,#73b8ff,#5b8def);
+  background:linear-gradient(135deg,#2563eb,#2563eb);
   color:#fff;border:1px solid rgba(255,255,255,0.2);
   border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;
   transition:all .2s;
@@ -90,15 +86,15 @@ body{
 /* ===== 顶部栏 ===== */
 .topbar{
   position:sticky;top:0;z-index:100;
-  background:rgba(8,11,18,0.75);
+  background:rgba(255,255,255,0.92);
   backdrop-filter:blur(16px);
   -webkit-backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(115,184,255,0.15);
+  border-bottom:1px solid #eceef1;
   padding:12px 18px;
   display:flex;align-items:center;justify-content:space-between;
 }
-.topbar .logo{font-size:17px;font-weight:600;color:#73b8ff;letter-spacing:1px}
-.topbar .logo small{font-size:11px;color:#607494;font-weight:400;margin-left:6px;letter-spacing:0}
+.topbar .logo{font-size:17px;font-weight:600;color:#2563eb;letter-spacing:1px}
+.topbar .logo small{font-size:11px;color:#6b7280;font-weight:400;margin-left:6px;letter-spacing:0}
 .user-area{display:flex;align-items:center;gap:10px}
 .user-chip{
   display:flex;align-items:center;gap:8px;
@@ -108,11 +104,11 @@ body{
 }
 .user-chip .avatar{
   width:28px;height:28px;border-radius:50%;
-  background:linear-gradient(135deg,#73b8ff,#a78bfa);
+  background:linear-gradient(135deg,#2563eb,#a78bfa);
   display:flex;align-items:center;justify-content:center;
   font-size:12px;font-weight:600;color:#080b12;
 }
-.user-chip .uname{font-size:13px;color:#d4e4fb}
+.user-chip .uname{font-size:13px;color:#1f2937}
 .user-chip .ulevel{
   font-size:10px;padding:2px 7px;border-radius:5px;
   background:rgba(251,191,36,0.18);color:#fbbf24;margin-left:2px;
@@ -127,17 +123,20 @@ body{
 .container{max-width:720px;margin:0 auto;padding:18px;}
 /* ===== Tab切换 ===== */
 .tabs{
-  display:flex;gap:8px;margin-bottom:18px;
-  background:rgba(255,255,255,0.04);
-  padding:5px;border-radius:12px;
-  border:1px solid rgba(115,184,255,0.12);
+  position:fixed;left:0;right:0;bottom:0;z-index:120;
+  display:flex;gap:4px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+  background:rgba(255,255,255,0.94);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid #eceef1;
 }
 .tab{
-  flex:1;padding:10px;text-align:center;font-size:14px;
-  color:#94a8c7;border-radius:9px;cursor:pointer;
-  transition:all .2s;user-select:none;
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 2px;text-align:center;font-size:11px;
+  color:#6b7280;border-radius:10px;cursor:pointer;
+  transition:all .2s;user-select:none;position:relative;
 }
-.tab.active{background:rgba(115,184,255,0.15);color:#73b8ff;font-weight:500}
+.tab .t-ico{font-size:19px;line-height:1}
+.tab.active{color:#2563eb;font-weight:600;background:rgba(37,99,235,0.06)}
 .dm-unread{display:inline-block;margin-left:5px;min-width:17px;padding:1px 5px;border-radius:9px;background:rgba(248,113,113,0.9);color:#fff;font-size:10px;font-weight:600;text-align:center;line-height:15px;vertical-align:middle}
 /* 二级tab */
 .subtabs{
@@ -147,9 +146,9 @@ body{
 }
 .subtab{
   flex:1;padding:8px;text-align:center;font-size:13px;
-  color:#94a8c7;border-radius:8px;cursor:pointer;transition:all .2s;
+  color:#6b7280;border-radius:8px;cursor:pointer;transition:all .2s;
 }
-.subtab.active{background:rgba(115,184,255,0.12);color:#73b8ff}
+.subtab.active{background:rgba(115,184,255,0.12);color:#2563eb}
 /* ===== 视图 ===== */
 .view{display:none}
 .view.active{display:block}
@@ -160,17 +159,17 @@ body{
   border:1px solid rgba(115,184,255,0.18);
   border-radius:14px;padding:16px;margin-bottom:12px;
 }
-.ann-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:#607494;margin-bottom:8px;flex-wrap:wrap}
+.ann-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:#6b7280;margin-bottom:8px;flex-wrap:wrap}
 .ann-meta .badge{background:rgba(239,68,68,0.15);color:#f87171;padding:2px 8px;border-radius:6px;font-size:11px}
-.ann-meta .badge.blue{background:rgba(115,184,255,0.15);color:#73b8ff}
-.ann-title{font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:6px}
-.ann-body{font-size:14px;color:#a0b4d2;line-height:1.7}
+.ann-meta .badge.blue{background:rgba(115,184,255,0.15);color:#2563eb}
+.ann-title{font-size:16px;font-weight:600;color:#111827;margin-bottom:6px}
+.ann-body{font-size:14px;color:#4b5563;line-height:1.7}
 /* 公告可展开液态玻璃 */
 .ann-card{cursor:pointer;overflow:hidden;transition:all .3s}
 .ann-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .ann-arrow{
   flex-shrink:0;width:24px;height:24px;border-radius:50%;
-  background:rgba(115,184,255,0.12);color:#73b8ff;
+  background:rgba(115,184,255,0.12);color:#2563eb;
   display:flex;align-items:center;justify-content:center;
   font-size:12px;transition:transform .3s;margin-top:2px;
 }
@@ -194,9 +193,9 @@ body{
   border-radius:14px;padding:16px;margin-bottom:16px;
 }
 .compose-box .row{display:flex;gap:10px;align-items:center}
-.compose-box .placeholder{flex:1;color:#607494;font-size:14px}
+.compose-box .placeholder{flex:1;color:#6b7280;font-size:14px}
 .compose-box .btn-send{
-  background:rgba(115,184,255,0.18);color:#73b8ff;
+  background:rgba(115,184,255,0.18);color:#2563eb;
   border:1px solid rgba(115,184,255,0.35);
   padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;
 }
@@ -204,27 +203,27 @@ body{
 .post-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .post-avatar{
   width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,#73b8ff,#a78bfa);
+  background:linear-gradient(135deg,#2563eb,#a78bfa);
   display:flex;align-items:center;justify-content:center;
   font-size:14px;color:#080b12;font-weight:600;flex-shrink:0;
 }
 .post-info{flex:1}
-.post-name{font-size:14px;color:#d4e4fb;font-weight:500}
-.post-time{font-size:11px;color:#607494;margin-top:2px}
+.post-name{font-size:14px;color:#1f2937;font-weight:500}
+.post-time{font-size:11px;color:#6b7280;margin-top:2px}
 .post-tag{font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(167,139,250,0.15);color:#c4b5fd}
-.post-content{font-size:14px;color:#c5d3ea;line-height:1.7;margin-bottom:10px}
-.post-actions{display:flex;gap:18px;font-size:12px;color:#607494}
+.post-content{font-size:14px;color:#374151;line-height:1.7;margin-bottom:10px}
+.post-actions{display:flex;gap:18px;font-size:12px;color:#6b7280}
 .post-actions span{display:flex;align-items:center;gap:4px;cursor:pointer}
 .post-actions svg{width:14px;height:14px}
 .post-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(16,24,40,0.08);transition:all .25s}
 .post-card:hover{box-shadow:0 12px 32px -12px rgba(16,24,40,0.35)}
 .post-card:active{transform:scale(.99)}
 .post-card .post-avatar{width:40px;height:40px}
-.post-card .post-name{font-size:14px;color:#f0f5ff;font-weight:600}
-.post-card .post-time{font-size:11px;color:#8a97ad}
-.post-card .post-tag{background:rgba(47,107,255,0.12);color:#5b8def;border-radius:8px}
-.post-card .post-content{font-size:14px;color:#dbe5f5;line-height:1.65}
-.post-card .post-actions{gap:20px;color:#8a97ad}
+.post-card .post-name{font-size:14px;color:#111827;font-weight:600}
+.post-card .post-time{font-size:11px;color:#6b7280}
+.post-card .post-tag{background:rgba(47,107,255,0.12);color:#2563eb;border-radius:8px}
+.post-card .post-content{font-size:14px;color:#374151;line-height:1.65}
+.post-card .post-actions{gap:20px;color:#6b7280}
 .post-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media(min-width:640px){.post-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .post-grid .post-card{padding:13px;margin-bottom:0;cursor:pointer}
@@ -237,7 +236,7 @@ body{
 .toast{
   position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
   background:rgba(20,28,45,0.95);border:1px solid rgba(115,184,255,0.3);
-  color:#e8edf7;padding:12px 22px;border-radius:10px;
+  color:#1f2937;padding:12px 22px;border-radius:10px;
   font-size:13px;opacity:0;pointer-events:none;
   transition:all .3s;z-index:999;max-width:80%;text-align:center;
 }
@@ -250,12 +249,12 @@ body{
   border:1px solid rgba(115,184,255,0.15);
   border-radius:12px;padding:14px;text-align:center;
 }
-.stat .num{font-size:22px;font-weight:600;color:#73b8ff}
-.stat .label{font-size:11px;color:#607494;margin-top:4px}
+.stat .num{font-size:22px;font-weight:600;color:#2563eb}
+.stat .label{font-size:11px;color:#6b7280;margin-top:4px}
 /* ===== FAB ===== */
 .fab{
-  position:fixed;right:18px;bottom:24px;z-index:100;
-  background:linear-gradient(135deg,#73b8ff,#5b8def);
+  position:fixed;right:18px;bottom:92px;z-index:110;
+  background:linear-gradient(135deg,#2563eb,#2563eb);
   color:#080b12;width:52px;height:52px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-size:24px;font-weight:300;cursor:pointer;
@@ -275,6 +274,20 @@ body.plain .ann-card.open{
   backdrop-filter:none !important;
   box-shadow:none !important;
 }
+
+/* ===== 浅色外观覆盖 ===== */
+.card,.compose-box,.ann-card{background:#fff !important;border-color:#eef1f5 !important;box-shadow:0 1px 3px rgba(16,24,40,0.06) !important}
+.post-card{background:#fff !important;border-color:#eef1f5 !important}
+.stat{background:#fff !important;border-color:#eef1f5 !important}
+.subtabs{background:#fff !important;border-color:#eef1f5 !important}
+.topbar{background:rgba(255,255,255,0.92) !important}
+.user-chip{background:#f3f4f6 !important;border-color:#e5e7eb !important}
+.user-chip .uname{color:#1f2937 !important}
+input,textarea,select{background:#f7f8fa !important;border-color:#e5e7eb !important;color:#1f2937 !important}
+input::placeholder,textarea::placeholder{color:#9ca3af !important}
+.post-name,.ann-title{color:#111827 !important}
+.post-content,.ann-body{color:#374151 !important}
+.post-time,.post-actions,.ann-meta{color:#6b7280 !important}
 </style>
 </head>
 <body>
@@ -294,8 +307,8 @@ body.plain .ann-card.open{
         <p>登录栈序云，继续今天的工作</p>
       </div>
       <div style="display:flex;gap:6px;margin-bottom:12px">
-        <div id="lmAcc" onclick="setLoginMode('acc')" style="flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff">账号登录</div>
-        <div id="lmMail" onclick="setLoginMode('mail')" style="flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7">邮箱登录</div>
+        <div id="lmAcc" onclick="setLoginMode('acc')" style="flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb">账号登录</div>
+        <div id="lmMail" onclick="setLoginMode('mail')" style="flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#6b7280">邮箱登录</div>
       </div>
       <div class="field">
         <label id="loginLabel">账号</label>
@@ -314,8 +327,8 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.1.0 更新</div>
-        <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.0 更新</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
 
@@ -360,7 +373,7 @@ body.plain .ann-card.open{
         <label>邮箱验证码</label>
         <div style="display:flex;gap:8px;align-items:center">
           <input type="text" id="regCode" placeholder="6 位验证码" maxlength="6" inputmode="numeric" style="flex:1">
-          <button type="button" id="btnSendCode" onclick="sendVerifyCode()" style="flex-shrink:0;padding:13px 14px;border-radius:12px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.4);color:#73b8ff;font-size:13px;cursor:pointer;white-space:nowrap">发送验证码</button>
+          <button type="button" id="btnSendCode" onclick="sendVerifyCode()" style="flex-shrink:0;padding:13px 14px;border-radius:12px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.4);color:#2563eb;font-size:13px;cursor:pointer;white-space:nowrap">发送验证码</button>
         </div>
       </div>
       <div class="field">
@@ -391,7 +404,7 @@ body.plain .ann-card.open{
         <div class="uname" id="unameText">张岳</div>
         <div class="ulevel" id="ulevelText">超级管理员</div>
       </div>
-      <button onclick="toastMsg('暂无通知')" style="background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.25);color:#73b8ff;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer">🔔</button>
+      <button onclick="toastMsg('暂无通知')" style="background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.25);color:#2563eb;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer">🔔</button>
       <button class="btn-logout" onclick="openSettings()" style="font-size:16px;padding:6px 10px">⚙</button>
     </div>
   </div>
@@ -399,32 +412,32 @@ body.plain .ann-card.open{
   <!-- 设置弹窗 -->
   <div id="settingsMask" onclick="if(event.target===this)closeSettings()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.95);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))">
-      <div style="text-align:center;font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:16px">设置</div>
+      <div style="text-align:center;font-size:15px;font-weight:600;color:#111827;margin-bottom:16px">设置</div>
       <div onclick="toggleTheme()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
-        <span style="font-size:14px;color:#d4e4fb">界面风格</span>
-        <span id="themeLabel" style="font-size:12px;color:#73b8ff;cursor:pointer">液态玻璃</span>
+        <span style="font-size:14px;color:#1f2937">界面风格</span>
+        <span id="themeLabel" style="font-size:12px;color:#2563eb;cursor:pointer">液态玻璃</span>
       </div>
       <div onclick="showTeam()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
-        <span style="font-size:14px;color:#d4e4fb">栈序团队</span>
-        <span style="font-size:12px;color:#607494">查看超管名单 ›</span>
+        <span style="font-size:14px;color:#1f2937">栈序团队</span>
+        <span style="font-size:12px;color:#6b7280">查看超管名单 ›</span>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
-        <span style="font-size:14px;color:#d4e4fb">深色模式</span>
+        <span style="font-size:14px;color:#1f2937">深色模式</span>
         <span style="font-size:12px;color:#34d399">已开启</span>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06)">
-        <span style="font-size:14px;color:#d4e4fb">消息通知</span>
+        <span style="font-size:14px;color:#1f2937">消息通知</span>
         <span style="font-size:12px;color:#34d399">已开启</span>
       </div>
       <div onclick="versionTap()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
-        <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
+        <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
-          <span style="font-size:10px;color:#607494">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#607494">v1.1.0</span>
+          <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.0</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
-      <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
+      <button onclick="closeSettings()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b7280;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
     </div>
   </div>
 
@@ -433,89 +446,89 @@ body.plain .ann-card.open{
     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))">
       <button id="pfDevBtn" onclick="profileDevAuthAction()" style="display:none;position:absolute;top:16px;right:150px;padding:7px 14px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.34);color:#a78bfa;font-size:12px;cursor:pointer">授权开发者</button>
       <button id="pfBanBtn" onclick="profileBanAction()" style="display:none;position:absolute;top:16px;right:82px;padding:7px 14px;border-radius:8px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.32);color:#f87171;font-size:12px;cursor:pointer">封号</button>
-      <button id="pfDmBtn" onclick="profileDmAction()" style="position:absolute;top:16px;right:16px;padding:7px 14px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;font-size:12px;cursor:pointer">私信</button>
+      <button id="pfDmBtn" onclick="profileDmAction()" style="position:absolute;top:16px;right:16px;padding:7px 14px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb;font-size:12px;cursor:pointer">私信</button>
       <div style="text-align:center;margin-bottom:18px">
-        <div id="pfAvatar" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#73b8ff,#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#080b12;margin-bottom:10px">张</div>
-        <div style="font-size:18px;font-weight:600;color:#f0f5ff" id="pfName">张岳</div>
+        <div id="pfAvatar" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#080b12;margin-bottom:10px">张</div>
+        <div style="font-size:18px;font-weight:600;color:#111827" id="pfName">张岳</div>
         <div style="font-size:12px;margin-top:4px"><span id="pfLevel" style="color:#fbbf24">超级管理员</span></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
         <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
           <div style="font-size:20px;color:#fbbf24;font-weight:600" id="pfCoin">0</div>
-          <div style="font-size:11px;color:#607494;margin-top:2">金币</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:2">金币</div>
         </div>
         <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
-          <div style="font-size:20px;color:#73b8ff;font-weight:600" id="pfExp">0</div>
-          <div style="font-size:11px;color:#607494;margin-top:2">经验</div>
+          <div style="font-size:20px;color:#2563eb;font-weight:600" id="pfExp">0</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:2">经验</div>
         </div>
         <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
           <div style="font-size:20px;color:#34d399;font-weight:600" id="pfRank">Lv.0</div>
-          <div style="font-size:11px;color:#607494;margin-top:2">等级</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:2">等级</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
         <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
           <div style="font-size:18px;color:#f472b6;font-weight:600" id="pfFans">0</div>
-          <div style="font-size:11px;color:#607494;margin-top:2">粉丝数</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:2">粉丝数</div>
         </div>
         <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center">
           <div style="font-size:18px;color:#a78bfa;font-weight:600" id="pfFollow">0</div>
-          <div style="font-size:11px;color:#607494;margin-top:2">关注数</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:2">关注数</div>
         </div>
       </div>
-      <button id="pfEditBtn" onclick="editMyProfileInfo()" style="display:none;width:100%;margin-bottom:16px;padding:11px;background:rgba(115,184,255,0.13);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:11px;font-size:13px;cursor:pointer">修改性别 / 邮箱</button>
+      <button id="pfEditBtn" onclick="editMyProfileInfo()" style="display:none;width:100%;margin-bottom:16px;padding:11px;background:rgba(115,184,255,0.13);border:1px solid rgba(115,184,255,0.3);color:#2563eb;border-radius:11px;font-size:13px;cursor:pointer">修改性别 / 邮箱</button>
       <button id="pfFollowBtn" onclick="profileFollowAction()" style="width:100%;margin-bottom:16px;padding:12px;background:rgba(244,114,182,0.14);border:1px solid rgba(244,114,182,0.34);color:#f472b6;border-radius:11px;font-size:14px;cursor:pointer">关注</button>
-      <div style="font-size:12px;color:#94a8c7;line-height:2">
-        <div>性别：<span id="pfGender" style="color:#c9d8ee">未填写</span></div>
-        <div>邮箱：<span id="pfEmail" style="color:#c9d8ee">未填写</span></div>
+      <div style="font-size:12px;color:#6b7280;line-height:2">
+        <div>性别：<span id="pfGender" style="color:#374151">未填写</span></div>
+        <div>邮箱：<span id="pfEmail" style="color:#374151">未填写</span></div>
         <div>账号：<span id="pfUid"></span></div>
         <div>称号：<span id="pfTitles" style="color:#c4b5fd"></span></div>
         <div>安全密钥：<span id="pfKey" style="color:#fbbf24"></span></div>
       </div>
-      <button onclick="closeProfile()" style="width:100%;margin-top:18px;padding:13px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:12px;font-size:15px;cursor:pointer">关闭</button>
+      <button onclick="closeProfile()" style="width:100%;margin-top:18px;padding:13px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.3);color:#2563eb;border-radius:12px;font-size:15px;cursor:pointer">关闭</button>
     </div>
   </div>
 
   <!-- 帖子长按操作面板 -->
   <div id="postSheetMask" onclick="if(event.target===this)closePostSheet()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:230;backdrop-filter:blur(4px)">
     <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(15,20,30,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom))">
-      <div style="text-align:center;font-size:13px;color:#607494;margin-bottom:12px" id="postSheetHint">帖子操作</div>
-      <div style="font-size:13px;color:#a0b4d2;line-height:1.6;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:11px;margin-bottom:14px;max-height:90px;overflow:hidden" id="postSheetText"></div>
-      <button onclick="sheetProfile()" style="width:100%;padding:13px;margin-bottom:9px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#73b8ff;border-radius:11px;font-size:14px;cursor:pointer">查看主页</button>
+      <div style="text-align:center;font-size:13px;color:#6b7280;margin-bottom:12px" id="postSheetHint">帖子操作</div>
+      <div style="font-size:13px;color:#4b5563;line-height:1.6;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:11px;margin-bottom:14px;max-height:90px;overflow:hidden" id="postSheetText"></div>
+      <button onclick="sheetProfile()" style="width:100%;padding:13px;margin-bottom:9px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#2563eb;border-radius:11px;font-size:14px;cursor:pointer">查看主页</button>
       <button onclick="sheetReport()" style="width:100%;padding:13px;margin-bottom:9px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.32);color:#fbbf24;border-radius:11px;font-size:14px;cursor:pointer">举报该帖子</button>
       <button id="postSheetDel" onclick="sheetDelete()" style="display:none;width:100%;padding:13px;margin-bottom:9px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.32);color:#f87171;border-radius:11px;font-size:14px;cursor:pointer">删除帖子（超管）</button>
-      <button onclick="closePostSheet()" style="width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:11px;font-size:14px;cursor:pointer">取消</button>
+      <button onclick="closePostSheet()" style="width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;border-radius:11px;font-size:14px;cursor:pointer">取消</button>
     </div>
   </div>
 
   <!-- 发布通知 -->
   <div id="noticeMask" onclick="if(event.target===this)closeNoticeForm()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:215;backdrop-filter:blur(6px)">
     <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;max-height:88vh;display:flex;flex-direction:column;background:rgba(14,19,29,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom))">
-      <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:16px">发布通知</div>
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:16px">发布通知</div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">标题</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">标题</label>
         <input id="noticeTitle" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" placeholder="如：社区规则更新">
       </div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">通知内容</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">通知内容</label>
         <textarea id="noticeContent" rows="4" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none;resize:vertical" placeholder="填写通知正文"></textarea>
       </div>
       <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-        <label style="font-size:12px;color:#94a8c7">接收人（可多选，也可只选一人）</label>
-        <label style="font-size:12px;color:#73b8ff;cursor:pointer"><input type="checkbox" id="noticeAll" onchange="toggleNoticeAll(this.checked)" style="vertical-align:middle"> 全部人员</label>
+        <label style="font-size:12px;color:#6b7280">接收人（可多选，也可只选一人）</label>
+        <label style="font-size:12px;color:#2563eb;cursor:pointer"><input type="checkbox" id="noticeAll" onchange="toggleNoticeAll(this.checked)" style="vertical-align:middle"> 全部人员</label>
       </div>
       <div id="noticeTargets" style="flex:1;max-height:34vh;overflow:auto;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 10px;margin-bottom:14px"></div>
       <button onclick="saveNotice()" style="width:100%;padding:13px;background:linear-gradient(135deg,#34d399,#10b981);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">发布</button>
-      <button onclick="closeNoticeForm()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
+      <button onclick="closeNoticeForm()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b7280;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
     </div>
   </div>
 
   <!-- 添加商城商品 -->
   <div id="shopMask" onclick="if(event.target===this)closeShopForm()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:215;backdrop-filter:blur(6px)">
     <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(14,19,29,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom))">
-      <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:16px">添加商品</div>
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:16px">添加商品</div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">分类</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">分类</label>
         <select id="shopCat" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none">
           <option value="头像" style="background:#1a2030">头像</option>
           <option value="应用" style="background:#1a2030">应用</option>
@@ -523,45 +536,45 @@ body.plain .ann-card.open{
         </select>
       </div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">商品名称</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">商品名称</label>
         <input id="shopName" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" placeholder="如：液态玻璃头像框">
       </div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">商品说明</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">商品说明</label>
         <input id="shopDesc" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" placeholder="一句话说明">
       </div>
       <div style="margin-bottom:16px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">所需积分</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">所需积分</label>
         <input id="shopPrice" type="number" min="1" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" placeholder="如：120">
       </div>
-      <button onclick="saveShopItem()" style="width:100%;padding:13px;background:linear-gradient(135deg,#73b8ff,#5b8def);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
-      <button onclick="closeShopForm()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
+      <button onclick="saveShopItem()" style="width:100%;padding:13px;background:linear-gradient(135deg,#2563eb,#2563eb);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
+      <button onclick="closeShopForm()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b7280;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
     </div>
   </div>
 
   <!-- 活动布置弹窗 -->
   <div id="actMask" onclick="if(event.target===this)closeActForm()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:215;backdrop-filter:blur(6px)">
     <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(14,19,29,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom))">
-      <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:16px" id="actFormTitle">布置活动</div>
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:16px" id="actFormTitle">布置活动</div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">活动标题</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">活动标题</label>
         <input id="actTitle" placeholder="如：有奖建议信" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
       </div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">活动说明</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">活动说明</label>
         <textarea id="actDesc" rows="3" placeholder="活动内容、奖励说明…" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none;resize:none;font-family:inherit"></textarea>
       </div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">参与链接（选填）</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">参与链接（选填）</label>
         <input id="actLink" placeholder="https://…" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
       </div>
       <div style="display:flex;gap:10px;margin-bottom:12px">
         <div style="flex:1">
-          <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">截止时间</label>
+          <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">截止时间</label>
           <input id="actDeadline" placeholder="如：2026-11-15 或 永久" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
         </div>
         <div style="width:120px">
-          <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">状态</label>
+          <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">状态</label>
           <select id="actStatus" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
             <option value="报名中" style="background:#1a2030">报名中</option>
             <option value="已结束" style="background:#1a2030">已结束</option>
@@ -569,8 +582,8 @@ body.plain .ann-card.open{
         </div>
       </div>
       <div id="actErr" style="font-size:12px;color:#f87171;min-height:16px;text-align:center"></div>
-      <button onclick="saveAct()" style="width:100%;margin-top:6px;padding:13px;background:linear-gradient(135deg,#73b8ff,#5b8def);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
-      <button onclick="closeActForm()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
+      <button onclick="saveAct()" style="width:100%;margin-top:6px;padding:13px;background:linear-gradient(135deg,#2563eb,#2563eb);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
+      <button onclick="closeActForm()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b7280;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
     </div>
   </div>
 
@@ -619,8 +632,8 @@ body.plain .ann-card.open{
   <div id="dmMask" style="display:none;position:fixed;inset:0;z-index:210;background:rgba(4,6,12,0.55);backdrop-filter:blur(16px)">
     <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.94);backdrop-filter:blur(30px) saturate(180%);border-left:1px solid rgba(115,184,255,0.18);border-right:1px solid rgba(115,184,255,0.18)">
       <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08)">
-        <button onclick="closeDm()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
-        <div style="flex:1;text-align:center;font-size:15px;color:#f0f5ff;font-weight:600" id="dmTitle">消息</div>
+        <button onclick="closeDm()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+        <div style="flex:1;text-align:center;font-size:15px;color:#111827;font-weight:600" id="dmTitle">消息</div>
         <div style="display:flex;gap:8px">
           <button onclick="openDmSetting(dmPeer)" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">设置</button>
         </div>
@@ -638,10 +651,10 @@ body.plain .ann-card.open{
     <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(15,20,30,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 18px calc(20px + env(safe-area-inset-bottom));max-height:85vh;overflow-y:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div>
-          <div style="font-size:16px;font-weight:600;color:#f0f5ff">私信设置</div>
-          <div style="font-size:11px;color:#607494;margin-top:3px">清空聊天记录 / 拉黑对方</div>
+          <div style="font-size:16px;font-weight:600;color:#111827">私信设置</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:3px">清空聊天记录 / 拉黑对方</div>
         </div>
-        <button onclick="closeDmSetting()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+        <button onclick="closeDmSetting()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
       </div>
       <div id="dmSetBox"></div>
     </div>
@@ -652,10 +665,10 @@ body.plain .ann-card.open{
     <div style="position:absolute;bottom:0;left:0;right:0;max-width:600px;margin:0 auto;background:rgba(15,20,30,0.94);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:22px 18px calc(20px + env(safe-area-inset-bottom));max-height:85vh;overflow-y:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div>
-          <div style="font-size:16px;font-weight:600;color:#f0f5ff">群聊设置 · 群管理</div>
-          <div style="font-size:11px;color:#607494;margin-top:3px">增减成员 / 设置群管理员（上限 30 人）</div>
+          <div style="font-size:16px;font-weight:600;color:#111827">群聊设置 · 群管理</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:3px">增减成员 / 设置群管理员（上限 30 人）</div>
         </div>
-        <button onclick="closeGrpSetting()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+        <button onclick="closeGrpSetting()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
       </div>
       <div id="grpSetBox"></div>
     </div>
@@ -664,20 +677,20 @@ body.plain .ann-card.open{
 <!-- 编辑员工弹窗 -->
   <div id="editStaffMask" onclick="if(event.target===this)closeEditStaff()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))">
-      <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:16px">编辑员工</div>
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:16px">编辑员工</div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">昵称</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">昵称</label>
         <input id="editName" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none">
       </div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#94a8c7;margin-bottom:6px">职位</label>
+        <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">职位</label>
         <select id="editLevel" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none">
           <option value="管理员" style="background:#1a2030">管理员</option>
           <option value="超级管理员" style="background:#1a2030">超级管理员</option>
         </select>
       </div>
-      <button onclick="saveEditStaff()" style="width:100%;margin-top:10px;padding:13px;background:linear-gradient(135deg,#73b8ff,#5b8def);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
-      <button onclick="closeEditStaff()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
+      <button onclick="saveEditStaff()" style="width:100%;margin-top:10px;padding:13px;background:linear-gradient(135deg,#2563eb,#2563eb);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
+      <button onclick="closeEditStaff()" style="width:100%;margin-top:10px;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b7280;border-radius:12px;font-size:15px;cursor:pointer">取消</button>
     </div>
   </div>
 
@@ -693,29 +706,29 @@ body.plain .ann-card.open{
     <div class="card" style="margin-bottom:18px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div>
-          <div style="font-size:15px;font-weight:600;color:#f0f5ff">积分商城</div>
-          <div style="font-size:12px;color:#607494;margin-top:3px">可用积分：<span id="shopCoin" style="color:#fbbf24;font-weight:600">0</span></div>
+          <div style="font-size:15px;font-weight:600;color:#111827">积分商城</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:3px">可用积分：<span id="shopCoin" style="color:#fbbf24;font-weight:600">0</span></div>
         </div>
-        <button id="btnAddShop" onclick="openShopForm()" style="display:none;padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#73b8ff;font-size:12px;cursor:pointer">+ 添加商品</button>
+        <button id="btnAddShop" onclick="openShopForm()" style="display:none;padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#2563eb;font-size:12px;cursor:pointer">+ 添加商品</button>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px" id="shopTabs">
-        <button onclick="shopTab('头像',this)" class="shop-tab active" data-cat="头像" style="flex:1;padding:8px;border-radius:9px;border:1px solid rgba(115,184,255,0.35);background:rgba(115,184,255,0.16);color:#73b8ff;font-size:13px;cursor:pointer">头像</button>
-        <button onclick="shopTab('应用',this)" class="shop-tab" data-cat="应用" style="flex:1;padding:8px;border-radius:9px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#94a8c7;font-size:13px;cursor:pointer">应用</button>
-        <button onclick="shopTab('专属铭牌',this)" class="shop-tab" data-cat="专属铭牌" style="flex:1;padding:8px;border-radius:9px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#94a8c7;font-size:13px;cursor:pointer">专属铭牌</button>
+        <button onclick="shopTab('头像',this)" class="shop-tab active" data-cat="头像" style="flex:1;padding:8px;border-radius:9px;border:1px solid rgba(115,184,255,0.35);background:rgba(115,184,255,0.16);color:#2563eb;font-size:13px;cursor:pointer">头像</button>
+        <button onclick="shopTab('应用',this)" class="shop-tab" data-cat="应用" style="flex:1;padding:8px;border-radius:9px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#6b7280;font-size:13px;cursor:pointer">应用</button>
+        <button onclick="shopTab('专属铭牌',this)" class="shop-tab" data-cat="专属铭牌" style="flex:1;padding:8px;border-radius:9px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#6b7280;font-size:13px;cursor:pointer">专属铭牌</button>
       </div>
-      <div id="shopList"><div style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div></div>
+      <div id="shopList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">加载中…</div></div>
     </div>
 
     <!-- 活动中心（超管布置，活动与报名数据存仓库） -->
     <div class="card" style="margin-bottom:18px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:15px;font-weight:600;color:#f0f5ff">活动中心</div>
+        <div style="font-size:15px;font-weight:600;color:#111827">活动中心</div>
         <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:11px;color:#607494" id="actHint">由超管布置</span>
-          <button id="btnAddAct" onclick="openActForm()" style="display:none;padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#73b8ff;font-size:12px;cursor:pointer">+ 布置活动</button>
+          <span style="font-size:11px;color:#6b7280" id="actHint">由超管布置</span>
+          <button id="btnAddAct" onclick="openActForm()" style="display:none;padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#2563eb;font-size:12px;cursor:pointer">+ 布置活动</button>
         </div>
       </div>
-      <div id="activityList"><div style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div></div>
+      <div id="activityList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">加载中…</div></div>
     </div>
 
     <!-- 开发者中心 -->
@@ -723,25 +736,25 @@ body.plain .ann-card.open{
     <div class="card" style="margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div>
-          <div style="font-size:15px;font-weight:600;color:#f0f5ff">应用中心</div>
-          <div style="font-size:11px;color:#607494;margin-top:3px">开发者上传 · 超管审核通过后上架</div>
+          <div style="font-size:15px;font-weight:600;color:#111827">应用中心</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:3px">开发者上传 · 超管审核通过后上架</div>
         </div>
         <div style="display:flex;gap:6px">
-          <button id="appTab-应用" onclick="appCenterTab('应用',this)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;font-size:12px;cursor:pointer">应用</button>
-          <button id="appTab-表盘" onclick="appCenterTab('表盘',this)" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">表盘</button>
+          <button id="appTab-应用" onclick="appCenterTab('应用',this)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb;font-size:12px;cursor:pointer">应用</button>
+          <button id="appTab-表盘" onclick="appCenterTab('表盘',this)" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">表盘</button>
         </div>
       </div>
-      <div id="appCenterList"><div style="text-align:center;color:#607494;font-size:13px;padding:16px">加载中…</div></div>
+      <div id="appCenterList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">加载中…</div></div>
     </div>
 
 
     </div>
     <div class="tabs">
-      <div class="tab active" data-view="staffSvc">员工服务</div>
-      <div class="tab" data-view="post">社区发帖</div>
-      <div class="tab" data-view="dm">消息</div>
-      <div class="tab" data-view="users">用户服务</div>
-      <div class="tab" data-view="me">我的</div>
+      <div class="tab active" data-view="staffSvc"><span class="t-ico">🏠</span><span class="t-label">员工服务</span></div>
+      <div class="tab" data-view="post"><span class="t-ico">🧭</span><span class="t-label">社区发帖</span></div>
+      <div class="tab" data-view="dm"><span class="t-ico">💬</span><span class="t-label">消息</span></div>
+      <div class="tab" data-view="users"><span class="t-ico">👥</span><span class="t-label">用户服务</span></div>
+      <div class="tab" data-view="me"><span class="t-ico">👤</span><span class="t-label">我的</span></div>
     </div>
 
     <!-- 员工服务二级tab -->
@@ -763,12 +776,12 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div>
-            <div style="font-size:12px;color:#607494;margin-bottom:4px">我的余额</div>
+            <div style="font-size:12px;color:#6b7280;margin-bottom:4px">我的余额</div>
             <div style="font-size:22px;font-weight:700;color:#34d399" id="myBalance">¥0.00</div>
             <div style="font-size:11px;color:#fbbf24;margin-top:4px">当前等级：Lv.3 签到达人</div>
           </div>
         </div>
-        <button onclick="openWithdraw()" style="width:100%;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:14px;cursor:pointer">申请提现</button>
+        <button onclick="openWithdraw()" style="width:100%;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.35);color:#2563eb;border-radius:8px;font-size:14px;cursor:pointer">申请提现</button>
         <button id="wdDecodeBtn" onclick="decodeWithdraw()" style="display:none;width:100%;margin-top:8px;padding:11px;background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;border-radius:8px;font-size:14px;cursor:pointer">提现密钥解析（仅超管）</button>
         <button id="rpDecodeBtn" onclick="decodeReport()" style="display:none;width:100%;margin-top:8px;padding:11px;background:rgba(248,113,113,0.14);border:1px solid rgba(248,113,113,0.4);color:#f87171;border-radius:8px;font-size:14px;cursor:pointer">举报密钥解析（仅超管）</button>
       </div>
@@ -777,36 +790,36 @@ body.plain .ann-card.open{
       <div class="card" id="wdPanel" style="display:none;margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div>
-            <div style="font-size:15px;font-weight:600;color:#f0f5ff">提现申请</div>
-            <div style="font-size:11px;color:#607494;margin-top:3px">云端实时同步；每笔申请有效期 72 小时</div>
+            <div style="font-size:15px;font-weight:600;color:#111827">提现申请</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:3px">云端实时同步；每笔申请有效期 72 小时</div>
           </div>
-          <button onclick="renderWdPanel(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+          <button onclick="renderWdPanel(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
         </div>
-        <div id="wdList"><div style="text-align:center;color:#607494;font-size:13px;padding:16px">加载中…</div></div>
+        <div id="wdList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">加载中…</div></div>
       </div>
 
       <!-- 超管：举报记录（云端实时） -->
       <div class="card" id="rpPanel" style="display:none;margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div>
-            <div style="font-size:15px;font-weight:600;color:#f0f5ff">举报记录</div>
-            <div style="font-size:11px;color:#607494;margin-top:3px">云端实时同步；举报记录长期有效，不限时</div>
+            <div style="font-size:15px;font-weight:600;color:#111827">举报记录</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:3px">云端实时同步；举报记录长期有效，不限时</div>
           </div>
-          <button onclick="renderReportPanel(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+          <button onclick="renderReportPanel(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
         </div>
-        <div id="rpList"><div style="text-align:center;color:#607494;font-size:13px;padding:16px">加载中…</div></div>
+        <div id="rpList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">加载中…</div></div>
       </div>
       </div><!-- /sub-ann -->
 
     <!-- 员工管理（二级tab，默认隐藏） -->
     <div id="sub-staff" style="display:none">
       <div class="compose-box" style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:14px;color:#d4e4fb;font-weight:500">员工列表</div>
+        <div style="font-size:14px;color:#1f2937;font-weight:500">员工列表</div>
         <button class="btn-send" id="btnAddStaff" onclick="addStaff()">+ 添加员工</button>
       </div>
       <input type="text" id="staffSearch" placeholder="搜索昵称 / 账号…" style="width:100%;padding:10px 14px;margin-bottom:10px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:13px;outline:none" oninput="staffSearchKw=this.value;renderStaff(currentAcc)">
       <div id="staffList"></div>
-      <div class="card" id="staffLock" style="display:none;text-align:center;color:#607494;font-size:13px;padding:30px 16px">
+      <div class="card" id="staffLock" style="display:none;text-align:center;color:#6b7280;font-size:13px;padding:30px 16px">
         仅超级管理员可管理员工账号
       </div>
     </div>
@@ -814,10 +827,10 @@ body.plain .ann-card.open{
     <!-- 会议管理（二级tab，默认隐藏） -->
     <div id="sub-meeting" style="display:none">
       <div class="compose-box" style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:14px;color:#d4e4fb;font-weight:500">会议安排</div>
+        <div style="font-size:14px;color:#1f2937;font-weight:500">会议安排</div>
         <button class="btn-send" id="btnAddMeeting" onclick="addMeeting()">+ 新建会议</button>
       </div>
-      <div id="meetingLock" style="display:none" class="card" style="text-align:center;color:#607494;font-size:13px;padding:20px">
+      <div id="meetingLock" style="display:none" class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:20px">
         仅超级管理员可管理会议
       </div>
       <div id="meetingList"></div>
@@ -826,10 +839,10 @@ body.plain .ann-card.open{
     <!-- 公单处理（二级tab，默认隐藏） -->
     <div id="sub-ticket" style="display:none">
       <div class="compose-box" style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:14px;color:#d4e4fb;font-weight:500">工单列表</div>
-        <span style="font-size:11px;color:#607494" id="ticketCount"></span>
+        <div style="font-size:14px;color:#1f2937;font-weight:500">工单列表</div>
+        <span style="font-size:11px;color:#6b7280" id="ticketCount"></span>
       </div>
-      <div id="ticketLock" class="card" style="display:none;text-align:center;color:#607494;font-size:13px;padding:30px 16px">
+      <div id="ticketLock" class="card" style="display:none;text-align:center;color:#6b7280;font-size:13px;padding:30px 16px">
         仅超级管理员可处理工单
       </div>
       <div id="ticketList"></div>
@@ -841,8 +854,8 @@ body.plain .ann-card.open{
     <div class="view" id="view-post">
 <span id="postMyAvatar" style="display:none">张</span>
       <div id="postTabs" style="display:flex;gap:8px;margin-bottom:12px">
-        <div id="pst-all" onclick="postFilterTab('all')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff">首先</div>
-        <div id="pst-follow" onclick="postFilterTab('follow')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7">关注</div>
+        <div id="pst-all" onclick="postFilterTab('all')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb">首先</div>
+        <div id="pst-follow" onclick="postFilterTab('follow')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#6b7280">关注</div>
       </div>
       <div id="extraPosts"></div>
     </div>
@@ -850,20 +863,20 @@ body.plain .ann-card.open{
     <!-- 消息（原公单处理主 tab 位置） -->
     <div class="view" id="view-dm">
       <div id="dmSubtabs" style="display:flex;gap:8px;margin-bottom:12px">
-        <div id="dmt-notice" onclick="dmSubTab('notice')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff">通知中心</div>
-        <div id="dmt-group" onclick="dmSubTab('group')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7">群聊</div>
-        <div id="dmt-dm" onclick="dmSubTab('dm')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7">私信</div>
+        <div id="dmt-notice" onclick="dmSubTab('notice')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb">通知中心</div>
+        <div id="dmt-group" onclick="dmSubTab('group')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#6b7280">群聊</div>
+        <div id="dmt-dm" onclick="dmSubTab('dm')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#6b7280">私信</div>
       </div>
 
       <!-- 通知中心 -->
       <div class="card" id="dmPane-notice" style="margin-bottom:12px;border:1px solid rgba(115,184,255,0.22)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div>
-            <div style="font-size:15px;font-weight:600;color:#f0f5ff">通知中心 <span style="font-size:10px;padding:2px 6px;border-radius:5px;background:rgba(251,191,36,0.16);color:#fbbf24;margin-left:4px;vertical-align:middle">置顶</span></div>
-            <div style="font-size:11px;color:#607494;margin-top:3px">全员或指定人员通知</div>
+            <div style="font-size:15px;font-weight:600;color:#111827">通知中心 <span style="font-size:10px;padding:2px 6px;border-radius:5px;background:rgba(251,191,36,0.16);color:#fbbf24;margin-left:4px;vertical-align:middle">置顶</span></div>
+            <div style="font-size:11px;color:#6b7280;margin-top:3px">全员或指定人员通知</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center">
-            <button onclick="renderNotices(true)" style="padding:6px 11px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+            <button onclick="renderNotices(true)" style="padding:6px 11px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
             <button id="btnAddNotice" onclick="openNoticeForm()" style="display:none;padding:6px 11px;border-radius:8px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;font-size:12px;cursor:pointer">+ 发布通知</button>
           </div>
         </div>
@@ -872,7 +885,7 @@ body.plain .ann-card.open{
 
       <div class="card" id="dmPane-group" style="display:none;margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:14px;color:#d4e4fb;font-weight:500">群聊</div>
+          <div style="font-size:14px;color:#1f2937;font-weight:500">群聊</div>
           <div style="display:flex;gap:8px">
             <button onclick="openCreateGroup()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">+ 创建群聊</button>
           </div>
@@ -882,7 +895,7 @@ body.plain .ann-card.open{
 
       <div class="card" id="dmPane-dm" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:14px;color:#d4e4fb;font-weight:500">私信</div>
+          <div style="font-size:14px;color:#1f2937;font-weight:500">私信</div>
 
         </div>
         <div id="dmListBox"></div>
@@ -894,15 +907,15 @@ body.plain .ann-card.open{
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <div>
-            <div style="font-size:15px;font-weight:600;color:#f0f5ff">栈序云 更新日志</div>
-            <div style="font-size:11px;color:#607494;margin-top:3px">设置 · 连点版本号 3 次进入</div>
+            <div style="font-size:15px;font-weight:600;color:#111827">栈序云 更新日志</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.1.0</span>
-            <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.0</span>
+            <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
-        <div id="changelogList" style="font-size:13px;line-height:1.9;color:#a0b4d2"></div>
+        <div id="changelogList" style="font-size:13px;line-height:1.9;color:#4b5563"></div>
       </div>
     </div>
 
@@ -969,19 +982,19 @@ body.plain .ann-card.open{
     <div class="view" id="view-dev">
       <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div>
-          <div style="font-size:15px;font-weight:600;color:#f0f5ff">开发者中心</div>
-          <div style="font-size:12px;color:#607494;margin-top:3px" id="devRoleHint">上传应用 / 表盘，超管审核后上架</div>
+          <div style="font-size:15px;font-weight:600;color:#111827">开发者中心</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:3px" id="devRoleHint">上传应用 / 表盘，超管审核后上架</div>
         </div>
-        <button onclick="closeDevCenter()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+        <button onclick="closeDevCenter()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
       </div>
 
       <div class="card" id="devGateCard" style="display:none;text-align:center;padding:34px 16px">
-        <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:8px">开发者中心</div>
-        <div style="font-size:13px;color:#607494;line-height:1.8">请先申请开发者权限</div>
+        <div style="font-size:15px;font-weight:600;color:#111827;margin-bottom:8px">开发者中心</div>
+        <div style="font-size:13px;color:#6b7280;line-height:1.8">请先申请开发者权限</div>
       </div>
 
       <div class="card" id="devUploadCard" style="margin-bottom:12px">
-        <div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:10px">上传新作品</div>
+        <div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:10px">上传新作品</div>
         <div style="display:flex;gap:8px;margin-bottom:10px">
           <select id="devType" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
             <option value="应用" style="background:#1a2030">应用</option>
@@ -993,27 +1006,27 @@ body.plain .ann-card.open{
           <input id="devVersion" placeholder="版本，如 1.0.0" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
           <input id="devDesc" placeholder="一句话说明" style="flex:1.6;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
         </div>
-        <input id="devFile" type="file" accept=".rpk" style="width:100%;margin-bottom:10px;font-size:12px;color:#94a8c7">
-        <div style="font-size:11px;color:#607494;margin-bottom:10px">仅支持 .rpk 文件（栈序 OS 应用/表盘包），单个文件不超过 2MB；文件会存进仓库 dev-uploads/</div>
+        <input id="devFile" type="file" accept=".rpk" style="width:100%;margin-bottom:10px;font-size:12px;color:#6b7280">
+        <div style="font-size:11px;color:#6b7280;margin-bottom:10px">仅支持 .rpk 文件（栈序 OS 应用/表盘包），单个文件不超过 2MB；文件会存进仓库 dev-uploads/</div>
         <button onclick="submitDevItem()" style="width:100%;padding:11px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:9px;font-size:14px;cursor:pointer">提交审核</button>
       </div>
 
       <div class="card" id="devReviewCard" style="display:none;margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:14px;font-weight:600;color:#f0f5ff">待审核作品</div>
-          <button onclick="renderDevCenter(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
+          <div style="font-size:14px;font-weight:600;color:#111827">待审核作品</div>
+          <button onclick="renderDevCenter(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
         </div>
         <div id="devPendingList"></div>
       </div>
 
       <div class="card" id="devAuthCard" style="display:none;margin-bottom:12px">
-        <div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:4px">开发者授权</div>
-        <div style="font-size:11px;color:#607494;margin-bottom:10px">勾选后该账号可进入开发者中心上传作品</div>
+        <div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:4px">开发者授权</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:10px">勾选后该账号可进入开发者中心上传作品</div>
         <div id="devAuthList" style="max-height:260px;overflow:auto"></div>
       </div>
 
       <div class="card">
-        <div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:10px">我的提交</div>
+        <div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:10px">我的提交</div>
         <div id="devMyList"></div>
       </div>
     </div>
@@ -1025,38 +1038,38 @@ body.plain .ann-card.open{
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
           <div class="post-avatar" id="meAvatar" style="width:52px;height:52px;font-size:20px">张</div>
           <div style="flex:1;min-width:0">
-            <div style="font-size:17px;font-weight:600;color:#f0f5ff" id="meName">—</div>
-            <div style="font-size:12px;color:#607494;margin-top:3px" id="meSub">—</div>
+            <div style="font-size:17px;font-weight:600;color:#111827" id="meName">—</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:3px" id="meSub">—</div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
           <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;text-align:center">
             <div style="font-size:18px;color:#34d399;font-weight:600" id="meCoin">0</div>
-            <div style="font-size:11px;color:#607494;margin-top:2px">金币</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:2px">金币</div>
           </div>
           <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;text-align:center">
-            <div style="font-size:18px;color:#73b8ff;font-weight:600" id="mePostCount">0</div>
-            <div style="font-size:11px;color:#607494;margin-top:2px">已发帖</div>
+            <div style="font-size:18px;color:#2563eb;font-weight:600" id="mePostCount">0</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:2px">已发帖</div>
           </div>
         </div>
         <div style="display:flex;gap:8px">
-          <button onclick="renameMe()" style="flex:1;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#73b8ff;border-radius:10px;font-size:13px;cursor:pointer">修改昵称</button>
-          <button onclick="openProfile()" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:10px;font-size:13px;cursor:pointer">个人信息</button>
+          <button onclick="renameMe()" style="flex:1;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#2563eb;border-radius:10px;font-size:13px;cursor:pointer">修改昵称</button>
+          <button onclick="openProfile()" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;border-radius:10px;font-size:13px;cursor:pointer">个人信息</button>
         </div>
       </div>
       <div class="card" onclick="openDevCenter()" style="cursor:pointer;margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
-            <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">开发者中心</div>
-            <div style="font-size:12px;color:#607494">API 文档 / 表盘 SDK / 应用发布</div>
+            <div style="font-size:15px;font-weight:600;color:#111827;margin-bottom:4px">开发者中心</div>
+            <div style="font-size:12px;color:#6b7280">API 文档 / 表盘 SDK / 应用发布</div>
           </div>
-          <span style="font-size:11px;color:#607494">›</span>
+          <span style="font-size:11px;color:#6b7280">›</span>
         </div>
       </div>
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:15px;font-weight:600;color:#f0f5ff">我发布的帖子</div>
-          <span style="font-size:11px;color:#607494" id="mePostHint"></span>
+          <div style="font-size:15px;font-weight:600;color:#111827">我发布的帖子</div>
+          <span style="font-size:11px;color:#6b7280" id="mePostHint"></span>
         </div>
         <div id="myPosts"></div>
       </div>
@@ -1069,8 +1082,8 @@ body.plain .ann-card.open{
 <div id="checkinLotteryMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(4,6,12,0.6);backdrop-filter:blur(16px)">
   <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.96);backdrop-filter:blur(30px) saturate(180%)">
     <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08)">
-      <button onclick="closeCheckinLottery()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
-      <div style="flex:1;text-align:center;font-size:15px;font-weight:600;color:#f0f5ff">签到抽奖</div>
+      <button onclick="closeCheckinLottery()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+      <div style="flex:1;text-align:center;font-size:15px;font-weight:600;color:#111827">签到抽奖</div>
       <span style="width:56px"></span>
     </div>
     <div id="checkinLotteryBody" style="flex:1;overflow-y:auto;padding:18px 16px"></div>
@@ -1079,8 +1092,8 @@ body.plain .ann-card.open{
 <div id="postDetailMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(4,6,12,0.6);backdrop-filter:blur(16px)">
   <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.96);backdrop-filter:blur(30px) saturate(180%)">
     <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08)">
-      <button onclick="closePostDetail()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
-      <div style="flex:1;text-align:center;font-size:15px;font-weight:600;color:#f0f5ff">帖子详情</div>
+      <button onclick="closePostDetail()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+      <div style="flex:1;text-align:center;font-size:15px;font-weight:600;color:#111827">帖子详情</div>
       <span style="width:56px"></span>
     </div>
     <div id="postDetailBody" style="flex:1;overflow-y:auto;padding:18px 16px"></div>
@@ -1090,31 +1103,31 @@ body.plain .ann-card.open{
   <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.96);backdrop-filter:blur(30px) saturate(180%)">
     <div id="peStepTopic" style="display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:18px 16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <button onclick="closePostEditor()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">关闭</button>
-        <div style="font-size:15px;font-weight:600;color:#f0f5ff">选择话题</div>
+        <button onclick="closePostEditor()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b7280;font-size:12px;cursor:pointer">关闭</button>
+        <div style="font-size:15px;font-weight:600;color:#111827">选择话题</div>
         <span style="width:56px"></span>
       </div>
       <div id="peTopicList" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
-      <div style="margin-top:14px;font-size:12px;color:#607494">选择话题后进入内容编辑</div>
+      <div style="margin-top:14px;font-size:12px;color:#6b7280">选择话题后进入内容编辑</div>
     </div>
     <div id="peStepCompose" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:18px 16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <button onclick="peBackTopic()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
-        <div style="font-size:15px;font-weight:600;color:#f0f5ff">发布帖子</div>
+        <button onclick="peBackTopic()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+        <div style="font-size:15px;font-weight:600;color:#111827">发布帖子</div>
         <span style="width:56px"></span>
       </div>
       <div id="peTopicChip" style="display:inline-block;margin-bottom:12px;font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(167,139,250,0.15);color:#c4b5fd"></div>
       <input id="pePostTitle" maxlength="40" placeholder="标题（必填）" style="width:100%;padding:11px 13px;margin-bottom:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none">
       <div style="display:flex;gap:8px;margin-bottom:8px">
-        <button onclick="peToggleMention()" style="padding:6px 11px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">@ 提及</button>
+        <button onclick="peToggleMention()" style="padding:6px 11px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#2563eb;font-size:12px;cursor:pointer">@ 提及</button>
         <button onclick="peInsertHash()" style="padding:6px 11px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer"># 话题</button>
       </div>
       <div id="peMentionPanel" style="display:none;margin-bottom:8px;max-height:160px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.04);padding:6px"></div>
-      <textarea id="pePostContent" rows="6" maxlength="500" oninput="peSyncCount()" placeholder="分享你的想法…（可 @提及、#话题）" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#d4e4fb;font-size:14px;font-family:inherit;line-height:1.6;padding:11px 13px;outline:none;resize:none"></textarea>
-      <div style="text-align:right;font-size:11px;color:#607494;margin:6px 0"><span id="peCount">0</span>/500</div>
+      <textarea id="pePostContent" rows="6" maxlength="500" oninput="peSyncCount()" placeholder="分享你的想法…（可 @提及、#话题）" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#1f2937;font-size:14px;font-family:inherit;line-height:1.6;padding:11px 13px;outline:none;resize:none"></textarea>
+      <div style="text-align:right;font-size:11px;color:#6b7280;margin:6px 0"><span id="peCount">0</span>/500</div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid rgba(255,255,255,0.08)">
-        <div><div style="color:#d4e4fb;font-size:14px">抽奖</div><div style="font-size:11px;color:#607494">发帖者可开启或关闭抽奖</div></div>
-        <button id="peLotteryBtn" onclick="peToggleLottery()" style="padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">关闭</button>
+        <div><div style="color:#1f2937;font-size:14px">抽奖</div><div style="font-size:11px;color:#6b7280">发帖者可开启或关闭抽奖</div></div>
+        <button id="peLotteryBtn" onclick="peToggleLottery()" style="padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">关闭</button>
       </div>
       <div id="pePrizeWrap" style="display:none;margin-bottom:10px;flex-direction:column;gap:8px">
         <input id="pePrizeName" maxlength="40" placeholder="奖品名称（必填）" style="width:100%;padding:10px 13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;font-size:13px;outline:none">
@@ -1137,14 +1150,14 @@ body.plain .ann-card.open{
 <!-- 通用液态玻璃弹窗 -->
 <div id="glassMask" onclick="if(event.target===this)glassClose()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;backdrop-filter:blur(4px)">
   <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
-    <div id="glassTitle" style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:16px"></div>
-    <div id="glassMsg" style="text-align:center;font-size:13px;color:#a0b4d2;line-height:1.7;margin-bottom:16px"></div>
+    <div id="glassTitle" style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:16px"></div>
+    <div id="glassMsg" style="text-align:center;font-size:13px;color:#4b5563;line-height:1.7;margin-bottom:16px"></div>
     <div id="glassInputWrap" style="margin-bottom:16px;display:none">
       <input type="text" id="glassInput" placeholder="" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.25);border-radius:10px;color:#fff;font-size:15px;outline:none">
     </div>
     <div style="display:flex;gap:10px">
-      <button id="glassCancel" onclick="glassCancel()" style="flex:1;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:10px;font-size:14px;cursor:pointer">取消</button>
-      <button id="glassOk" onclick="glassOk()" style="flex:1;padding:12px;background:linear-gradient(135deg,#73b8ff,#5b8def);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">确定</button>
+      <button id="glassCancel" onclick="glassCancel()" style="flex:1;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">取消</button>
+      <button id="glassOk" onclick="glassOk()" style="flex:1;padding:12px;background:linear-gradient(135deg,#2563eb,#2563eb);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">确定</button>
     </div>
   </div>
 </div>
@@ -1152,12 +1165,12 @@ body.plain .ann-card.open{
 <!-- 提现向导（三步） -->
 <div id="wdMask" onclick="if(event.target===this)closeWithdraw()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:320;backdrop-filter:blur(4px)">
   <div style="position:absolute;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:rgba(15,20,30,0.94);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
-    <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:6px">申请提现</div>
-    <div id="wdSteps" style="text-align:center;font-size:12px;color:#73b8ff;margin-bottom:18px">第 1 步 / 共 3 步</div>
+    <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:6px">申请提现</div>
+    <div id="wdSteps" style="text-align:center;font-size:12px;color:#2563eb;margin-bottom:18px">第 1 步 / 共 3 步</div>
 
     <!-- 第一步：金额 -->
     <div id="wdStep1">
-      <div style="font-size:13px;color:#a0b4d2;margin-bottom:10px">请输入提现金额（最低 50 元）</div>
+      <div style="font-size:13px;color:#4b5563;margin-bottom:10px">请输入提现金额（最低 50 元）</div>
       <input type="number" id="wdAmount" placeholder="提现金额" style="width:100%;padding:13px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.25);border-radius:10px;color:#fff;font-size:15px;outline:none;box-sizing:border-box">
       <div id="wdErr1" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
     </div>
@@ -1165,8 +1178,8 @@ body.plain .ann-card.open{
     <!-- 第二步：渠道与账号 -->
     <div id="wdStep2" style="display:none">
       <div style="display:flex;gap:10px;margin-bottom:14px">
-        <button id="wdChWx" onclick="wdPickChannel('微信')" style="flex:1;padding:11px;background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.5);color:#73b8ff;border-radius:10px;font-size:14px;cursor:pointer">微信</button>
-        <button id="wdChZfb" onclick="wdPickChannel('支付宝')" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#94a8c7;border-radius:10px;font-size:14px;cursor:pointer">支付宝</button>
+        <button id="wdChWx" onclick="wdPickChannel('微信')" style="flex:1;padding:11px;background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.5);color:#2563eb;border-radius:10px;font-size:14px;cursor:pointer">微信</button>
+        <button id="wdChZfb" onclick="wdPickChannel('支付宝')" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">支付宝</button>
       </div>
       <input type="text" id="wdAccount" placeholder="请输入微信 / 支付宝账号" style="width:100%;padding:13px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.25);border-radius:10px;color:#fff;font-size:15px;outline:none;box-sizing:border-box">
       <div id="wdErr2" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
@@ -1174,7 +1187,7 @@ body.plain .ann-card.open{
 
     <!-- 第三步：密钥 -->
     <div id="wdStep3" style="display:none;text-align:center">
-      <div style="font-size:13px;color:#a0b4d2;margin-bottom:12px">请保存以下 12 位提现密钥</div>
+      <div style="font-size:13px;color:#4b5563;margin-bottom:12px">请保存以下 12 位提现密钥</div>
       <div id="wdSecret" style="font-size:24px;font-weight:700;letter-spacing:3px;color:#34d399;background:rgba(52,211,153,0.1);border:1px dashed rgba(52,211,153,0.5);border-radius:12px;padding:20px 10px;margin-bottom:14px"></div>
       <div style="font-size:12px;color:#fbbf24;line-height:1.7;text-align:left;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:10px;padding:12px 14px">
         请截图本页，并附上你的栈序账号与密码，发送至邮箱：<br><span style="color:#fbbf24;font-weight:600">zy291817@outlook.com</span>
@@ -1182,8 +1195,8 @@ body.plain .ann-card.open{
     </div>
 
     <div style="display:flex;gap:10px;margin-top:18px">
-      <button id="wdBack" onclick="wdBack()" style="flex:1;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:10px;font-size:14px;cursor:pointer">上一步</button>
-      <button id="wdNext" onclick="wdNext()" style="flex:1;padding:12px;background:linear-gradient(135deg,#73b8ff,#5b8def);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">下一步</button>
+      <button id="wdBack" onclick="wdBack()" style="flex:1;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">上一步</button>
+      <button id="wdNext" onclick="wdNext()" style="flex:1;padding:12px;background:linear-gradient(135deg,#2563eb,#2563eb);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">下一步</button>
     </div>
   </div>
 </div>
@@ -1191,30 +1204,30 @@ body.plain .ann-card.open{
 <!-- 举报向导（三步） -->
 <div id="rpMask" onclick="if(event.target===this)closeReport()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:340;backdrop-filter:blur(4px)">
   <div style="position:absolute;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:rgba(15,20,30,0.94);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(248,113,113,0.35);border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
-    <div style="text-align:center;font-size:16px;font-weight:600;color:#f0f5ff;margin-bottom:6px">举报员工</div>
+    <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:6px">举报员工</div>
     <div id="rpTarget" style="text-align:center;font-size:12px;color:#f87171;margin-bottom:14px"></div>
-    <div id="rpSteps" style="text-align:center;font-size:12px;color:#73b8ff;margin-bottom:18px">第 1 步 / 共 3 步</div>
+    <div id="rpSteps" style="text-align:center;font-size:12px;color:#2563eb;margin-bottom:18px">第 1 步 / 共 3 步</div>
 
     <div id="rpStep1">
-      <div style="font-size:13px;color:#a0b4d2;margin-bottom:10px">请输入举报原因</div>
+      <div style="font-size:13px;color:#4b5563;margin-bottom:10px">请输入举报原因</div>
       <input type="text" id="rpReason" placeholder="例如：违规操作 / 态度问题" style="width:100%;padding:13px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.25);border-radius:10px;color:#fff;font-size:15px;outline:none;box-sizing:border-box">
       <div id="rpErr1" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
     </div>
 
     <div id="rpStep2" style="display:none">
-      <div style="font-size:13px;color:#a0b4d2;margin-bottom:10px">请输入详细理由</div>
+      <div style="font-size:13px;color:#4b5563;margin-bottom:10px">请输入详细理由</div>
       <textarea id="rpDetail" rows="4" placeholder="请描述具体情况" style="width:100%;padding:13px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.25);border-radius:10px;color:#fff;font-size:15px;outline:none;box-sizing:border-box;resize:vertical"></textarea>
       <div id="rpErr2" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
     </div>
 
     <div id="rpStep3" style="display:none;text-align:center">
-      <div style="font-size:13px;color:#a0b4d2;margin-bottom:12px">请保存以下 12 位举报密钥</div>
+      <div style="font-size:13px;color:#4b5563;margin-bottom:12px">请保存以下 12 位举报密钥</div>
       <div id="rpSecret" style="font-size:24px;font-weight:700;letter-spacing:3px;color:#f87171;background:rgba(248,113,113,0.1);border:1px dashed rgba(248,113,113,0.5);border-radius:12px;padding:20px 10px;margin-bottom:12px"></div>
-      <div style="font-size:12px;color:#a0b4d2;line-height:1.6">超管可凭此密钥在「举报密钥解析」中查看完整举报信息。</div>
+      <div style="font-size:12px;color:#4b5563;line-height:1.6">超管可凭此密钥在「举报密钥解析」中查看完整举报信息。</div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:18px">
-      <button id="rpBack" onclick="rpBack()" style="flex:1;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:10px;font-size:14px;cursor:pointer">上一步</button>
+      <button id="rpBack" onclick="rpBack()" style="flex:1;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">上一步</button>
       <button id="rpNext" onclick="rpNext()" style="flex:1;padding:12px;background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">下一步</button>
     </div>
   </div>
@@ -1265,7 +1278,7 @@ async function showApp(u){
     lv.style.color = '#fbbf24';
   } else {
     lv.style.background = 'rgba(115,184,255,0.18)';
-    lv.style.color = '#73b8ff';
+    lv.style.color = '#2563eb';
   }
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').classList.add('logged-in');
@@ -1326,26 +1339,26 @@ function renderStaff(currentAcc){
   const render = ()=>{
     const kw = (window.staffSearchKw||'').trim().toLowerCase();
     const filtered = staffData.map((s,i)=>({...s,idx:i})).filter(s=>!kw || s.name.toLowerCase().includes(kw) || s.uid.includes(kw));
-    if(filtered.length===0){ list.innerHTML='<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:24px">未找到匹配员工</div>'; return; }
+    if(filtered.length===0){ list.innerHTML='<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:24px">未找到匹配员工</div>'; return; }
     list.innerHTML = filtered.map((s)=>{
       const idx = s.idx;
-      const lvColor = s.level === '超级管理员' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(115,184,255,0.18);color:#73b8ff';
+      const lvColor = s.level === '超级管理员' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(115,184,255,0.18);color:#2563eb';
       const banned = s.banned;
       return `<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;${banned?'opacity:0.5;background:rgba(248,113,113,0.06)':''}">
         <div class="post-avatar" style="${banned?'filter:grayscale(1)':''};cursor:pointer" onclick="openProfileFor('${s.uid}')">${s.name.charAt(0)}</div>
         <div style="flex:1">
-          <div style="font-size:14px;color:#d4e4fb;font-weight:500">${s.name}
+          <div style="font-size:14px;color:#1f2937;font-weight:500">${s.name}
             <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:${lvColor};margin-left:4px">${s.level}</span>
             ${banned?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(248,113,113,0.2);color:#f87171;margin-left:4px">已封号</span>':''}
             ${isDevAuth(s.uid)?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(167,139,250,0.2);color:#a78bfa;margin-left:4px">开发者</span>':''}
           </div>
-          <div style="font-size:11px;color:#607494;margin-top:2px">账号：${s.uid}</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:2px">账号：${s.uid}</div>
           <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${s.balance ?? 0} <span style="color:#fbbf24;margin-left:6px">积分：${getUserStats(s.uid).coin || 0}</span></div>
           <button onclick="openReport('${s.uid}','${s.name}')" style="margin-top:8px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">举报</button>
           ${isSuper ? `<div style="font-size:11px;color:#fbbf24;margin-top:2px">安全密钥：${s.key||'未设置'}</div>` : ''}
         </div>
         ${isSuper ? `<div style="display:flex;gap:6px">
-          <button onclick="editStaff(${idx})" style="background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">编辑</button>
+          <button onclick="editStaff(${idx})" style="background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">编辑</button>
           <button onclick="toggleBan(${idx})" style="background:${banned?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.12)'};border:1px solid ${banned?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)'};color:${banned?'#34d399':'#f87171'};padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">${banned?'解禁':'封号'}</button>
           <button onclick="delStaff(${idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">删除</button>
           <button onclick="superEditBalance('${s.uid}')" style="background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer">改金额</button>
@@ -1475,14 +1488,14 @@ function initMeetings(){
 }
 function renderMeetings(){
   const list = document.getElementById('meetingList');
-  const statusColor = s => s==='进行中' ? 'rgba(52,211,153,0.18);color:#34d399' : s==='待开始' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(100,116,139,0.18);color:#94a8c7';
+  const statusColor = s => s==='进行中' ? 'rgba(52,211,153,0.18);color:#34d399' : s==='待开始' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(100,116,139,0.18);color:#6b7280';
   list.innerHTML = meetingData.map((m, idx)=>`
     <div class="card" style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div style="font-size:15px;color:#f0f5ff;font-weight:600">${m.title}</div>
+        <div style="font-size:15px;color:#111827;font-weight:600">${m.title}</div>
         <span style="font-size:11px;padding:2px 8px;border-radius:6px;background:${statusColor(m.status)}">${m.status}</span>
       </div>
-      <div style="font-size:12px;color:#94a8c7;line-height:1.8">
+      <div style="font-size:12px;color:#6b7280;line-height:1.8">
         <div>时间：${m.time}</div>
         <div>参会：${m.attendees}</div>
       </div>
@@ -1526,8 +1539,8 @@ function setLoginMode(m){
   const mailEl = document.getElementById('lmMail');
   const label = document.getElementById('loginLabel');
   const inp = document.getElementById('inpUser');
-  const on = 'flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff';
-  const off = 'flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7';
+  const on = 'flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb';
+  const off = 'flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#6b7280';
   if(accEl) accEl.style.cssText = m === 'acc' ? on : off;
   if(mailEl) mailEl.style.cssText = m === 'mail' ? on : off;
   if(label) label.textContent = m === 'mail' ? '邮箱' : '账号';
@@ -1648,7 +1661,7 @@ function toggleTheme(){
   isLiquid = !isLiquid;
   document.body.classList.toggle('plain', !isLiquid);
   document.getElementById('themeLabel').textContent = isLiquid ? '液态玻璃' : '普通界面';
-  document.getElementById('themeLabel').style.color = isLiquid ? '#73b8ff' : '#94a8c7';
+  document.getElementById('themeLabel').style.color = isLiquid ? '#2563eb' : '#6b7280';
 }
 async function showTeam(){
   const supers = Object.entries(ACCOUNTS).filter(([_,a])=>a.level==='超级管理员');
@@ -1818,7 +1831,7 @@ function appCenterTab(cat, el){
     const on = k === cat;
     b.style.background = on ? 'rgba(115,184,255,0.16)' : 'rgba(255,255,255,0.05)';
     b.style.border = on ? '1px solid rgba(115,184,255,0.35)' : '1px solid rgba(255,255,255,0.12)';
-    b.style.color = on ? '#73b8ff' : '#94a8c7';
+    b.style.color = on ? '#2563eb' : '#6b7280';
   });
   renderAppCenter();
 }
@@ -1830,18 +1843,18 @@ async function renderAppCenter(force){
     .filter(x=>x.status === '已通过' && x.type === appCenterCat)
     .sort((a,b)=>(b.ts||0)-(a.ts||0));
   if(!list.length){
-    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:16px">暂无上架的' + appCenterCat + '，开发者提交并通过审核后会出现在这里</div>';
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">暂无上架的' + appCenterCat + '，开发者提交并通过审核后会出现在这里</div>';
     return;
   }
   box.innerHTML = list.map(x=>
     '<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
-      '<div style="width:38px;height:38px;border-radius:10px;background:rgba(115,184,255,0.16);display:flex;align-items:center;justify-content:center;font-size:16px;color:#73b8ff">' + (x.type === '表盘' ? '◷' : '▣') + '</div>' +
+      '<div style="width:38px;height:38px;border-radius:10px;background:rgba(115,184,255,0.16);display:flex;align-items:center;justify-content:center;font-size:16px;color:#2563eb">' + (x.type === '表盘' ? '◷' : '▣') + '</div>' +
       '<div style="flex:1;min-width:0">' +
-        '<div style="font-size:14px;color:#d4e4fb">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#607494">' + String(x.version||'') + '</span></div>' +
-        '<div style="font-size:11px;color:#607494;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + String(x.desc||'').replace(/</g,'&lt;') + ' · ' + String(x.byName||'') + '</div>' +
+        '<div style="font-size:14px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.version||'') + '</span></div>' +
+        '<div style="font-size:11px;color:#6b7280;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + String(x.desc||'').replace(/</g,'&lt;') + ' · ' + String(x.byName||'') + '</div>' +
       '</div>' +
       (x.url ? '<a href="' + String(x.url) + '" target="_blank" rel="noopener" style="flex-shrink:0;padding:7px 13px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;border-radius:8px;font-size:12px;text-decoration:none">下载</a>'
-             : '<span style="font-size:11px;color:#607494">无文件</span>') +
+             : '<span style="font-size:11px;color:#6b7280">无文件</span>') +
     '</div>').join('');
 }
 
@@ -1943,16 +1956,16 @@ async function renderDevCenter(force){
     pbox.innerHTML = pending.length ? pending.map(x=>
       '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
         '<div style="display:flex;justify-content:space-between;align-items:center">' +
-          '<div style="font-size:13px;color:#d4e4fb">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#607494">' + String(x.type||'') + ' · ' + String(x.version||'') + '</span></div>' +
-          '<div style="font-size:11px;color:#607494">' + String(x.byName||x.by||'') + '</div>' +
+          '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + ' · ' + String(x.version||'') + '</span></div>' +
+          '<div style="font-size:11px;color:#6b7280">' + String(x.byName||x.by||'') + '</div>' +
         '</div>' +
-        '<div style="font-size:11px;color:#607494;margin-top:4px">' + String(x.desc||'').replace(/</g,'&lt;') + ' · ' + String(x.time||'') + '</div>' +
+        '<div style="font-size:11px;color:#6b7280;margin-top:4px">' + String(x.desc||'').replace(/</g,'&lt;') + ' · ' + String(x.time||'') + '</div>' +
         '<div style="display:flex;gap:8px;margin-top:8px">' +
           '<button onclick="setDevStatus(\'' + x.id + '\',\'已通过\')" style="flex:1;padding:7px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;border-radius:7px;font-size:12px;cursor:pointer">通过</button>' +
           '<button onclick="setDevStatus(\'' + x.id + '\',\'已拒绝\')" style="flex:1;padding:7px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:12px;cursor:pointer">拒绝</button>' +
-          '<a href="' + String(x.url||'#') + '" target="_blank" rel="noopener" style="padding:7px 12px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:7px;font-size:12px;text-decoration:none">下载</a>' +
+          '<a href="' + String(x.url||'#') + '" target="_blank" rel="noopener" style="padding:7px 12px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;border-radius:7px;font-size:12px;text-decoration:none">下载</a>' +
         '</div>' +
-      '</div>').join('') : '<div style="text-align:center;color:#607494;font-size:12px;padding:14px">暂无待审核作品</div>';
+      '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">暂无待审核作品</div>';
   }
 
   // 我的提交
@@ -1964,13 +1977,13 @@ async function renderDevCenter(force){
     mbox.innerHTML = mine.length ? mine.map(x=>
       '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
         '<div style="display:flex;justify-content:space-between;align-items:center">' +
-          '<div style="font-size:13px;color:#d4e4fb">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#607494">' + String(x.type||'') + '</span></div>' +
+          '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + '</span></div>' +
           '<div style="font-size:11px;color:' + devStatusColor(x.status) + '">' + String(x.status||'') + '</div>' +
         '</div>' +
-        '<div style="font-size:11px;color:#607494;margin-top:4px;line-height:1.6">' + String(x.version||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '<br>' + String(x.time||'') + '</div>' +
-        (x.status === '已通过' && x.url ? '<div style="margin-top:6px"><a href="' + String(x.url) + '" target="_blank" rel="noopener" style="font-size:11px;color:#73b8ff">下载已上架文件</a></div>' : '') +
+        '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.6">' + String(x.version||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '<br>' + String(x.time||'') + '</div>' +
+        (x.status === '已通过' && x.url ? '<div style="margin-top:6px"><a href="' + String(x.url) + '" target="_blank" rel="noopener" style="font-size:11px;color:#2563eb">下载已上架文件</a></div>' : '') +
         (x.status === '已拒绝' && x.reason ? '<div style="margin-top:5px;font-size:11px;color:#f87171">原因：' + String(x.reason).replace(/</g,'&lt;') + '</div>' : '') +
-      '</div>').join('') : '<div style="text-align:center;color:#607494;font-size:12px;padding:14px">还没有提交过作品</div>';
+      '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">还没有提交过作品</div>';
   }
 
   // 授权列表
@@ -1981,10 +1994,10 @@ async function renderDevCenter(force){
       if(String(uid) === String(me)) return '';
       const a = ACCOUNTS[uid];
       const on = devAuthCache.map(String).indexOf(String(uid)) >= 0;
-      return '<label style="display:flex;align-items:center;gap:9px;padding:7px 2px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;color:#c9d8ee;cursor:pointer">' +
+      return '<label style="display:flex;align-items:center;gap:9px;padding:7px 2px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;color:#374151;cursor:pointer">' +
         '<input type="checkbox" onchange="toggleDevAuth(\'' + uid + '\', this.checked)" ' + (on ? 'checked' : '') + ' style="accent-color:#a78bfa">' +
         '<span style="flex:1">' + String(a.name||uid).replace(/</g,'&lt;') + '</span>' +
-        '<span style="color:#607494">' + uid + ' · ' + String(a.level||'') + '</span></label>';
+        '<span style="color:#6b7280">' + uid + ' · ' + String(a.level||'') + '</span></label>';
     }).join('');
   }
 }
@@ -2129,21 +2142,21 @@ async function renderWdPanel(force){
   if(!box) return;
   await loadWdList(force);
   if(!wdListCache.length){
-    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:16px">暂无提现申请</div>';
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">暂无提现申请</div>';
     return;
   }
   box.innerHTML = wdListCache.slice().reverse().map((r,i)=>
     '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-        '<div style="font-size:14px;color:#d4e4fb">' + String(r.name||r.uid||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#607494">' + String(r.uid||'') + '</span></div>' +
+        '<div style="font-size:14px;color:#1f2937">' + String(r.name||r.uid||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(r.uid||'') + '</span></div>' +
         '<div style="display:flex;align-items:center;gap:8px">' +
           '<div style="font-size:15px;font-weight:600;color:#34d399">¥' + Number(r.amount||0).toFixed(2) + '</div>' +
           '<button onclick="deleteWdRecord(' + i + ')" style="padding:3px 9px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:6px;font-size:11px;cursor:pointer">删除</button>' +
         '</div>' +
       '</div>' +
-      '<div style="font-size:12px;color:#94a8c7;margin-top:5px;line-height:1.7">' +
+      '<div style="font-size:12px;color:#6b7280;margin-top:5px;line-height:1.7">' +
         String(r.channel||'') + '：' + String(r.payAccount||'').replace(/</g,'&lt;') + '<br>' +
-        '<span style="color:#607494">密钥 ' + String(r.secret||'') + ' · ' + String(r.time||'') + '</span>' +
+        '<span style="color:#6b7280">密钥 ' + String(r.secret||'') + ' · ' + String(r.time||'') + '</span>' +
         '<div style="margin-top:4px;font-size:11px;color:' + (wdExpire(r).expired ? '#f87171' : '#34d399') + '">' + wdLeftText(wdExpire(r).left) + '（有效期 72 小时）</div>' +
       '</div>' +
     '</div>').join('');
@@ -2153,18 +2166,18 @@ async function renderReportPanel(force){
   if(!box) return;
   await loadRpList(force);
   if(!rpListCache.length){
-    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:16px">暂无举报记录</div>';
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">暂无举报记录</div>';
     return;
   }
   box.innerHTML = rpListCache.slice().reverse().map((r,i)=>
     '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
-      '<div style="font-size:14px;color:#d4e4fb">被举报：' + String(r.targetName||r.targetUid||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#607494">' + String(r.targetUid||'') + '</span></div>' +
-      '<div style="font-size:12px;color:#94a8c7;margin-top:5px;line-height:1.7">' +
+      '<div style="font-size:14px;color:#1f2937">被举报：' + String(r.targetName||r.targetUid||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(r.targetUid||'') + '</span></div>' +
+      '<div style="font-size:12px;color:#6b7280;margin-top:5px;line-height:1.7">' +
         '原因：' + String(r.reason||'').replace(/</g,'&lt;') + '<br>' +
         '理由：' + String(r.detail||'').replace(/</g,'&lt;') +
         (r.postText ? '<br>帖子：' + String(r.postText).replace(/</g,'&lt;') : '') +
-        '<br><span style="color:#607494">举报人 ' + String(r.reporterUid||'') + ' · 密钥 ' + String(r.secret||'') + ' · ' + String(r.time||'') + '</span>' +
+        '<br><span style="color:#6b7280">举报人 ' + String(r.reporterUid||'') + ' · 密钥 ' + String(r.secret||'') + ' · ' + String(r.time||'') + '</span>' +
       '</div>' +
       '<button onclick="deleteRpRecord(' + i + ')" style="flex-shrink:0;padding:3px 9px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:6px;font-size:11px;cursor:pointer">删除</button>' +
       '</div>' +
@@ -2306,8 +2319,8 @@ function wdPickChannel(ch){
   wdData.channel = ch;
   const wx = document.getElementById('wdChWx');
   const zfb = document.getElementById('wdChZfb');
-  const active = 'background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.5);color:#73b8ff';
-  const idle = 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#94a8c7';
+  const active = 'background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.5);color:#2563eb';
+  const idle = 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#6b7280';
   wx.style.cssText = ch === '微信' ? active : idle;
   zfb.style.cssText = ch === '支付宝' ? active : idle;
 }
@@ -2870,8 +2883,8 @@ function postIsFollowing(uid){
 }
 async function postFilterTab(k){
   postFilter = k;
-  const on = 'flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff';
-  const off = 'flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7';
+  const on = 'flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb';
+  const off = 'flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#6b7280';
   const a = document.getElementById('pst-all'), f = document.getElementById('pst-follow');
   if(a) a.style.cssText = k === 'all' ? on : off;
   if(f) f.style.cssText = k === 'follow' ? on : off;
@@ -2885,7 +2898,7 @@ function renderPosts(list){
   const sorted = list.slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
   if(postFilter === 'follow' && !sorted.length){
     const box = document.getElementById('extraPosts');
-    if(box) box.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:26px">还没有关注的人发帖<br><span style="font-size:11px">在个人信息页点击「关注」后会出现在这里</span></div>';
+    if(box) box.innerHTML = '<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:26px">还没有关注的人发帖<br><span style="font-size:11px">在个人信息页点击「关注」后会出现在这里</span></div>';
     return;
   }
   let html = '';
@@ -2901,17 +2914,17 @@ function renderPosts(list){
         <div class="post-info"><div class="post-name">${p.name}</div><div class="post-time">${p.time}</div></div>
         <div class="post-tag">${p.tag||'综合'}</div>
       </div>
-      ${p.title ? '<div style="font-size:14px;font-weight:600;color:#e8f0ff;margin-bottom:6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : ''}
+      ${p.title ? '<div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : ''}
       <div class="post-content">${peRenderText(p.content)}</div>
       ${p.lottery && p.lottery.on ? '<div style="font-size:11px;color:#34d399;margin-bottom:8px">'+lotteryCard(p)+'</div>' : ''}
       <div class="post-actions">
         <span style="color:${liked?'#f472b6':'inherit'}">${liked?'♥':'♡'} ${likes}</span>
-        <span style="color:#607494">${cms.length} 评论</span>
+        <span style="color:#6b7280">${cms.length} 评论</span>
       </div>
     </div>`;
   });
   const box = document.getElementById('extraPosts');
-  if(box) box.innerHTML = sorted.length ? '<div class="post-grid">'+html+'</div>' : '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:24px">还没有帖子，来发第一条吧</div>';
+  if(box) box.innerHTML = sorted.length ? '<div class="post-grid">'+html+'</div>' : '<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:24px">还没有帖子，来发第一条吧</div>';
 }
 
 // ===== 帖子详情单页 =====
@@ -2930,7 +2943,7 @@ function renderPostDetail(){
   const box = document.getElementById('postDetailBody');
   if(!box) return;
   const p = (postsCache || []).find(x => pidOf(x) === detailPid);
-  if(!p){ box.innerHTML = '<div style="color:#607494;text-align:center;padding:30px">帖子不存在或已删除</div>'; return; }
+  if(!p){ box.innerHTML = '<div style="color:#6b7280;text-align:center;padding:30px">帖子不存在或已删除</div>'; return; }
   const pid = pidOf(p);
   const likes = postLikes(pid), cms = postComments(pid), liked = iLiked(pid), joinedLot = iJoinedLottery(pid);
   const grad = p.grad || 'linear-gradient(135deg,#60a5fa,#3b82f6)';
@@ -2938,25 +2951,25 @@ function renderPostDetail(){
   if(p.lottery && p.lottery.on){
     lotteryHtml = '<div style="margin:12px 0;padding:12px;border-radius:12px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2)">'+
       '<div style="font-size:12px;color:#34d399;margin-bottom:8px">'+lotteryCard(p)+'</div>'+
-      (!p.lottery.drawn ? '<div style="display:flex;align-items:center;gap:10px"><button onclick="toggleLotteryJoin(\''+pid+'\')" style="padding:7px 14px;border-radius:8px;background:'+(joinedLot?'rgba(52,211,153,0.18)':'rgba(115,184,255,0.12)')+';border:1px solid rgba(115,184,255,0.3);color:'+(joinedLot?'#34d399':'#73b8ff')+';font-size:12px;cursor:'+(joinedLot?'default':'pointer')+'">'+(joinedLot?'已参与':'参与抽奖')+'</button><span style="font-size:11px;color:#607494">'+lotteryJoiners(pid).length+' 人已参与</span></div>' : '')+
+      (!p.lottery.drawn ? '<div style="display:flex;align-items:center;gap:10px"><button onclick="toggleLotteryJoin(\''+pid+'\')" style="padding:7px 14px;border-radius:8px;background:'+(joinedLot?'rgba(52,211,153,0.18)':'rgba(115,184,255,0.12)')+';border:1px solid rgba(115,184,255,0.3);color:'+(joinedLot?'#34d399':'#2563eb')+';font-size:12px;cursor:'+(joinedLot?'default':'pointer')+'">'+(joinedLot?'已参与':'参与抽奖')+'</button><span style="font-size:11px;color:#6b7280">'+lotteryJoiners(pid).length+' 人已参与</span></div>' : '')+
     '</div>';
   }
-  const cmtHtml = cms.length ? cms.map(m=>'<div style="margin-bottom:10px;font-size:12px;line-height:1.6"><span style="color:#73b8ff">'+String(m.name||'').replace(/</g,'&lt;')+'</span> <span style="color:#607494;font-size:11px">'+(m.time||'')+'</span><div style="color:#a0b4d2;margin-top:2px">'+String(m.text||'').replace(/</g,'&lt;')+'</div></div>').join('') : '<div style="font-size:12px;color:#607494;margin-bottom:8px">还没有评论</div>';
+  const cmtHtml = cms.length ? cms.map(m=>'<div style="margin-bottom:10px;font-size:12px;line-height:1.6"><span style="color:#2563eb">'+String(m.name||'').replace(/</g,'&lt;')+'</span> <span style="color:#6b7280;font-size:11px">'+(m.time||'')+'</span><div style="color:#4b5563;margin-top:2px">'+String(m.text||'').replace(/</g,'&lt;')+'</div></div>').join('') : '<div style="font-size:12px;color:#6b7280;margin-bottom:8px">还没有评论</div>';
   box.innerHTML =
     '<div class="post-head">'+
       '<div class="post-avatar" onclick="event.stopPropagation();postAvatarClick(\''+String(p.uid||'')+'\')" style="background:'+grad+';cursor:pointer">'+(p.name||'?').charAt(0)+'</div>'+
       '<div class="post-info"><div class="post-name">'+String(p.name||'').replace(/</g,'&lt;')+'</div><div class="post-time">'+String(p.time||'')+' · 来自 栈序工坊</div></div>'+
       '<div class="post-tag">'+String(p.tag||'综合')+'</div>'+
     '</div>'+
-    (p.title ? '<div style="font-size:16px;font-weight:600;color:#e8f0ff;margin:10px 0 6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : '')+
+    (p.title ? '<div style="font-size:16px;font-weight:600;color:#111827;margin:10px 0 6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : '')+
     '<div class="post-content" style="margin-bottom:12px">'+peRenderText(p.content)+'</div>'+
     lotteryHtml+
     '<div class="post-actions" style="margin-bottom:12px">'+
       '<span onclick="toggleLike(\''+pid+'\')" style="cursor:pointer;color:'+(liked?'#f472b6':'inherit')+'">'+(liked?'♥':'♡')+' '+likes+' 赞</span>'+
-      '<span style="color:#607494">'+cms.length+' 评论</span>'+
+      '<span style="color:#6b7280">'+cms.length+' 评论</span>'+
     '</div>'+
     '<div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px">'+cmtHtml+
-      '<div style="display:flex;gap:8px;margin-top:6px"><input id="pcmtIn-'+pid+'" maxlength="200" placeholder="写评论…" style="flex:1;padding:9px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none"><button onclick="addComment(\''+pid+'\')" style="padding:9px 14px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:9px;font-size:13px;cursor:pointer">发送</button></div>'+
+      '<div style="display:flex;gap:8px;margin-top:6px"><input id="pcmtIn-'+pid+'" maxlength="200" placeholder="写评论…" style="flex:1;padding:9px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none"><button onclick="addComment(\''+pid+'\')" style="padding:9px 14px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.3);color:#2563eb;border-radius:9px;font-size:13px;cursor:pointer">发送</button></div>'+
     '</div>';
 }
 
@@ -3101,7 +3114,7 @@ function openPostEditor(){
 function closePostEditor(){ document.getElementById('postEditorMask').style.display = 'none'; }
 function renderPeTopics(){
   document.getElementById('peTopicList').innerHTML = PE_TOPICS.map(t=>
-    '<div onclick="pePickTopic(\''+t+'\')" style="padding:16px;border-radius:12px;background:rgba(115,184,255,0.08);border:1px solid rgba(115,184,255,0.2);color:#d4e4fb;font-size:14px;text-align:center;cursor:pointer">'+t+'</div>').join('');
+    '<div onclick="pePickTopic(\''+t+'\')" style="padding:16px;border-radius:12px;background:rgba(115,184,255,0.08);border:1px solid rgba(115,184,255,0.2);color:#1f2937;font-size:14px;text-align:center;cursor:pointer">'+t+'</div>').join('');
 }
 function pePickTopic(t){
   peState.topic = t;
@@ -3128,8 +3141,8 @@ function peToggleMention(){
   panel.innerHTML = list.slice(0,30).map(k=>{
     const a = ACCOUNTS[k];
     const nm = String(a.name||k).replace(/'/g,'');
-    return '<div onclick="peInsertMention(\''+nm+'\')" style="padding:8px 6px;font-size:13px;color:#d4e4fb;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05)">'+nm+'</div>';
-  }).join('') || '<div style="padding:8px;color:#607494;font-size:12px">暂无可提及对象</div>';
+    return '<div onclick="peInsertMention(\''+nm+'\')" style="padding:8px 6px;font-size:13px;color:#1f2937;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05)">'+nm+'</div>';
+  }).join('') || '<div style="padding:8px;color:#6b7280;font-size:12px">暂无可提及对象</div>';
   panel.style.display = 'block';
 }
 function peInsertMention(name){
@@ -3148,8 +3161,8 @@ function peSyncCount(){ document.getElementById('peCount').textContent = documen
 function peRenderText(text){
   const esc = String(text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   return esc.replace(/(@[^\s#@]+|#[^\s#@]+)/g, m => m[0] === '@'
-    ? '<span style="color:#73b8ff">'+m+'</span>'
-    : '<span style="color:#5b8def">'+m+'</span>');
+    ? '<span style="color:#2563eb">'+m+'</span>'
+    : '<span style="color:#2563eb">'+m+'</span>');
 }
 function lotteryCard(p){
   const L = p.lottery;
@@ -3403,10 +3416,10 @@ function renderTickets(){
     const stColor = t.status==='待处理' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(52,211,153,0.18);color:#34d399';
     return `<div class="card" style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
-        <div style="font-size:14px;color:#f0f5ff;font-weight:500">${t.title}</div>
+        <div style="font-size:14px;color:#111827;font-weight:500">${t.title}</div>
         <span style="font-size:11px;padding:2px 8px;border-radius:6px;background:${stColor};flex-shrink:0;margin-left:8px">${t.status}</span>
       </div>
-      <div style="font-size:11px;color:#607494">${t.id} · 提交人：${t.from} · ${t.time}</div>
+      <div style="font-size:11px;color:#6b7280">${t.id} · 提交人：${t.from} · ${t.time}</div>
       ${currentIsSuper && t.status==='待处理' ? `<button onclick="resolveTicket(${i})" style="margin-top:10px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">标记已处理</button>` : ''}
     </div>`;
   }).join('');
@@ -3423,7 +3436,8 @@ function renderChangelog(){
     { ver: 'v1.1.0', date: '2026-11-14', items: [
       '首页「活跃用户」入口改为「签到抽奖」，点击进入独立抽奖单页，每日可抽一次金币或经验',
       '帖子列表多列卡片与独立详情页，抽奖参与后不可退出',
-      '右上角签到入口移除，每日签到并入签到抽奖单页；用户列表更名为用户服务，下分用户列表与用户公告二级菜单'
+      '右上角签到入口移除，每日签到并入签到抽奖单页；用户列表更名为用户服务，下分用户列表与用户公告二级菜单',
+      '一级菜单改为底部固定导航（图标+文字），首页主体调整为浅色背景与白色卡片'
     ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
@@ -3553,9 +3567,9 @@ function renderChangelog(){
   document.getElementById('changelogList').innerHTML = logs.map(l=>`
     <div style="margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        ${l === logs[0] ? '<span style="font-size:10px;color:#607494">当前版本</span>' : ''}
-        <span style="font-size:13px;color:#73b8ff;font-weight:600">${l.ver}</span>
-        <span style="font-size:11px;color:#607494">${l.date}</span>
+        ${l === logs[0] ? '<span style="font-size:10px;color:#6b7280">当前版本</span>' : ''}
+        <span style="font-size:13px;color:#2563eb;font-weight:600">${l.ver}</span>
+        <span style="font-size:11px;color:#6b7280">${l.date}</span>
       </div>
       ${l.items.map(it=>`<div style="padding-left:12px;border-left:2px solid rgba(115,184,255,0.2);margin-bottom:4px">· ${it}</div>`).join('')}
     </div>
@@ -3579,19 +3593,19 @@ function renderUsers(kw){
     .map((u,i)=>({...u, idx:i}))
     .filter(u=>!kw || u.name.toLowerCase().includes(kw) || u.uid.includes(kw));
   if(filtered.length === 0){
-    list.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:30px 16px">'+(kw?'未找到匹配用户':'暂无用户')+'</div>';
+    list.innerHTML = '<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:30px 16px">'+(kw?'未找到匹配用户':'暂无用户')+'</div>';
     return;
   }
   list.innerHTML = filtered.map(u=>`
     <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;${u.banned?'opacity:0.5;background:rgba(248,113,113,0.06)':''}">
       <div class="post-avatar" style="cursor:pointer;${u.banned?'filter:grayscale(1)':''}" onclick="openProfileFor('${u.uid}')">${u.name.charAt(0)}</div>
       <div style="flex:1">
-        <div style="font-size:14px;color:#d4e4fb;font-weight:500">${u.name}
-          <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(115,184,255,0.18);color:#73b8ff;margin-left:4px">用户</span>
+        <div style="font-size:14px;color:#1f2937;font-weight:500">${u.name}
+          <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(115,184,255,0.18);color:#2563eb;margin-left:4px">用户</span>
           ${u.banned?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(248,113,113,0.2);color:#f87171;margin-left:4px">已封号</span>':''}
           ${isDevAuth(u.uid)?'<span style="font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(167,139,250,0.2);color:#a78bfa;margin-left:4px">开发者</span>':''}
         </div>
-        <div style="font-size:11px;color:#607494;margin-top:2px">UID：${u.uid}</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px">UID：${u.uid}</div>
         <div style="font-size:11px;color:#34d399;margin-top:2px">余额：¥${u.balance} <span style="color:#fbbf24;margin-left:6px">积分：${getUserStats(u.uid).coin || 0}</span></div>
       </div>
       ${currentIsSuper ? `<div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
@@ -3773,27 +3787,27 @@ async function renderCheckinLottery(){
   const mine = all.filter(x => String(x.uid) === String(uid) && x.type === 'lottery');
   const drawn = mine.some(x => x.date === today);
   const poolHtml = LOTTERY_POOL.map(p =>
-    '<div style="padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);text-align:center;font-size:13px;color:#d4e4fb">'+p.label+'</div>').join('');
+    '<div style="padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);text-align:center;font-size:13px;color:#1f2937">'+p.label+'</div>').join('');
   const history = mine.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,10);
   const histHtml = history.length
-    ? history.map(x => '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px"><span style="color:#a0b4d2">'+String(x.label||'奖励')+'</span><span style="color:#607494">'+String(x.date||'')+'</span></div>').join('')
-    : '<div style="font-size:12px;color:#607494;padding:10px 0">暂无抽奖记录</div>';
+    ? history.map(x => '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px"><span style="color:#4b5563">'+String(x.label||'奖励')+'</span><span style="color:#6b7280">'+String(x.date||'')+'</span></div>').join('')
+    : '<div style="font-size:12px;color:#6b7280;padding:10px 0">暂无抽奖记录</div>';
   const stats = getUserStats(uid);
   const signBtn = stats.checkedIn ? '已签到' : '签到';
   const signCard = '<div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">'+
-    '<div><div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:4px">每日签到</div>'+
-    '<div style="font-size:12px;color:#607494">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">'+(stats.days||0)+'</span> 天</div></div>'+
-    '<button id="btnSign" onclick="doCheckin()" style="padding:10px 20px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">'+signBtn+'</button></div>';
+    '<div><div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:4px">每日签到</div>'+
+    '<div style="font-size:12px;color:#6b7280">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">'+(stats.days||0)+'</span> 天</div></div>'+
+    '<button id="btnSign" onclick="doCheckin()" style="padding:10px 20px;background:linear-gradient(135deg,#2563eb,#2563eb);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">'+signBtn+'</button></div>';
   box.innerHTML =
     signCard+
-    '<div style="text-align:center;margin-bottom:16px"><div style="font-size:13px;color:#607494">每日可抽奖一次，奖励金币或经验</div></div>'+
+    '<div style="text-align:center;margin-bottom:16px"><div style="font-size:13px;color:#6b7280">每日可抽奖一次，奖励金币或经验</div></div>'+
     '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">'+poolHtml+'</div>'+
     '<div style="text-align:center;margin-bottom:18px">'+
       (drawn
         ? '<div style="font-size:13px;color:#fbbf24">今日已抽奖，明天再来</div>'
-        : '<button onclick="drawCheckinLottery()" style="padding:12px 30px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">立即抽奖</button>')+
+        : '<button onclick="drawCheckinLottery()" style="padding:12px 30px;background:linear-gradient(135deg,#2563eb,#2563eb);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">立即抽奖</button>')+
     '</div>'+
-    '<div style="font-size:13px;color:#d4e4fb;margin-bottom:8px">我的抽奖记录</div>'+histHtml;
+    '<div style="font-size:13px;color:#1f2937;margin-bottom:8px">我的抽奖记录</div>'+histHtml;
 }
 async function drawCheckinLottery(){
   const uid = myUid();
@@ -3878,7 +3892,7 @@ async function profileFollowAction(){
     fbtn.textContent = '已关注';
     fbtn.style.background = 'rgba(255,255,255,0.06)';
     fbtn.style.borderColor = 'rgba(255,255,255,0.14)';
-    fbtn.style.color = '#94a8c7';
+    fbtn.style.color = '#6b7280';
     if(window._userSearchKw !== undefined) renderUsers(window._userSearchKw || '');
   }
 }
@@ -3915,7 +3929,7 @@ async function openProfileFor(uid){
       fbtn.textContent = '已关注';
       fbtn.style.background = 'rgba(255,255,255,0.06)';
       fbtn.style.borderColor = 'rgba(255,255,255,0.14)';
-      fbtn.style.color = '#94a8c7';
+      fbtn.style.color = '#6b7280';
     } else {
       fbtn.style.display = 'block';
       fbtn.textContent = '关注';
@@ -4018,22 +4032,22 @@ async function openDm(uid){
   document.getElementById('dmCompose').style.display = 'flex';
   document.getElementById('dmMask').style.display = 'block';
   const box = document.getElementById('dmList');
-  box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div>';
+  box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">加载中…</div>';
   await loadDmData();
   const msgs = dmCache.filter(m => (m.from === me && m.to === uid) || (m.from === uid && m.to === me))
                      .sort((a,b)=>(a.ts||0)-(b.ts||0));
   if(!msgs.length){
-    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:24px">还没有私信，说句话吧</div>';
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:24px">还没有私信，说句话吧</div>';
     return;
   }
   box.innerHTML = msgs.map(m=>{
     const mine = m.from === me;
     return '<div style="display:flex;justify-content:'+(mine?'flex-end':'flex-start')+';margin-bottom:10px">'+
       '<div style="max-width:78%;padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.6;'+
-      (mine ? 'background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.3);color:#d4e4fb'
-            : 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#c7d6ec')+'">'+
+      (mine ? 'background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.3);color:#1f2937'
+            : 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#374151')+'">'+
       '<div>'+String(m.text||'').replace(/</g,'&lt;')+'</div>'+
-      '<div style="font-size:10px;margin-top:4px;color:#607494;text-align:'+(mine?'right':'left')+'">'+dmTime(m.ts)+'</div>'+
+      '<div style="font-size:10px;margin-top:4px;color:#6b7280;text-align:'+(mine?'right':'left')+'">'+dmTime(m.ts)+'</div>'+
       '</div></div>';
   }).join('');
   box.scrollTop = box.scrollHeight;
@@ -4059,7 +4073,7 @@ function dmSubTab(k){
     if(t){
       t.style.background = on ? 'rgba(115,184,255,0.16)' : 'rgba(255,255,255,0.04)';
       t.style.border = on ? '1px solid rgba(115,184,255,0.35)' : '1px solid rgba(255,255,255,0.1)';
-      t.style.color = on ? '#73b8ff' : '#94a8c7';
+      t.style.color = on ? '#2563eb' : '#6b7280';
     }
     if(p) p.style.display = on ? 'block' : 'none';
   });
@@ -4070,25 +4084,25 @@ async function renderDmCenterPage(force){
   const me = myUid();
   const gbox = document.getElementById('groupListBox');
   const dbox = document.getElementById('dmListBox');
-  if(gbox) gbox.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:16px">加载中…</div>';
-  if(dbox) dbox.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:16px">加载中…</div>';
+  if(gbox) gbox.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">加载中…</div>';
+  if(dbox) dbox.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">加载中…</div>';
   await loadDmData(force);
   await loadGroups(force);
   const groups = currentIsSuper ? groupCache.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)) : myGroups();
   let gHtml = '';
   if(groups.length){
-    gHtml = '<div style="font-size:12px;color:#607494;margin:2px 0 8px">' + (currentIsSuper ? '全部群聊（超管可见）' : '我的群聊') + '</div>' + groups.map(g=>
+    gHtml = '<div style="font-size:12px;color:#6b7280;margin:2px 0 8px">' + (currentIsSuper ? '全部群聊（超管可见）' : '我的群聊') + '</div>' + groups.map(g=>
       '<div onclick="openGroupChat(\'' + g.gid + '\')" class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer">' +
       '<div class="post-avatar" style="background:linear-gradient(135deg,#a78bfa,#8b5cf6)">群</div>' +
       '<div style="flex:1;min-width:0">' +
-        '<div style="font-size:14px;color:#d4e4fb">' + String(g.name||'群聊').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#607494">' + (g.members||[]).length + ' 人</span></div>' +
-        '<div style="font-size:12px;color:#607494;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + groupMemberNames(g).join('、') + '</div>' +
+        '<div style="font-size:14px;color:#1f2937">' + String(g.name||'群聊').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + (g.members||[]).length + ' 人</span></div>' +
+        '<div style="font-size:12px;color:#6b7280;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + groupMemberNames(g).join('、') + '</div>' +
       '</div></div>').join('');
   }
-  if(gbox) gbox.innerHTML = gHtml || '<div style="text-align:center;color:#607494;font-size:13px;padding:18px">暂无群聊，点右上角「创建群聊」拉人开始</div>';
+  if(gbox) gbox.innerHTML = gHtml || '<div style="text-align:center;color:#6b7280;font-size:13px;padding:18px">暂无群聊，点右上角「创建群聊」拉人开始</div>';
   const mine = dmCache.filter(m => m.from === me || m.to === me).sort((a,b)=>(b.ts||0)-(a.ts||0));
   if(!mine.length){
-    if(dbox) dbox.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:18px">暂无私信，可在员工 / 用户管理点击头像发起</div>';
+    if(dbox) dbox.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:18px">暂无私信，可在员工 / 用户管理点击头像发起</div>';
     return;
   }
   const conv = {};
@@ -4103,8 +4117,8 @@ async function renderDmCenterPage(force){
     return '<div onclick="openDm(\''+cv.peer+'\')" class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer">'+
       '<div class="post-avatar">'+(acc.name||cv.peer).charAt(0)+'</div>'+
       '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:14px;color:#d4e4fb">'+(acc.name||cv.peer)+' <span style="font-size:11px;color:#607494">'+cv.count+' 条</span></div>'+
-        '<div style="font-size:12px;color:#607494;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(isMine?'我：':'对方：')+String(cv.last.text||'').replace(/</g,'&lt;')+'</div>'+
+        '<div style="font-size:14px;color:#1f2937">'+(acc.name||cv.peer)+' <span style="font-size:11px;color:#6b7280">'+cv.count+' 条</span></div>'+
+        '<div style="font-size:12px;color:#6b7280;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(isMine?'我：':'对方：')+String(cv.last.text||'').replace(/</g,'&lt;')+'</div>'+
       '</div>'+
       '<div style="font-size:11px;color:#4a5c78">'+dmTime(cv.last.ts)+'</div></div>';
   }).join('');
@@ -4198,24 +4212,24 @@ function visibleNotices(){
 async function renderNotices(force){
   const box = document.getElementById('noticeList');
   if(!box) return;
-  box.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:20px">加载中…</div>';
+  box.innerHTML = '<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:20px">加载中…</div>';
   await loadNotices(force);
   const addBtn = document.getElementById('btnAddNotice');
   if(addBtn) addBtn.style.display = currentIsSuper ? '' : 'none';
   const list = visibleNotices();
   if(!list.length){
-    box.innerHTML = '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:26px">暂无通知</div>';
+    box.innerHTML = '<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:26px">暂无通知</div>';
     return;
   }
   box.innerHTML = list.map(n=>{
     const scope = (n.targets||[]).indexOf('all') >= 0 ? '全体人员' : ('指定 ' + (n.targets||[]).length + ' 人');
     return '<div class="card" style="margin-bottom:10px">' +
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
-        '<div style="font-size:15px;font-weight:600;color:#f0f5ff;line-height:1.5">' + String(n.title||'').replace(/</g,'&lt;') + '</div>' +
+        '<div style="font-size:15px;font-weight:600;color:#111827;line-height:1.5">' + String(n.title||'').replace(/</g,'&lt;') + '</div>' +
         (currentIsSuper ? '<button onclick="delNotice(\'' + n.id + '\')" style="flex-shrink:0;padding:4px 10px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:11px;cursor:pointer">删除</button>' : '') +
       '</div>' +
-      '<div style="font-size:13px;color:#a0b4d2;line-height:1.7;margin-top:8px;white-space:pre-wrap">' + String(n.content||'').replace(/</g,'&lt;') + '</div>' +
-      '<div style="font-size:11px;color:#607494;margin-top:10px">' + String(n.fromName||'') + ' · ' + String(n.time||'') + (currentIsSuper ? ' · ' + scope : '') + '</div>' +
+      '<div style="font-size:13px;color:#4b5563;line-height:1.7;margin-top:8px;white-space:pre-wrap">' + String(n.content||'').replace(/</g,'&lt;') + '</div>' +
+      '<div style="font-size:11px;color:#6b7280;margin-top:10px">' + String(n.fromName||'') + ' · ' + String(n.time||'') + (currentIsSuper ? ' · ' + scope : '') + '</div>' +
     '</div>';
   }).join('');
 }
@@ -4228,10 +4242,10 @@ function openNoticeForm(){
   const uids = Object.keys(ACCOUNTS).sort((a,b)=>String(a).localeCompare(String(b)));
   box.innerHTML = uids.map(uid=>{
     const a = ACCOUNTS[uid];
-    return '<label style="display:flex;align-items:center;gap:9px;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;color:#c9d8ee;cursor:pointer">' +
+    return '<label style="display:flex;align-items:center;gap:9px;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;color:#374151;cursor:pointer">' +
       '<input type="checkbox" class="notice-uid" value="' + uid + '" style="accent-color:#34d399">' +
       '<span style="flex:1">' + String(a.name||uid).replace(/</g,'&lt;') + '</span>' +
-      '<span style="font-size:11px;color:#607494">' + uid + ' · ' + String(a.level||'') + '</span></label>';
+      '<span style="font-size:11px;color:#6b7280">' + uid + ' · ' + String(a.level||'') + '</span></label>';
   }).join('');
   document.getElementById('noticeMask').style.display = 'block';
 }
@@ -4283,7 +4297,7 @@ function shopTab(cat, el){
     const on = b.dataset.cat === cat;
     b.style.border = on ? '1px solid rgba(115,184,255,0.35)' : '1px solid rgba(255,255,255,0.12)';
     b.style.background = on ? 'rgba(115,184,255,0.16)' : 'rgba(255,255,255,0.05)';
-    b.style.color = on ? '#73b8ff' : '#94a8c7';
+    b.style.color = on ? '#2563eb' : '#6b7280';
   });
   renderShop();
 }
@@ -4299,7 +4313,7 @@ async function renderShop(force){
   if(addBtn) addBtn.style.display = currentIsSuper ? '' : 'none';
   const items = shopCache.filter(x=>x.cat === currentShopCat).sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0));
   if(!items.length){
-    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:18px">该分类暂无商品' + (currentIsSuper ? '，点右上角「添加商品」上架' : '') + '</div>';
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:18px">该分类暂无商品' + (currentIsSuper ? '，点右上角「添加商品」上架' : '') + '</div>';
     return;
   }
   box.innerHTML = items.map(it=>{
@@ -4307,8 +4321,8 @@ async function renderShop(force){
     return '<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
       '<div style="width:38px;height:38px;border-radius:10px;background:rgba(167,139,250,0.18);display:flex;align-items:center;justify-content:center;font-size:16px;color:#a78bfa">' + (it.cat === '头像' ? '◍' : it.cat === '应用' ? '▣' : '◆') + '</div>' +
       '<div style="flex:1;min-width:0">' +
-        '<div style="font-size:14px;color:#d4e4fb">' + String(it.name||'').replace(/</g,'&lt;') + '</div>' +
-        '<div style="font-size:11px;color:#607494;margin-top:3px">' + String(it.desc||'').replace(/</g,'&lt;') + '</div>' +
+        '<div style="font-size:14px;color:#1f2937">' + String(it.name||'').replace(/</g,'&lt;') + '</div>' +
+        '<div style="font-size:11px;color:#6b7280;margin-top:3px">' + String(it.desc||'').replace(/</g,'&lt;') + '</div>' +
       '</div>' +
       '<div style="text-align:right;flex-shrink:0">' +
         '<div style="font-size:13px;color:#fbbf24;font-weight:600">' + (Number(it.price)||0) + ' 积分</div>' +
@@ -4349,7 +4363,7 @@ async function saveShopItem(){
     const on = b.dataset.cat === cat;
     b.style.border = on ? '1px solid rgba(115,184,255,0.35)' : '1px solid rgba(255,255,255,0.12)';
     b.style.background = on ? 'rgba(115,184,255,0.16)' : 'rgba(255,255,255,0.05)';
-    b.style.color = on ? '#73b8ff' : '#94a8c7';
+    b.style.color = on ? '#2563eb' : '#6b7280';
   });
   toastMsg('商品已上架');
   renderShop();
@@ -4394,37 +4408,37 @@ async function renderActivities(){
   await loadSignups();
   let html = '';
   if(!actCache.length){
-    html += '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">暂无活动' + (currentIsSuper ? '，点击右上角布置' : '') + '</div>';
+    html += '<div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">暂无活动' + (currentIsSuper ? '，点击右上角布置' : '') + '</div>';
   }
   actCache.forEach(a=>{
     const closed = a.status === '已结束';
     const signed = hasSigned(a.id);
     html += '<div class="card" style="margin-bottom:10px;' + (closed ? 'opacity:0.65;' : '') + '">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
-        '<div style="font-size:14px;font-weight:600;color:#f0f5ff">' + actEsc(a.title) + '</div>' +
+        '<div style="font-size:14px;font-weight:600;color:#111827">' + actEsc(a.title) + '</div>' +
         '<span style="font-size:10px;padding:2px 8px;border-radius:5px;' +
         (closed ? 'background:rgba(148,163,184,0.18);color:#94a3b8' : 'background:rgba(52,211,153,0.18);color:#34d399') + '">' +
         actEsc(a.status || '报名中') + '</span>' +
       '</div>' +
-      '<div style="font-size:12px;color:#a0b4d2;line-height:1.7;margin-bottom:8px">' + actEsc(a.desc) + '</div>' +
-      (a.deadline ? '<div style="font-size:11px;color:#607494;margin-bottom:8px">截止：' + actEsc(a.deadline) + '</div>' : '') +
+      '<div style="font-size:12px;color:#4b5563;line-height:1.7;margin-bottom:8px">' + actEsc(a.desc) + '</div>' +
+      (a.deadline ? '<div style="font-size:11px;color:#6b7280;margin-bottom:8px">截止：' + actEsc(a.deadline) + '</div>' : '') +
       (signed ? '<div style="font-size:11px;color:#34d399;margin-bottom:8px">已报名</div>' : '') +
       '<div style="display:flex;gap:8px;align-items:center">' +
         (signed && a.link && !closed
           ? '<a href="' + String(a.link).replace(/"/g,'&quot;') + '" target="_blank" rel="noopener" style="flex:1;padding:9px;background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.35);color:#34d399;border-radius:8px;font-size:13px;cursor:pointer;text-align:center;text-decoration:none;box-sizing:border-box">去参与</a>'
-          : '<button onclick="activitySignup(\'' + a.id + '\')" style="flex:1;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#73b8ff;border-radius:8px;font-size:13px;cursor:pointer;' +
+          : '<button onclick="activitySignup(\'' + a.id + '\')" style="flex:1;padding:9px;background:rgba(115,184,255,0.15);border:1px solid rgba(115,184,255,0.35);color:#2563eb;border-radius:8px;font-size:13px;cursor:pointer;' +
             (closed ? 'opacity:0.5' : '') + '">' + (closed ? '已结束' : (signed ? '已报名' : '立即报名')) + '</button>') +
-        (currentIsSuper ? '<button onclick="openActForm(\'' + a.id + '\')" style="padding:9px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:8px;font-size:12px;cursor:pointer">编辑</button>' +
+        (currentIsSuper ? '<button onclick="openActForm(\'' + a.id + '\')" style="padding:9px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;border-radius:8px;font-size:12px;cursor:pointer">编辑</button>' +
         '<button onclick="delAct(\'' + a.id + '\')" style="padding:9px 12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:12px;cursor:pointer">删除</button>' : '') +
       '</div></div>';
   });
   // 等级步步高（永久，非超管可编辑）
   html += '<div class="card" style="margin-bottom:10px;padding:14px">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
-      '<div style="font-size:14px;font-weight:600;color:#f0f5ff">等级步步高</div>' +
+      '<div style="font-size:14px;font-weight:600;color:#111827">等级步步高</div>' +
       '<span style="font-size:10px;padding:2px 8px;border-radius:5px;background:rgba(167,139,250,0.18);color:#a78bfa">永久</span>' +
     '</div>' +
-    '<div style="font-size:12px;color:#a0b4d2;line-height:1.7">持续签到、参与活动提升账号等级，解锁专属头像框与特权。截止时间：永久。</div></div>';
+    '<div style="font-size:12px;color:#4b5563;line-height:1.7">持续签到、参与活动提升账号等级，解锁专属头像框与特权。截止时间：永久。</div></div>';
   box.innerHTML = html;
 }
 async function activitySignup(aid){
@@ -4726,15 +4740,15 @@ async function openDmSetting(uid){
   uid = uid || dmPeer;
   const box = document.getElementById('dmSetBox');
   if(!uid){
-    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">未选择会话</div>';
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">未选择会话</div>';
   } else {
     const a = ACCOUNTS[uid] || {};
     const banned = isBanned(uid);
     box.innerHTML = '<div style="padding:12px 0">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
         '<div style="min-width:0">' +
-          '<div style="font-size:14px;color:#d4e4fb">'+String(a.name||uid).replace(/</g,'&lt;')+' <span style="font-size:11px;color:#607494">'+uid+'</span></div>' +
-          '<div style="font-size:11px;color:'+(banned?'#f87171':'#607494')+';margin-top:3px">'+(banned?'已拉黑':'未拉黑')+'</div>' +
+          '<div style="font-size:14px;color:#1f2937">'+String(a.name||uid).replace(/</g,'&lt;')+' <span style="font-size:11px;color:#6b7280">'+uid+'</span></div>' +
+          '<div style="font-size:11px;color:'+(banned?'#f87171':'#6b7280')+';margin-top:3px">'+(banned?'已拉黑':'未拉黑')+'</div>' +
         '</div>' +
         '<div style="display:flex;gap:6px;flex-shrink:0">' +
           '<button onclick="clearDmPeer(\''+uid+'\')" style="padding:6px 10px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;border-radius:7px;font-size:11px;cursor:pointer">清空记录</button>' +
@@ -4787,7 +4801,7 @@ function renderGrpSetting(){
   const box = document.getElementById('grpSetBox');
   const list = _grpSetGid ? groupCache.filter(x=>x.gid === _grpSetGid) : groupCache;
   if(!list.length){
-    box.innerHTML = '<div style="text-align:center;color:#607494;font-size:13px;padding:20px">暂无群聊</div>';
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">暂无群聊</div>';
     return;
   }
   box.innerHTML = list.map(g=>{
@@ -4800,25 +4814,25 @@ function renderGrpSetting(){
       const isAdmin = admins.indexOf(uid) >= 0;
       let act = '';
       if(!isOwner){
-        if(isAdmin) act = '<button onclick="grpDemote(\''+g.gid+'\',\''+uid+'\')" style="padding:5px 9px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;border-radius:7px;font-size:11px;cursor:pointer">取消管理</button>';
+        if(isAdmin) act = '<button onclick="grpDemote(\''+g.gid+'\',\''+uid+'\')" style="padding:5px 9px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;border-radius:7px;font-size:11px;cursor:pointer">取消管理</button>';
         else act = '<button onclick="grpPromote(\''+g.gid+'\',\''+uid+'\')" style="padding:5px 9px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;border-radius:7px;font-size:11px;cursor:pointer">设为管理</button>';
         act += ' <button onclick="grpRemoveMember(\''+g.gid+'\',\''+uid+'\')" style="padding:5px 9px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:11px;cursor:pointer">移出</button>';
       }
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">' +
-        '<div style="min-width:0;font-size:13px;color:#c9d8ee">'+String(a.name||uid).replace(/</g,'&lt;')+grpMemberTag(g,uid)+'</div>' +
+        '<div style="min-width:0;font-size:13px;color:#374151">'+String(a.name||uid).replace(/</g,'&lt;')+grpMemberTag(g,uid)+'</div>' +
         '<div style="display:flex;gap:6px;flex-shrink:0">'+act+'</div></div>';
     }).join('');
     const addSel = nonMembers.length
       ? '<select id="addSel-'+g.gid+'" style="flex:1;padding:9px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(115,184,255,0.22);border-radius:9px;color:#fff;font-size:13px;outline:none">' +
           nonMembers.map(u=>'<option value="'+u+'" style="background:#1a2030">'+String((ACCOUNTS[u]||{}).name||u)+'（'+u+'）</option>').join('') +
         '</select>'
-      : '<span style="flex:1;font-size:12px;color:#607494">无可添加成员</span>';
+      : '<span style="flex:1;font-size:12px;color:#6b7280">无可添加成员</span>';
     return '<div style="margin-bottom:16px;padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
-        '<div style="font-size:14px;color:#f0f5ff;font-weight:600">'+String(g.name||'群聊').replace(/</g,'&lt;')+'</div>' +
-        '<div style="font-size:11px;color:#607494">'+members.length+'/'+GROUP_LIMIT+' 人</div>' +
+        '<div style="font-size:14px;color:#111827;font-weight:600">'+String(g.name||'群聊').replace(/</g,'&lt;')+'</div>' +
+        '<div style="font-size:11px;color:#6b7280">'+members.length+'/'+GROUP_LIMIT+' 人</div>' +
       '</div>' +
-      '<div style="font-size:11px;color:#607494;margin-bottom:6px">成员 / 管理员</div>' +
+      '<div style="font-size:11px;color:#6b7280;margin-bottom:6px">成员 / 管理员</div>' +
       memberRows +
       '<div style="display:flex;gap:8px;margin-top:10px">' +
         addSel +
@@ -4974,10 +4988,10 @@ async function renderMePage(){
     box.innerHTML = mine.length ? mine.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).map(p=>{
       const pid = pidOf(p);
       return '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
-        '<div style="font-size:13px;color:#d4e4fb;line-height:1.6">' + String(p.content||'').replace(/</g,'&lt;') + '</div>' +
-        '<div style="font-size:11px;color:#607494;margin-top:5px">' + (p.time||'') + ' · ' + postLikes(pid) + ' 赞 · ' + postComments(pid).length + ' 评论</div>' +
+        '<div style="font-size:13px;color:#1f2937;line-height:1.6">' + String(p.content||'').replace(/</g,'&lt;') + '</div>' +
+        '<div style="font-size:11px;color:#6b7280;margin-top:5px">' + (p.time||'') + ' · ' + postLikes(pid) + ' 赞 · ' + postComments(pid).length + ' 评论</div>' +
       '</div>';
-    }).join('') : '<div style="text-align:center;color:#607494;font-size:13px;padding:18px">还没有发过帖子</div>';
+    }).join('') : '<div style="text-align:center;color:#6b7280;font-size:13px;padding:18px">还没有发过帖子</div>';
   }
 }
 async function renameMe(){
