@@ -256,10 +256,11 @@ body{
   position:fixed;right:18px;bottom:92px;z-index:110;
   background:linear-gradient(135deg,#2563eb,#2563eb);
   color:#080b12;width:52px;height:52px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
+  display:none;align-items:center;justify-content:center;
   font-size:24px;font-weight:300;cursor:pointer;
   box-shadow:0 6px 20px rgba(115,184,255,0.35);border:none;
 }
+body.logged-in .fab{display:flex}
 /* 后台主体默认隐藏 */
 #app{display:none}
 #app.logged-in{display:block}
@@ -356,7 +357,7 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
         <a onclick="showRecover()" style="color:rgba(115,184,255,0.7);font-size:12px;cursor:pointer;text-decoration:underline">忘记密码？使用安全密钥解锁</a>
       </div>
       <div style="text-align:center;margin-top:8px">
-        <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
+        <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
         <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.0 更新</div>
@@ -1302,6 +1303,7 @@ function checkAuth(){
 function showLogin(){
   document.getElementById('loginPage').style.display = 'flex';
   document.getElementById('app').classList.remove('logged-in');
+  document.body.classList.remove('logged-in');
 }
 async function showApp(u){
   try { await loadNameOverrides(); } catch(e){}
@@ -1321,6 +1323,7 @@ async function showApp(u){
   }
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('app').classList.add('logged-in');
+  document.body.classList.add('logged-in');
   // 我的余额与员工管理同源（ACCOUNTS[uid].balance），保持同步
   const myBal = document.getElementById('myBalance');
   if(myBal) myBal.textContent = '¥' + Number(acc.balance || 0).toFixed(2);
@@ -3527,7 +3530,8 @@ function renderChangelog(){
       '底部导航新增「发现」（应用中心），首页原应用中心卡片移除；普通用户不可见员工服务入口',
       '发现页改版：搜索栏、分类 / 适配设备 / 排序筛选，应用卡片含图标、作者、评分下载量与获取按钮；获取改为本地打包下载，避免浏览器内打开二进制文件出现乱码',
       '私信、设置、发帖编辑器弹层背景同步浅色；移除登录后弹出的公告提醒与右上角通知铃铛',
-      '登录 / 注册 / 解锁表单及个人资料、公告、商城、活动、编辑员工、签到抽奖、帖子详情、提现、举报等其余弹窗背景统一为浅白色'
+      '登录 / 注册 / 解锁表单及个人资料、公告、商城、活动、编辑员工、签到抽奖、帖子详情、提现、举报等其余弹窗背景统一为浅白色',
+      '修复登录页注册入口颜色过淡不可见；发帖加号按钮登录前隐藏'
     ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
