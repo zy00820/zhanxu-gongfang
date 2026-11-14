@@ -877,16 +877,7 @@ body.plain .ann-card.open{
 
     <!-- 发帖 -->
     <div class="view" id="view-post">
-      <div class="compose-box" style="display:block">
-        <div style="display:flex;gap:10px;align-items:flex-start">
-          <div class="post-avatar" id="postMyAvatar" style="flex-shrink:0">张</div>
-          <textarea id="postInput" rows="3" placeholder="分享你的想法…" style="flex:1;background:transparent;border:none;outline:none;resize:none;color:#d4e4fb;font-size:14px;font-family:inherit;line-height:1.5"></textarea>
-        </div>
-        <div style="text-align:right;margin-top:8px">
-          <span style="font-size:11px;color:#607494;margin-right:8px">两次发帖间隔 15 秒</span>
-          <button class="btn-send" onclick="submitPost()">发布</button>
-        </div>
-      </div>
+<span id="postMyAvatar" style="display:none">张</span>
       <div id="postTabs" style="display:flex;gap:8px;margin-bottom:12px">
         <div id="pst-all" onclick="postFilterTab('all')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#73b8ff">首先</div>
         <div id="pst-follow" onclick="postFilterTab('follow')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a8c7">关注</div>
@@ -1059,7 +1050,45 @@ body.plain .ann-card.open{
     </div>
   </div>
 
-  <button class="fab" onclick="showMaint()">+</button>
+  <!-- 发帖两步单页：话题 -> 内容编辑 -->
+<div id="postEditorMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(4,6,12,0.6);backdrop-filter:blur(16px)">
+  <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.96);backdrop-filter:blur(30px) saturate(180%)">
+    <div id="peStepTopic" style="display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:18px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <button onclick="closePostEditor()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">关闭</button>
+        <div style="font-size:15px;font-weight:600;color:#f0f5ff">选择话题</div>
+        <span style="width:56px"></span>
+      </div>
+      <div id="peTopicList" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+      <div style="margin-top:14px;font-size:12px;color:#607494">选择话题后进入内容编辑</div>
+    </div>
+    <div id="peStepCompose" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:18px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <button onclick="peBackTopic()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+        <div style="font-size:15px;font-weight:600;color:#f0f5ff">发布帖子</div>
+        <span style="width:56px"></span>
+      </div>
+      <div id="peTopicChip" style="display:inline-block;margin-bottom:12px;font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(167,139,250,0.15);color:#c4b5fd"></div>
+      <input id="pePostTitle" maxlength="40" placeholder="标题（必填）" style="width:100%;padding:11px 13px;margin-bottom:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none">
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <button onclick="peToggleMention()" style="padding:6px 11px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">@ 提及</button>
+        <button onclick="peInsertHash()" style="padding:6px 11px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer"># 话题</button>
+      </div>
+      <div id="peMentionPanel" style="display:none;margin-bottom:8px;max-height:160px;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.04);padding:6px"></div>
+      <textarea id="pePostContent" rows="6" maxlength="500" oninput="peSyncCount()" placeholder="分享你的想法…（可 @提及、#话题）" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#d4e4fb;font-size:14px;font-family:inherit;line-height:1.6;padding:11px 13px;outline:none;resize:none"></textarea>
+      <div style="text-align:right;font-size:11px;color:#607494;margin:6px 0"><span id="peCount">0</span>/500</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid rgba(255,255,255,0.08)">
+        <div><div style="color:#d4e4fb;font-size:14px">抽奖</div><div style="font-size:11px;color:#607494">发帖者可开启或关闭抽奖</div></div>
+        <button id="peLotteryBtn" onclick="peToggleLottery()" style="padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">关闭</button>
+      </div>
+      <div id="pePrizeWrap" style="display:none;margin-bottom:10px">
+        <input id="pePrize" maxlength="60" placeholder="奖品说明（选填）" style="width:100%;padding:10px 13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;font-size:13px;outline:none">
+      </div>
+      <button class="btn-send" onclick="submitPostV2()" style="width:100%;padding:13px;margin-top:4px">发布</button>
+    </div>
+  </div>
+</div>
+  <button class="fab" onclick="openPostEditor()">+</button>
 </div>
 </div>
 
@@ -2814,7 +2843,9 @@ function renderPosts(list){
         <div class="post-info"><div class="post-name">${p.name}</div><div class="post-time">${p.time} · 来自 栈序工坊</div></div>
         <div class="post-tag">${p.tag||'综合'}</div>
       </div>
-      <div class="post-content">${p.content}</div>
+      ${p.title ? '<div style="font-size:15px;font-weight:600;color:#e8f0ff;margin-bottom:6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : ''}
+      <div class="post-content">${peRenderText(p.content)}</div>
+      ${p.lottery && p.lottery.on ? '<div style="margin-bottom:10px;font-size:11px;color:#34d399">'+(p.lottery.prize ? '抽奖 · '+String(p.lottery.prize).replace(/</g,'&lt;') : '抽奖进行中')+'</div>' : ''}
       <div class="post-actions">
         <span onclick="toggleLike('${pid}')" style="cursor:pointer;color:${liked?'#f472b6':'inherit'}">${liked?'♥':'♡'} ${likes} 赞</span>
         <span onclick="toggleComments('${pid}')" style="cursor:pointer">${cms.length} 评论</span>
@@ -2950,52 +2981,124 @@ async function loadAndRenderPosts(force){
   if(st) st.textContent = list.length;
 }
 const POST_INTERVAL_MS = 15000; // 发帖间隔 15 秒
-async function submitPost(){
-  const input = document.getElementById('postInput');
-  const content = input.value.trim();
+// ===== 发帖两步流程：话题 -> 标题/内容/抽奖 =====
+const PE_TOPICS = ['综合','技术','生活','求助','活动','闲聊'];
+let peState = { topic: null, lottery: false };
+function openPostEditor(){
+  peState = { topic: null, lottery: false };
+  document.getElementById('pePostTitle').value = '';
+  document.getElementById('pePostContent').value = '';
+  document.getElementById('pePrize').value = '';
+  document.getElementById('peCount').textContent = '0';
+  document.getElementById('pePrizeWrap').style.display = 'none';
+  const lb = document.getElementById('peLotteryBtn');
+  lb.textContent = '关闭'; lb.style.background = 'rgba(255,255,255,0.06)';
+  document.getElementById('peMentionPanel').style.display = 'none';
+  document.getElementById('peStepTopic').style.display = 'flex';
+  document.getElementById('peStepCompose').style.display = 'none';
+  renderPeTopics();
+  document.getElementById('postEditorMask').style.display = 'block';
+}
+function closePostEditor(){ document.getElementById('postEditorMask').style.display = 'none'; }
+function renderPeTopics(){
+  document.getElementById('peTopicList').innerHTML = PE_TOPICS.map(t=>
+    '<div onclick="pePickTopic(\''+t+'\')" style="padding:16px;border-radius:12px;background:rgba(115,184,255,0.08);border:1px solid rgba(115,184,255,0.2);color:#d4e4fb;font-size:14px;text-align:center;cursor:pointer">'+t+'</div>').join('');
+}
+function pePickTopic(t){
+  peState.topic = t;
+  document.getElementById('peTopicChip').textContent = '# ' + t;
+  document.getElementById('peStepTopic').style.display = 'none';
+  document.getElementById('peStepCompose').style.display = 'flex';
+}
+function peBackTopic(){
+  document.getElementById('peStepCompose').style.display = 'none';
+  document.getElementById('peStepTopic').style.display = 'flex';
+}
+function peToggleLottery(){
+  peState.lottery = !peState.lottery;
+  const b = document.getElementById('peLotteryBtn');
+  b.textContent = peState.lottery ? '开启' : '关闭';
+  b.style.background = peState.lottery ? 'rgba(52,211,153,0.18)' : 'rgba(255,255,255,0.06)';
+  document.getElementById('pePrizeWrap').style.display = peState.lottery ? 'block' : 'none';
+}
+function peToggleMention(){
+  const panel = document.getElementById('peMentionPanel');
+  if(panel.style.display === 'block'){ panel.style.display = 'none'; return; }
+  const me = myUid();
+  const list = Object.keys(ACCOUNTS).filter(k => String(k) !== String(me));
+  panel.innerHTML = list.slice(0,30).map(k=>{
+    const a = ACCOUNTS[k];
+    const nm = String(a.name||k).replace(/'/g,'');
+    return '<div onclick="peInsertMention(\''+nm+'\')" style="padding:8px 6px;font-size:13px;color:#d4e4fb;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05)">'+nm+'</div>';
+  }).join('') || '<div style="padding:8px;color:#607494;font-size:12px">暂无可提及对象</div>';
+  panel.style.display = 'block';
+}
+function peInsertMention(name){
+  const ta = document.getElementById('pePostContent');
+  ta.value += (ta.value && !/[\s]$/.test(ta.value) ? ' ' : '') + '@' + name + ' ';
+  ta.focus();
+  document.getElementById('peMentionPanel').style.display = 'none';
+  peSyncCount();
+}
+function peInsertHash(){
+  const ta = document.getElementById('pePostContent');
+  ta.value += (ta.value && !/[\s]$/.test(ta.value) ? ' ' : '') + '#话题 ';
+  ta.focus(); peSyncCount();
+}
+function peSyncCount(){ document.getElementById('peCount').textContent = document.getElementById('pePostContent').value.length; }
+function peRenderText(text){
+  const esc = String(text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return esc.replace(/(@[^\s#@]+|#[^\s#@]+)/g, m => m[0] === '@'
+    ? '<span style="color:#73b8ff">'+m+'</span>'
+    : '<span style="color:#c4b5fd">'+m+'</span>');
+}
+async function submitPostV2(){
+  const title = document.getElementById('pePostTitle').value.trim();
+  const content = document.getElementById('pePostContent').value.trim();
+  if(!peState.topic){ toastMsg('请先选择话题'); return; }
+  if(!title){ toastMsg('请输入标题'); return; }
   if(!content){ toastMsg('请输入帖子内容'); return; }
-  // 重复内容拦截
+  if(content.length > 500){ toastMsg('内容不能超过 500 字'); return; }
   let exist = [];
   try { exist = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){}
   const norm = s => String(s||'').replace(/\s+/g,'').toLowerCase();
   if(exist.some(p => norm(p.content) === norm(content))){
-    toastMsg('该内容已存在，请勿重复发帖');
-    return;
+    toastMsg('该内容已存在，请勿重复发帖'); return;
   }
   const uid = sessionStorage.getItem('zx_user') || '';
   const now = new Date();
-  // 发帖间隔校验
   const lastKey = 'zx_lastpost_' + (uid || 'anon');
-  const last = parseInt(localStorage.getItem(lastKey) || '0', 10);
+  const last = parseInt(localStorage.getItem(lastKey)||'0', 10);
   const wait = Math.ceil((POST_INTERVAL_MS - (now.getTime() - last)) / 1000);
   if(wait > 0){ toastMsg('发帖太频繁，请 ' + wait + ' 秒后再试'); return; }
   const acc = ACCOUNTS[uid] || {};
   const p2 = n => String(n).padStart(2,'0');
   const timeStr = now.getFullYear()+'-'+p2(now.getMonth()+1)+'-'+p2(now.getDate())+' '+p2(now.getHours())+':'+p2(now.getMinutes());
+  const mentions = [...content.matchAll(/@([^\s#@]+)/g)].map(m=>m[1]);
+  const hashTags = [...content.matchAll(/#([^\s#@]+)/g)].map(m=>m[1]);
   const rec = {
-    uid: uid, name: acc.name || uid, tag: '综合', content: content,
+    uid: uid, name: acc.name || uid, tag: peState.topic,
+    title: title, content: content,
+    mentions: mentions, hashTags: hashTags,
+    lottery: peState.lottery ? { on: true, prize: document.getElementById('pePrize').value.trim() } : null,
     likes: 0, comments: 0, grad: 'linear-gradient(135deg,#60a5fa,#3b82f6)',
     time: timeStr, ts: now.getTime()
   };
   try {
     await ghAppendRecord(GH_POSTS_PATH, rec, 'zx_posts');
     localStorage.setItem(lastKey, String(now.getTime()));
-    input.value = '';
-    postsCache.push(rec);
-    postsLoaded = true;
-    renderPosts(postsCache);
+    postsCache.push(rec); postsLoaded = true;
+    closePostEditor(); renderPosts(postsCache);
     const st0 = document.getElementById('statPosts');
     if(st0) st0.textContent = postsCache.length;
     toastMsg('帖子已发布并云端同步');
   } catch(e){
-    // 本地兜底
     let local = [];
     try { local = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){}
     local.push(rec);
     localStorage.setItem('zx_posts', JSON.stringify(local));
     localStorage.setItem(lastKey, String(now.getTime()));
-    input.value='';
-    renderPosts(local);
+    closePostEditor(); renderPosts(local);
     toastMsg('网络异常，已先存本地');
   }
 }
@@ -3147,7 +3250,8 @@ function renderChangelog(){
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
       '社区发帖仍保持每 1 分钟自动刷新',
-      '站内消息提醒：未读角标、提示音与浏览器通知，新私信 / 群消息自动检测'
+      '站内消息提醒：未读角标、提示音与浏览器通知，新私信 / 群消息自动检测',
+      '发帖改为右下角加号两步流程：先选话题，再填标题与 500 字以内内容，支持 @提及、#话题与发帖者开关抽奖'
     ]},
     { ver: 'v1.0.14', date: '2026-11-13', items: [
       '开发者中心入口移至「我的」页面，排在我发布的帖子上方',
