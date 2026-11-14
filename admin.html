@@ -2849,7 +2849,7 @@ function renderPosts(list){
       </div>
       ${p.title ? '<div style="font-size:15px;font-weight:600;color:#e8f0ff;margin-bottom:6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : ''}
       <div class="post-content">${peRenderText(p.content)}</div>
-      ${p.lottery && p.lottery.on ? '<div style="margin-bottom:10px;font-size:11px;color:#34d399">'+lotteryCard(p)+'</div>' : ''}
+      ${p.lottery && p.lottery.on ? '<div style="margin-bottom:10px"><div style="font-size:11px;color:#34d399">'+lotteryCard(p)+'</div>'+(!p.lottery.drawn ? '<div style="display:flex;align-items:center;gap:10px;margin-top:8px"><button onclick="toggleLotteryJoin(\''+pid+'\')" style="padding:6px 13px;border-radius:8px;background:'+(iJoinedLottery(pid)?'rgba(52,211,153,0.18)':'rgba(115,184,255,0.12)')+';border:1px solid rgba(115,184,255,0.3);color:'+(iJoinedLottery(pid)?'#34d399':'#73b8ff')+';font-size:12px;cursor:pointer">'+(iJoinedLottery(pid)?'已参与':'参与抽奖')+'</button><span style="font-size:11px;color:#607494">'+lotteryJoiners(pid).length+' 人已参与</span></div>' : '')+'</div>' : ''}
       <div class="post-actions">
         <span onclick="toggleLike('${pid}')" style="cursor:pointer;color:${liked?'#f472b6':'inherit'}">${liked?'♥':'♡'} ${likes} 赞</span>
         <span onclick="toggleComments('${pid}')" style="cursor:pointer">${cms.length} 评论</span>
@@ -3065,6 +3065,26 @@ function lotteryCard(p){
   if(L.drawn && L.winner) return '已开奖 · ' + prize + ' · 中奖：' + String(L.winner.name || L.winner.uid);
   return '抽奖 · ' + prize + ' · ' + String(L.drawAtStr || '待定') + ' 开奖';
 }
+function lotteryJoiners(pid){
+  return interactCache.filter(x => x.pid === pid && x.type === 'lottery').map(x => String(x.uid));
+}
+function iJoinedLottery(pid){
+  const me = myUid();
+  return interactCache.some(x => x.pid === pid && x.type === 'lottery' && String(x.uid) === String(me));
+}
+async function toggleLotteryJoin(pid){
+  const me = myUid();
+  if(!me){ toastMsg('请先登录'); return; }
+  await loadInteractOnce();
+  const idx = interactCache.findIndex(x => x.pid === pid && x.type === 'lottery' && String(x.uid) === String(me));
+  if(idx >= 0){ interactCache.splice(idx, 1); }
+  else {
+    interactCache.push({ pid: pid, type: 'lottery', uid: me, name: (ACCOUNTS[me]||{}).name || me, ts: Date.now(), time: dmTime(Date.now()) });
+  }
+  const ok = await saveInteract();
+  renderPosts(postsCache);
+  toastMsg(ok ? (idx >= 0 ? '已退出抽奖' : '已参与抽奖') : '网络异常，参与状态已先存本地');
+}
 async function checkLotteries(){
   if(!postsCache || !postsCache.length) return;
   await loadInteractOnce();
@@ -3074,9 +3094,9 @@ async function checkLotteries(){
     if(!L || !L.on || L.drawn) continue;
     if(!L.drawAt || L.drawAt > Date.now()) continue;
     const pid = pidOf(p);
-    const likers = [...new Set(interactCache.filter(x => x.pid === pid && x.type === 'like').map(x => String(x.uid)))];
-    if(!likers.length) continue;
-    const winnerUid = likers[Math.floor(Math.random() * likers.length)];
+    const joiners = [...new Set(interactCache.filter(x => x.pid === pid && x.type === 'lottery').map(x => String(x.uid)))];
+    if(!joiners.length) continue;
+    const winnerUid = joiners[Math.floor(Math.random() * joiners.length)];
     const wacc = ACCOUNTS[winnerUid] || {};
     L.drawn = true;
     L.winner = { uid: winnerUid, name: wacc.name || winnerUid };
@@ -3315,7 +3335,8 @@ function renderChangelog(){
       '社区发帖仍保持每 1 分钟自动刷新',
       '站内消息提醒：未读角标、提示音与浏览器通知，新私信 / 群消息自动检测',
       '发帖改为右下角加号两步流程：先选话题，再填标题与 500 字以内内容，支持 @提及、#话题与发帖者开关抽奖',
-      '抽奖支持奖品名称、个数与开奖时间；到期自动开奖，中奖人在通知中心与私信收到提醒'
+      '抽奖支持奖品名称、个数与开奖时间；到期自动开奖，中奖人在通知中心与私信收到提醒',
+      '抽奖改为独立「参与抽奖」按钮，帖子显示已参与人数，开奖从参与者中抽取'
     ]},
     { ver: 'v1.0.14', date: '2026-11-13', items: [
       '开发者中心入口移至「我的」页面，排在我发布的帖子上方',
