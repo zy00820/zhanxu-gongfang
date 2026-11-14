@@ -235,10 +235,11 @@ body{
 /* ===== Toast ===== */
 .toast{
   position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
-  background:rgba(20,28,45,0.95);border:1px solid rgba(115,184,255,0.3);
+  background:#fff;border:1px solid #eef1f5;
   color:#1f2937;padding:12px 22px;border-radius:10px;
   font-size:13px;opacity:0;pointer-events:none;
   transition:all .3s;z-index:999;max-width:80%;text-align:center;
+  box-shadow:0 6px 20px rgba(16,24,40,0.15);
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast .icon{color:#fbbf24;margin-right:6px}
@@ -321,6 +322,7 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 .login-logo p { color:#6b7280 !important; }
 .field label { color:#374151 !important; }
 .login-foot { color:#6b7280 !important; }
+option{background:#fff;color:#1f2937}
 </style>
 </head>
 <body>
@@ -562,9 +564,9 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
       <div style="margin-bottom:12px">
         <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">分类</label>
         <select id="shopCat" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none">
-          <option value="头像" style="background:#1a2030">头像</option>
-          <option value="应用" style="background:#1a2030">应用</option>
-          <option value="专属铭牌" style="background:#1a2030">专属铭牌</option>
+          <option value="头像">头像</option>
+          <option value="应用">应用</option>
+          <option value="专属铭牌">专属铭牌</option>
         </select>
       </div>
       <div style="margin-bottom:12px">
@@ -608,8 +610,8 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
         <div style="width:120px">
           <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">状态</label>
           <select id="actStatus" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
-            <option value="报名中" style="background:#1a2030">报名中</option>
-            <option value="已结束" style="background:#1a2030">已结束</option>
+            <option value="报名中">报名中</option>
+            <option value="已结束">已结束</option>
           </select>
         </div>
       </div>
@@ -717,8 +719,8 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
       <div style="margin-bottom:12px">
         <label style="display:block;font-size:12px;color:#6b7280;margin-bottom:6px">职位</label>
         <select id="editLevel" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none">
-          <option value="管理员" style="background:#1a2030">管理员</option>
-          <option value="超级管理员" style="background:#1a2030">超级管理员</option>
+          <option value="管理员">管理员</option>
+          <option value="超级管理员">超级管理员</option>
         </select>
       </div>
       <button onclick="saveEditStaff()" style="width:100%;margin-top:10px;padding:13px;background:linear-gradient(135deg,#2563eb,#2563eb);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">保存</button>
@@ -1037,8 +1039,8 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
         <div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:10px">上传新作品</div>
         <div style="display:flex;gap:8px;margin-bottom:10px">
           <select id="devType" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
-            <option value="应用" style="background:#1a2030">应用</option>
-            <option value="表盘" style="background:#1a2030">表盘</option>
+            <option value="应用">应用</option>
+            <option value="表盘">表盘</option>
           </select>
           <input id="devName" placeholder="名称" style="flex:1.4;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
         </div>
@@ -1922,7 +1924,15 @@ async function downloadDevItem(id){
     setTimeout(()=>URL.revokeObjectURL(a.href), 8000);
     toastMsg('已开始下载 ' + fname);
   }catch(e){
-    window.open(x.url, '_blank');
+    toastMsg('自动下载失败，请在文件列表中手动保存');
+    const a2 = document.createElement('a');
+    a2.href = x.url;
+    a2.download = fname;
+    a2.target = '_blank';
+    a2.rel = 'noopener';
+    document.body.appendChild(a2);
+    a2.click();
+    a2.remove();
   }
 }
 function discoverItemHtml(x){
@@ -3531,7 +3541,8 @@ function renderChangelog(){
       '发现页改版：搜索栏、分类 / 适配设备 / 排序筛选，应用卡片含图标、作者、评分下载量与获取按钮；获取改为本地打包下载，避免浏览器内打开二进制文件出现乱码',
       '私信、设置、发帖编辑器弹层背景同步浅色；移除登录后弹出的公告提醒与右上角通知铃铛',
       '登录 / 注册 / 解锁表单及个人资料、公告、商城、活动、编辑员工、签到抽奖、帖子详情、提现、举报等其余弹窗背景统一为浅白色',
-      '修复登录页注册入口颜色过淡不可见；发帖加号按钮登录前隐藏'
+      '修复登录页注册入口颜色过淡不可见；发帖加号按钮登录前隐藏',
+      '提示浮层与下拉选项改为浅色；应用下载兜底链接携带下载属性，避免直接打开二进制出现乱码'
     ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
@@ -4918,7 +4929,7 @@ function renderGrpSetting(){
     }).join('');
     const addSel = nonMembers.length
       ? '<select id="addSel-'+g.gid+'" style="flex:1;padding:9px 10px;background:rgba(255,255,255,0.07);border:1px solid rgba(115,184,255,0.22);border-radius:9px;color:#fff;font-size:13px;outline:none">' +
-          nonMembers.map(u=>'<option value="'+u+'" style="background:#1a2030">'+String((ACCOUNTS[u]||{}).name||u)+'（'+u+'）</option>').join('') +
+          nonMembers.map(u=>'<option value="'+u+'">'+String((ACCOUNTS[u]||{}).name||u)+'（'+u+'）</option>').join('') +
         '</select>'
       : '<span style="flex:1;font-size:12px;color:#6b7280">无可添加成员</span>';
     return '<div style="margin-bottom:16px;padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px">' +
