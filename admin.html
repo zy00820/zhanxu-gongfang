@@ -1081,8 +1081,12 @@ body.plain .ann-card.open{
         <div><div style="color:#d4e4fb;font-size:14px">抽奖</div><div style="font-size:11px;color:#607494">发帖者可开启或关闭抽奖</div></div>
         <button id="peLotteryBtn" onclick="peToggleLottery()" style="padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">关闭</button>
       </div>
-      <div id="pePrizeWrap" style="display:none;margin-bottom:10px">
-        <input id="pePrize" maxlength="60" placeholder="奖品说明（选填）" style="width:100%;padding:10px 13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;font-size:13px;outline:none">
+      <div id="pePrizeWrap" style="display:none;margin-bottom:10px;flex-direction:column;gap:8px">
+        <input id="pePrizeName" maxlength="40" placeholder="奖品名称（必填）" style="width:100%;padding:10px 13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;font-size:13px;outline:none">
+        <div style="display:flex;gap:8px">
+          <input id="pePrizeCount" type="number" min="1" max="999" placeholder="奖品个数" style="flex:1;padding:10px 13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;font-size:13px;outline:none">
+          <input id="peDrawAt" type="datetime-local" style="flex:1;padding:10px 11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#fff;font-size:13px;outline:none">
+        </div>
       </div>
       <button class="btn-send" onclick="submitPostV2()" style="width:100%;padding:13px;margin-top:4px">发布</button>
     </div>
@@ -2845,7 +2849,7 @@ function renderPosts(list){
       </div>
       ${p.title ? '<div style="font-size:15px;font-weight:600;color:#e8f0ff;margin-bottom:6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : ''}
       <div class="post-content">${peRenderText(p.content)}</div>
-      ${p.lottery && p.lottery.on ? '<div style="margin-bottom:10px;font-size:11px;color:#34d399">'+(p.lottery.prize ? '抽奖 · '+String(p.lottery.prize).replace(/</g,'&lt;') : '抽奖进行中')+'</div>' : ''}
+      ${p.lottery && p.lottery.on ? '<div style="margin-bottom:10px;font-size:11px;color:#34d399">'+lotteryCard(p)+'</div>' : ''}
       <div class="post-actions">
         <span onclick="toggleLike('${pid}')" style="cursor:pointer;color:${liked?'#f472b6':'inherit'}">${liked?'♥':'♡'} ${likes} 赞</span>
         <span onclick="toggleComments('${pid}')" style="cursor:pointer">${cms.length} 评论</span>
@@ -2977,6 +2981,7 @@ async function loadAndRenderPosts(force){
   postsLoaded = true;
   await loadInteractOnce();
   renderPosts(postsCache);
+  checkLotteries();
   const st = document.getElementById('statPosts');
   if(st) st.textContent = list.length;
 }
@@ -2988,7 +2993,9 @@ function openPostEditor(){
   peState = { topic: null, lottery: false };
   document.getElementById('pePostTitle').value = '';
   document.getElementById('pePostContent').value = '';
-  document.getElementById('pePrize').value = '';
+  document.getElementById('pePrizeName').value = '';
+  document.getElementById('pePrizeCount').value = '';
+  document.getElementById('peDrawAt').value = '';
   document.getElementById('peCount').textContent = '0';
   document.getElementById('pePrizeWrap').style.display = 'none';
   const lb = document.getElementById('peLotteryBtn');
@@ -3052,6 +3059,49 @@ function peRenderText(text){
     ? '<span style="color:#73b8ff">'+m+'</span>'
     : '<span style="color:#c4b5fd">'+m+'</span>');
 }
+function lotteryCard(p){
+  const L = p.lottery;
+  const prize = String(L.prizeName || '奖品') + ' ×' + (L.count || 1);
+  if(L.drawn && L.winner) return '已开奖 · ' + prize + ' · 中奖：' + String(L.winner.name || L.winner.uid);
+  return '抽奖 · ' + prize + ' · ' + String(L.drawAtStr || '待定') + ' 开奖';
+}
+async function checkLotteries(){
+  if(!postsCache || !postsCache.length) return;
+  await loadInteractOnce();
+  let changed = false;
+  for(const p of postsCache){
+    const L = p.lottery;
+    if(!L || !L.on || L.drawn) continue;
+    if(!L.drawAt || L.drawAt > Date.now()) continue;
+    const pid = pidOf(p);
+    const likers = [...new Set(interactCache.filter(x => x.pid === pid && x.type === 'like').map(x => String(x.uid)))];
+    if(!likers.length) continue;
+    const winnerUid = likers[Math.floor(Math.random() * likers.length)];
+    const wacc = ACCOUNTS[winnerUid] || {};
+    L.drawn = true;
+    L.winner = { uid: winnerUid, name: wacc.name || winnerUid };
+    changed = true;
+    const body = '恭喜你中奖！奖品：' + L.prizeName + ' ×' + L.count + '（来自帖子《' + (p.title || p.content || '') + '》）';
+    try {
+      await ghAppendRecord(GH_NOTICE_PATH, {
+        id: 'NT' + Date.now(), title: '中奖通知：' + L.prizeName, content: body,
+        targets: [winnerUid], from: String(p.uid || ''), fromName: p.name || '',
+        time: dmTime(Date.now()), ts: Date.now()
+      }, 'zx_notices');
+      await ghAppendRecord(GH_DM_PATH, {
+        from: String(p.uid || ''), fromName: p.name || '',
+        to: winnerUid, toName: wacc.name || winnerUid,
+        text: body, time: dmTime(Date.now()), ts: Date.now()
+      }, 'zx_dms');
+    } catch(e){}
+  }
+  if(changed){
+    try { await ghWriteRecords(GH_POSTS_PATH, postsCache, 'zx_posts'); } catch(e){}
+    renderPosts(postsCache);
+    try { await loadNotices(true); renderNotices(); } catch(e){}
+    try { await loadDmData(true); } catch(e){}
+  }
+}
 async function submitPostV2(){
   const title = document.getElementById('pePostTitle').value.trim();
   const content = document.getElementById('pePostContent').value.trim();
@@ -3076,11 +3126,23 @@ async function submitPostV2(){
   const timeStr = now.getFullYear()+'-'+p2(now.getMonth()+1)+'-'+p2(now.getDate())+' '+p2(now.getHours())+':'+p2(now.getMinutes());
   const mentions = [...content.matchAll(/@([^\s#@]+)/g)].map(m=>m[1]);
   const hashTags = [...content.matchAll(/#([^\s#@]+)/g)].map(m=>m[1]);
+  let lottery = null;
+  if(peState.lottery){
+    const prizeName = document.getElementById('pePrizeName').value.trim();
+    const count = parseInt(document.getElementById('pePrizeCount').value, 10);
+    const drawAtStr = document.getElementById('peDrawAt').value;
+    if(!prizeName){ toastMsg('请填写奖品名称'); return; }
+    if(!count || count < 1){ toastMsg('奖品个数至少为 1'); return; }
+    if(!drawAtStr){ toastMsg('请选择开奖时间'); return; }
+    const drawAt = new Date(drawAtStr).getTime();
+    if(!drawAt || drawAt <= Date.now()){ toastMsg('开奖时间需晚于当前时间'); return; }
+    lottery = { on: true, prizeName: prizeName, count: count, drawAt: drawAt, drawAtStr: drawAtStr.replace('T', ' '), drawn: false, winner: null };
+  }
   const rec = {
     uid: uid, name: acc.name || uid, tag: peState.topic,
     title: title, content: content,
     mentions: mentions, hashTags: hashTags,
-    lottery: peState.lottery ? { on: true, prize: document.getElementById('pePrize').value.trim() } : null,
+    lottery: lottery,
     likes: 0, comments: 0, grad: 'linear-gradient(135deg,#60a5fa,#3b82f6)',
     time: timeStr, ts: now.getTime()
   };
@@ -3191,6 +3253,7 @@ setInterval(()=>{
 }, 60000);
 setInterval(()=>{
   try { checkNewMessages(); } catch(e){}
+  try { checkLotteries(); } catch(e){}
   try {
     const gMask = document.getElementById('gchatMask');
     const dMask = document.getElementById('dmMask');
@@ -3251,7 +3314,8 @@ function renderChangelog(){
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
       '社区发帖仍保持每 1 分钟自动刷新',
       '站内消息提醒：未读角标、提示音与浏览器通知，新私信 / 群消息自动检测',
-      '发帖改为右下角加号两步流程：先选话题，再填标题与 500 字以内内容，支持 @提及、#话题与发帖者开关抽奖'
+      '发帖改为右下角加号两步流程：先选话题，再填标题与 500 字以内内容，支持 @提及、#话题与发帖者开关抽奖',
+      '抽奖支持奖品名称、个数与开奖时间；到期自动开奖，中奖人在通知中心与私信收到提醒'
     ]},
     { ver: 'v1.0.14', date: '2026-11-13', items: [
       '开发者中心入口移至「我的」页面，排在我发布的帖子上方',
