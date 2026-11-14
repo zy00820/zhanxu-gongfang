@@ -296,7 +296,7 @@ body.plain .ann-card.open{
         <a onclick="showRegister()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.14 更新</div>
+        <div style="font-size:12px;color:#73b8ff;font-weight:600;margin-bottom:6px">v1.0.15 更新</div>
         <div style="font-size:11px;color:#94a8c7;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -403,7 +403,7 @@ body.plain .ann-card.open{
         <span style="font-size:14px;color:#d4e4fb">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#607494">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#607494">v1.0.14</span>
+          <span id="settingsVersion" style="font-size:12px;color:#607494">v1.0.15</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -587,7 +587,6 @@ body.plain .ann-card.open{
           <div style="font-size:11px;color:#9ca3af;margin-top:2px" id="gchatSub"></div>
         </div>
         <div style="display:flex;gap:8px">
-          <button onclick="refreshGroupChat()" style="padding:7px 12px;border-radius:8px;background:#eff6ff;border:1px solid #dbeafe;color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
           <button onclick="openGrpSetting(gchatGid)" style="padding:7px 12px;border-radius:8px;background:#f5f3ff;border:1px solid #ddd6fe;color:#7c3aed;font-size:12px;cursor:pointer">设置</button>
         </div>
       </div>
@@ -606,7 +605,6 @@ body.plain .ann-card.open{
         <button onclick="closeDm()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
         <div style="flex:1;text-align:center;font-size:15px;color:#f0f5ff;font-weight:600" id="dmTitle">消息</div>
         <div style="display:flex;gap:8px">
-          <button onclick="refreshDm()" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
           <button onclick="openDmSetting(dmPeer)" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">设置</button>
         </div>
       </div>
@@ -923,7 +921,6 @@ body.plain .ann-card.open{
           <div style="font-size:14px;color:#d4e4fb;font-weight:500">群聊</div>
           <div style="display:flex;gap:8px">
             <button onclick="openCreateGroup()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">+ 创建群聊</button>
-            <button onclick="renderDmCenterPage(true)" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
           </div>
         </div>
         <div id="groupListBox"></div>
@@ -932,9 +929,7 @@ body.plain .ann-card.open{
       <div class="card" id="dmPane-dm" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div style="font-size:14px;color:#d4e4fb;font-weight:500">私信</div>
-          <div style="display:flex;gap:8px">
-            <button onclick="renderDmCenterPage(true)" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.28);color:#73b8ff;font-size:12px;cursor:pointer">刷新</button>
-          </div>
+
         </div>
         <div id="dmListBox"></div>
       </div>
@@ -949,7 +944,7 @@ body.plain .ann-card.open{
             <div style="font-size:11px;color:#607494;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.14</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#73b8ff">v1.0.15</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -1240,7 +1235,7 @@ async function showApp(u){
   }
 }
 async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.0.14 已发布：开发者中心入口移至「我的」，未授权仅提示申请权限。');
+  await glassAlert('更新日志', 'v1.0.15 已发布：私信与群聊每 30 秒自动刷新，手动刷新按钮已移除。');
   await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
   await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
   if(acc.level === '超级管理员'){
@@ -3006,6 +3001,15 @@ setInterval(()=>{
   const v = document.getElementById('view-post');
   if(v && v.classList.contains('active')){ try { loadAndRenderPosts(true); } catch(e){} }
 }, 60000);
+setInterval(()=>{
+  try {
+    const gMask = document.getElementById('gchatMask');
+    const dMask = document.getElementById('dmMask');
+    if(gMask && gMask.style.display === 'block' && gchatGid){ refreshGroupChat(); }
+    else if(dMask && dMask.style.display === 'block' && dmPeer){ loadDmData(true).then(()=>openDm(dmPeer)); }
+    else if(document.getElementById('view-dm') && document.getElementById('view-dm').classList.contains('active')){ renderDmCenterPage(true); }
+  } catch(e){}
+}, 30000);
 loadSocial();
 
 function initTickets(){
@@ -3054,6 +3058,10 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.0.15', date: '2026-11-14', items: [
+      '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
+      '社区发帖仍保持每 1 分钟自动刷新'
+    ]},
     { ver: 'v1.0.14', date: '2026-11-13', items: [
       '开发者中心入口移至「我的」页面，排在我发布的帖子上方',
       '移除入口右侧授权徽标；未授权进入开发者中心仅提示「请先申请开发者权限」',
