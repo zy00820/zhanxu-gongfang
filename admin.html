@@ -529,7 +529,6 @@ option{background:#fff;color:#1f2937}
   <!-- 个人信息弹窗 -->
   <div id="profileMask" onclick="if(event.target===this)closeProfile()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))">
-      <button id="pfDevBtn" onclick="profileDevAuthAction()" style="display:none;position:absolute;top:16px;right:150px;padding:7px 14px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.34);color:#a78bfa;font-size:12px;cursor:pointer">授权开发者</button>
       <button id="pfBanBtn" onclick="profileBanAction()" style="display:none;position:absolute;top:16px;right:82px;padding:7px 14px;border-radius:8px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.32);color:#f87171;font-size:12px;cursor:pointer">封号</button>
       <button id="pfDmBtn" onclick="profileDmAction()" style="position:absolute;top:16px;right:16px;padding:7px 14px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb;font-size:12px;cursor:pointer">私信</button>
       <div style="text-align:center;margin-bottom:18px">
@@ -835,6 +834,7 @@ option{background:#fff;color:#1f2937}
       <div class="subtab" data-view="staffSvc" data-sub="staff">员工管理</div>
       <div class="subtab" data-view="staffSvc" data-sub="meeting">会议</div>
       <div class="subtab" data-view="staffSvc" data-sub="ticket">公单处理</div>
+      <div class="subtab" data-view="staffSvc" data-sub="dev">开发者管理</div>
       <div class="subtab" data-view="users" data-sub="userList">用户列表</div>
       <div class="subtab" data-view="users" data-sub="userAnn">用户公告</div>
     </div>
@@ -930,6 +930,18 @@ option{background:#fff;color:#1f2937}
         仅超级管理员可处理工单
       </div>
       <div id="ticketList"></div>
+    </div>
+
+    <!-- 开发者管理（二级tab，超管） -->
+    <div id="sub-dev" style="display:none">
+      <div class="compose-box" style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:14px;color:#1f2937;font-weight:500">开发者管理</div>
+        <button onclick="renderDevManage(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+      </div>
+      <div id="devLock" class="card" style="display:none;text-align:center;color:#6b7280;font-size:13px;padding:30px 16px">
+        仅超级管理员可管理开发者
+      </div>
+      <div id="devManageList"></div>
     </div>
 
     </div><!-- /view-staffSvc -->
@@ -1131,12 +1143,6 @@ option{background:#fff;color:#1f2937}
           <button onclick="renderDevApply(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
         </div>
         <div id="devApplyList"></div>
-      </div>
-
-      <div class="card" id="devAuthCard" style="display:none;margin-bottom:12px">
-        <div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:4px">开发者授权</div>
-        <div style="font-size:11px;color:#6b7280;margin-bottom:10px">勾选后该账号可进入开发者中心上传作品</div>
-        <div id="devAuthList" style="max-height:260px;overflow:auto"></div>
       </div>
 
       <div class="card">
@@ -1527,6 +1533,7 @@ async function showApp(u){
   document.getElementById('ticketLock').style.display = currentIsSuper ? 'none' : 'block';
   if(!window._ticketInit){ initTickets(); window._ticketInit = true; }
   renderTickets();
+  renderDevManage();
   renderChangelog();
   initUnreadBaseline();
   requestNotifyPermission();
@@ -1937,11 +1944,12 @@ document.querySelectorAll('.subtab').forEach(s=>{
     s.classList.add('active');
     const v = s.dataset.view;
     if(v==='staffSvc'){
-      ['ann','staff','meeting','ticket'].forEach(k=>{
+      ['ann','staff','meeting','ticket','dev'].forEach(k=>{
         const el = document.getElementById('sub-'+k);
         if(el) el.style.display = k===s.dataset.sub ? 'block' : 'none';
       });
       if(s.dataset.sub === 'ann') renderActivities();
+      if(s.dataset.sub === 'dev') renderDevManage();
     } else if(v==='users'){
       ['userList','userAnn'].forEach(k=>{
         const el = document.getElementById('sub-'+k);
@@ -2206,8 +2214,6 @@ async function renderDevCenter(force){
   if(upload) upload.style.display = allowed ? 'block' : 'none';
   const review = document.getElementById('devReviewCard');
   if(review) review.style.display = (currentIsSuper && allowed) ? 'block' : 'none';
-  const authCard = document.getElementById('devAuthCard');
-  if(authCard) authCard.style.display = (currentIsSuper && allowed) ? 'block' : 'none';
   const applyCard = document.getElementById('devApplyCard');
   if(applyCard) applyCard.style.display = currentIsSuper ? 'block' : 'none';
   renderDevApply();
@@ -2250,20 +2256,24 @@ async function renderDevCenter(force){
       '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">还没有提交过作品</div>';
   }
 
-  // 授权列表
-  const abox = document.getElementById('devAuthList');
-  if(abox && currentIsSuper){
-    const uids = Object.keys(ACCOUNTS).sort((a,b)=>String(a).localeCompare(String(b)));
-    abox.innerHTML = uids.map(uid=>{
-      if(String(uid) === String(me)) return '';
-      const a = ACCOUNTS[uid];
-      const on = devAuthCache.map(String).indexOf(String(uid)) >= 0;
-      return '<label style="display:flex;align-items:center;gap:9px;padding:7px 2px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;color:#374151;cursor:pointer">' +
-        '<input type="checkbox" onchange="toggleDevAuth(\'' + uid + '\', this.checked)" ' + (on ? 'checked' : '') + ' style="accent-color:#a78bfa">' +
-        '<span style="flex:1">' + String(a.name||uid).replace(/</g,'&lt;') + '</span>' +
-        '<span style="color:#6b7280">' + uid + ' · ' + String(a.level||'') + '</span></label>';
-    }).join('');
-  }
+}
+async function renderDevManage(force){
+  const list = document.getElementById('devManageList'); if(!list) return;
+  const lock = document.getElementById('devLock');
+  if(lock) lock.style.display = currentIsSuper ? 'none' : 'block';
+  if(!currentIsSuper){ list.innerHTML = ''; return; }
+  await loadDevAuth(force);
+  const uids = Object.keys(ACCOUNTS).sort((a,b)=>String(a).localeCompare(String(b)));
+  const rows = uids.filter(uid=>String(uid)!==String(myUid())).map(uid=>{
+    const a = ACCOUNTS[uid]; const on = isDevAuth(uid);
+    return '<div style="display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #f0f2f5">' +
+      '<div style="flex:1;min-width:0"><div style="font-size:13px;color:#1f2937">' + String(a.name||uid).replace(/</g,'&lt;') + '</div>' +
+      '<div style="font-size:11px;color:#6b7280">' + uid + ' · ' + String(a.level||'') + '</div></div>' +
+      (on ? '<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(167,139,250,0.18);color:#a78bfa">开发者</span>' : '') +
+      '<button onclick="toggleDevAuth(\'' + uid + '\',' + (!on) + ')" style="padding:6px 12px;background:' + (on?'rgba(248,113,113,0.1)':'rgba(167,139,250,0.14)') + ';border:1px solid ' + (on?'rgba(248,113,113,0.3)':'rgba(167,139,250,0.34)') + ';color:' + (on?'#f87171':'#a78bfa') + ';border-radius:7px;font-size:12px;cursor:pointer">' + (on?'取消授权':'授权') + '</button>' +
+    '</div>';
+  }).join('');
+  list.innerHTML = rows || '<div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">暂无账号</div>';
 }
 async function toggleDevAuth(uid, on){
   if(!currentIsSuper){ toastMsg('仅超级管理员可授权'); return; }
@@ -2275,6 +2285,7 @@ async function toggleDevAuth(uid, on){
   try { renderStaff(ACCOUNTS[myUid()]); } catch(e){}
   try { initNormalUsers(); renderUsers(window._userSearchKw || ''); } catch(e){}
   try { if(document.getElementById('view-dev') && document.getElementById('view-dev').classList.contains('active')) renderDevCenter(); } catch(e){}
+  try { renderDevManage(); } catch(e){}
 }
 function devSafeName(name){
   return String(name||'file').replace(/[^\w.\-\u4e00-\u9fa5]/g, '_').slice(0, 80);
@@ -3895,7 +3906,8 @@ function renderChangelog(){
       '侧边抽屉菜单入口完善',
       '全部板块独立单页，按综合/技术/生活/求助/活动/闲聊筛选帖子；社区热榜独立单页，按点赞、评论、抽奖参与数排序；App 福利暂提示开发中',
       '意见反馈接入云端记录，超管可在员工服务中查看、标记处理或删除',
-      '未授权用户可在开发者中心提交申请（类别、邮箱、个人经验、作品集链接），超管审核通过即授权开发者'
+      '未授权用户可在开发者中心提交申请（类别、邮箱、个人经验、作品集链接），超管审核通过即授权开发者',
+      '开发者授权管理迁移至员工服务「开发者管理」，移除个人主页与开发者中心内的旧授权入口'
     ]},
     { ver: 'v1.1.0', date: '2026-11-14', items: [
       '首页「活跃用户」入口改为「签到抽奖」，点击进入独立抽奖单页，每日可抽一次金币或经验',
@@ -4412,20 +4424,6 @@ async function openProfileFor(uid){
   window._pfUid = uid;
   const dmBtn = document.getElementById('pfDmBtn');
   if(dmBtn) dmBtn.textContent = (uid === sessionStorage.getItem('zx_user')) ? '消息' : '私信';
-  const devBtn = document.getElementById('pfDevBtn');
-  if(devBtn){
-    let showDev = false;
-    if(currentIsSuper && String(uid) !== String(myUid())){
-      try { await loadDevAuth(); } catch(e){}
-      showDev = true;
-      const on = isDevAuth(uid);
-      devBtn.textContent = on ? '取消开发者' : '授权开发者';
-      devBtn.style.color = on ? '#f0a3c8' : '#a78bfa';
-      devBtn.style.borderColor = on ? 'rgba(244,114,182,0.34)' : 'rgba(167,139,250,0.34)';
-      devBtn.style.background = on ? 'rgba(244,114,182,0.12)' : 'rgba(167,139,250,0.14)';
-    }
-    devBtn.style.display = showDev ? 'block' : 'none';
-  }
   const banBtn = document.getElementById('pfBanBtn');
   if(banBtn){
     banBtn.style.display = isManageable(uid) ? 'block' : 'none';
@@ -4441,16 +4439,6 @@ async function openProfileFor(uid){
   document.getElementById('profileMask').style.display = 'block';
 }
 
-async function profileDevAuthAction(){
-  if(!currentIsSuper){ toastMsg('仅超级管理员可授权'); return; }
-  const uid = window._pfUid;
-  if(!uid || String(uid) === String(myUid())) return;
-  await loadDevAuth();
-  const on = isDevAuth(uid);
-  await toggleDevAuth(String(uid), !on);
-  closeProfile();
-  setTimeout(()=>openProfileFor(uid), 900);
-}
 // ===== 私信（云端 dm-records.json，与社区发帖同一套读写） =====
 const GH_DM_PATH = 'dm-records.json';
 let dmPeer = null;      // null = 私信中心
