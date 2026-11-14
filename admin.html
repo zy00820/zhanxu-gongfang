@@ -832,14 +832,14 @@ option{background:#fff;color:#1f2937}
     <div class="subtabs" id="subtabs" style="display:none">
       <div class="subtab active" data-view="staffSvc" data-sub="ann">公告</div>
       <div class="subtab" data-view="staffSvc" data-sub="staff">员工管理</div>
-      <div class="subtab" data-view="staffSvc" data-sub="meeting">会议</div>
       <div class="subtab" data-view="staffSvc" data-sub="ticket">公单处理</div>
       <div class="subtab" data-view="staffSvc" data-sub="dev">开发者管理</div>
       <div class="subtab" data-view="users" data-sub="userList">用户列表</div>
       <div class="subtab" data-view="users" data-sub="userAnn">用户公告</div>
+      <div class="subtab" data-view="users" data-sub="ticketSubmit">工单提交</div>
     </div>
 
-    <!-- ===== 员工服务（含公告/员工管理/会议） ===== -->
+    <!-- ===== 员工服务（含公告/员工管理/工单/开发者管理） ===== -->
     <div class="view active" id="view-staffSvc">
 
     <!-- 公告（二级tab默认显示） -->
@@ -908,17 +908,6 @@ option{background:#fff;color:#1f2937}
       </div>
     </div>
 
-    <!-- 会议管理（二级tab，默认隐藏） -->
-    <div id="sub-meeting" style="display:none">
-      <div class="compose-box" style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:14px;color:#1f2937;font-weight:500">会议安排</div>
-        <button class="btn-send" id="btnAddMeeting" onclick="addMeeting()">+ 新建会议</button>
-      </div>
-      <div id="meetingLock" style="display:none" class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:20px">
-        仅超级管理员可管理会议
-      </div>
-      <div id="meetingList"></div>
-    </div>
 
     <!-- 公单处理（二级tab，默认隐藏） -->
     <div id="sub-ticket" style="display:none">
@@ -1092,6 +1081,24 @@ option{background:#fff;color:#1f2937}
         </div>
         <div class="ann-body">10月剩余工作日，技术部支持每周最多 2 天远程。其余人员正常坐班。远程期间需保持飞书在线响应。</div>
       </div>
+      </div>
+
+      <div id="sub-ticketSubmit" style="display:none">
+        <div class="card" style="margin-bottom:12px">
+          <div style="font-size:14px;color:#1f2937;font-weight:500;margin-bottom:10px">提交工单</div>
+          <select id="tkCategory" style="width:100%;padding:11px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:9px;color:#1f2937;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:10px">
+            <option>账号登录</option><option>应用表盘</option><option>社区互动</option><option>提现商城</option><option>其他</option>
+          </select>
+          <input id="tkTitle" placeholder="问题标题" style="width:100%;padding:11px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:9px;color:#1f2937;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:10px">
+          <input id="tkContact" placeholder="联系方式（选填）" style="width:100%;padding:11px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:9px;color:#1f2937;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:10px">
+          <textarea id="tkContent" rows="4" placeholder="详细描述你遇到的问题…" style="width:100%;padding:11px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:9px;color:#1f2937;font-size:13px;outline:none;box-sizing:border-box;resize:vertical"></textarea>
+          <div id="tkErr" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
+          <button onclick="submitTicket()" style="width:100%;margin-top:10px;padding:11px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;color:#fff;border-radius:9px;font-size:14px;cursor:pointer">提交工单</button>
+        </div>
+        <div class="card">
+          <div style="font-size:14px;color:#1f2937;font-weight:500;margin-bottom:10px">我的工单</div>
+          <div id="myTicketList"></div>
+        </div>
       </div>
     </div>
 
@@ -1437,7 +1444,7 @@ const ACCOUNTS = {
 
 // 登录态
 function checkAuth(){
-  if(!window._staffInit){ initStaffData(); initMeetings(); window._staffInit = true; }
+  if(!window._staffInit){ initStaffData(); window._staffInit = true; }
   loadBans();
   const u = sessionStorage.getItem('zx_user');
   if(u && ACCOUNTS[u]){ showApp(u); } else { showLogin(); }
@@ -1526,9 +1533,6 @@ async function showApp(u){
   const fbPanel = document.getElementById('fbPanel');
   if(fbPanel) fbPanel.style.display = currentIsSuper ? 'block' : 'none';
   if(currentIsSuper){ renderWdPanel(); renderReportPanel(); renderFeedbackPanel(); }
-  document.getElementById('btnAddMeeting').style.display = currentIsSuper ? '' : 'none';
-  document.getElementById('meetingLock').style.display = currentIsSuper ? 'none' : 'block';
-  renderMeetings();
   // 工单权限
   document.getElementById('ticketLock').style.display = currentIsSuper ? 'none' : 'block';
   if(!window._ticketInit){ initTickets(); window._ticketInit = true; }
@@ -1687,57 +1691,7 @@ function toastMsg(txt){
   window._tt=setTimeout(()=>t.classList.remove('show'),1500);
 }
 
-// ===== 会议管理 =====
-let meetingData = [];
 let currentIsSuper = false;
-function initMeetings(){
-  meetingData = [
-    { title: '栈序OS 1.2 版本评审', time: '2026-10-25 14:00', attendees: '张岳、陆宇、周天浩', status: '待开始' },
-    { title: '智腕社区 3.1 内测复盘', time: '2026-10-24 10:30', attendees: '技术部全员', status: '进行中' },
-    { title: '10月开发者结算沟通会', time: '2026-10-20 16:00', attendees: '运营部、张岳', status: '已结束' },
-  ];
-}
-function renderMeetings(){
-  const list = document.getElementById('meetingList');
-  const statusColor = s => s==='进行中' ? 'rgba(52,211,153,0.18);color:#34d399' : s==='待开始' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(100,116,139,0.18);color:#6b7280';
-  list.innerHTML = meetingData.map((m, idx)=>`
-    <div class="card" style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div style="font-size:15px;color:#111827;font-weight:600">${m.title}</div>
-        <span style="font-size:11px;padding:2px 8px;border-radius:6px;background:${statusColor(m.status)}">${m.status}</span>
-      </div>
-      <div style="font-size:12px;color:#6b7280;line-height:1.8">
-        <div>时间：${m.time}</div>
-        <div>参会：${m.attendees}</div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        ${currentIsSuper && m.status !== '已结束' ? `<button onclick="endMeeting(${idx})" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">结束</button>` : ''}
-        ${currentIsSuper ? `<button onclick="delMeeting(${idx})" style="background:transparent;border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">取消会议</button>` : ''}
-      </div>
-    </div>
-  `).join('');
-}
-async function addMeeting(){
-  const title = await glassPrompt('新建会议','请输入会议主题');
-  if(!title) return;
-  const time = await glassPrompt('新建会议','会议时间（如 2026-10-26 15:00）','待定');
-  const attendees = await glassPrompt('新建会议','参会人员','未指定');
-  meetingData.push({ title: title.trim(), time: (time||'待定').trim(), attendees: (attendees||'未指定').trim(), status: '待开始' });
-  renderMeetings();
-  toastMsg('会议已创建');
-}
-function endMeeting(idx){
-  meetingData[idx].status = '已结束';
-  renderMeetings();
-  toastMsg('会议已结束');
-}
-async function delMeeting(idx){
-  const ok = await glassConfirm('取消会议', `确认取消会议「${meetingData[idx].title}」？`);
-  if(!ok) return;
-  meetingData.splice(idx,1);
-  renderMeetings();
-  toastMsg('会议已取消');
-}
 async function sha256(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
@@ -1944,14 +1898,15 @@ document.querySelectorAll('.subtab').forEach(s=>{
     s.classList.add('active');
     const v = s.dataset.view;
     if(v==='staffSvc'){
-      ['ann','staff','meeting','ticket','dev'].forEach(k=>{
+      ['ann','staff','ticket','dev'].forEach(k=>{
         const el = document.getElementById('sub-'+k);
         if(el) el.style.display = k===s.dataset.sub ? 'block' : 'none';
       });
       if(s.dataset.sub === 'ann') renderActivities();
       if(s.dataset.sub === 'dev') renderDevManage();
+      if(s.dataset.sub === 'ticketSubmit') renderMyTickets();
     } else if(v==='users'){
-      ['userList','userAnn'].forEach(k=>{
+      ['userList','userAnn','ticketSubmit'].forEach(k=>{
         const el = document.getElementById('sub-'+k);
         if(el) el.style.display = k===s.dataset.sub ? 'block' : 'none';
       });
@@ -3228,7 +3183,17 @@ function glassAlert(title, msg){ return glassOpen({title, msg, okText:'知道了
 
 // 启动
 // ===== 工单 =====
+const GH_TICKET_PATH = 'ticket-records.json';
 let ticketData = [];
+let ticketCloudCache = [], ticketCloudLoaded = false;
+async function loadTickets(force){
+  if(ticketCloudLoaded && !force) return ticketCloudCache;
+  try { const r = await ghGetRecords(GH_TICKET_PATH); ticketCloudCache = r.list || []; }
+  catch(e){ try { ticketCloudCache = JSON.parse(localStorage.getItem('zx_ticket_records')||'[]'); } catch(x){ ticketCloudCache = []; } }
+  if(!Array.isArray(ticketCloudCache)) ticketCloudCache = [];
+  ticketCloudLoaded = true; return ticketCloudCache;
+}
+function staffTicketList(){ return ticketCloudCache.slice().concat(ticketData); }
 
 /* ===== 社区预置 50 帖 ===== */
 // ===== 社区帖子：云端 posts-records.json，发帖即同步、查看即拉取 =====
@@ -3874,27 +3839,85 @@ function initTickets(){
     time: '2026-'+String(9+(i%2)).padStart(2,'0')+'-'+String(1+(i%28)).padStart(2,'0')+' '+String(8+i%12)+':'+String((i*7)%60).padStart(2,'0'),
     status: i<16 ? '待处理' : '已处理'
   }));
+  loadTickets().then(()=>renderTickets());
 }
-function renderTickets(){
-  const list = document.getElementById('ticketList');
-  const pending = ticketData.filter(t=>t.status==='待处理').length;
-  document.getElementById('ticketCount').textContent = pending+' 条待处理 / 共 '+ticketData.length+' 条';
-  list.innerHTML = ticketData.map((t,i)=>{
+async function renderTickets(){
+  const listEl = document.getElementById('ticketList');
+  if(!listEl) return;
+  await loadTickets();
+  const list = staffTicketList();
+  const pending = list.filter(t=>t.status==='待处理').length;
+  document.getElementById('ticketCount').textContent = pending+' 条待处理 / 共 '+list.length+' 条';
+  listEl.innerHTML = list.map((t,i)=>{
     const stColor = t.status==='待处理' ? 'rgba(251,191,36,0.18);color:#fbbf24' : 'rgba(52,211,153,0.18);color:#34d399';
+    const who = t.name || t.from || '社区用户';
     return `<div class="card" style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
         <div style="font-size:14px;color:#111827;font-weight:500">${t.title}</div>
         <span style="font-size:11px;padding:2px 8px;border-radius:6px;background:${stColor};flex-shrink:0;margin-left:8px">${t.status}</span>
       </div>
-      <div style="font-size:11px;color:#6b7280">${t.id} · 提交人：${t.from} · ${t.time}</div>
+      <div style="font-size:11px;color:#6b7280">${t.id} · 提交人：${who} · ${t.time}</div>
+      ${t.category ? '<div style="font-size:11px;color:#6b7280">类别：'+String(t.category).replace(/</g,'&lt;')+'</div>' : ''}
       ${currentIsSuper && t.status==='待处理' ? `<button onclick="resolveTicket(${i})" style="margin-top:10px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer">标记已处理</button>` : ''}
     </div>`;
   }).join('');
 }
 function resolveTicket(i){
-  ticketData[i].status = '已处理';
+  const list = staffTicketList();
+  const t = list[i]; if(!t) return;
+  t.status = '已处理';
+  if(t.cloud){
+    const rec = ticketCloudCache.find(x=>x.id===t.id);
+    if(rec) rec.status = '已处理';
+    ghWriteRecords(GH_TICKET_PATH, ticketCloudCache, 'zx_ticket_records')
+      .then(()=>toastMsg('工单已处理')).catch(()=>toastMsg('处理状态同步失败'));
+  } else {
+    const mi = ticketData.indexOf(t);
+    if(mi>=0) ticketData[mi].status = '已处理';
+    toastMsg('工单已处理');
+  }
   renderTickets();
-  toastMsg('工单已处理');
+}
+async function submitTicket(){
+  const title = document.getElementById('tkTitle').value.trim();
+  const content = document.getElementById('tkContent').value.trim();
+  const contact = document.getElementById('tkContact').value.trim();
+  const category = document.getElementById('tkCategory').value;
+  const err = document.getElementById('tkErr');
+  if(!title){ err.textContent = '请填写问题标题'; return; }
+  if(!content){ err.textContent = '请填写问题描述'; return; }
+  const me = myUid();
+  const rec = {
+    id: 'WO-'+Date.now(), uid: me,
+    name: (ACCOUNTS[me] ? ACCOUNTS[me].name : myName() || me),
+    category: category, title: title, contact: contact, content: content,
+    time: new Date().toLocaleString(), ts: Date.now(), status: '待处理', cloud: true
+  };
+  try { await ghAppendRecord(GH_TICKET_PATH, rec, 'zx_ticket_records'); }
+  catch(e){ const l = JSON.parse(localStorage.getItem('zx_ticket_records')||'[]'); l.push(rec); localStorage.setItem('zx_ticket_records', JSON.stringify(l)); ticketCloudCache.push(rec); ticketCloudLoaded = true; }
+  document.getElementById('tkTitle').value = '';
+  document.getElementById('tkContent').value = '';
+  document.getElementById('tkContact').value = '';
+  err.textContent = '';
+  toastMsg('工单已提交，工作人员会尽快处理');
+  renderMyTickets();
+}
+async function renderMyTickets(){
+  const box = document.getElementById('myTicketList'); if(!box) return;
+  await loadTickets();
+  const me = String(myUid());
+  const mine = ticketCloudCache.filter(t=>String(t.uid)===me).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  box.innerHTML = mine.length ? mine.map(t=>{
+    const stColor = t.status==='已处理' ? 'rgba(52,211,153,0.18);color:#34d399' : 'rgba(251,191,36,0.18);color:#fbbf24';
+    return `<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div style="font-size:14px;color:#111827;font-weight:500">${String(t.title||'').replace(/</g,'&lt;')}</div>
+        <span style="font-size:11px;padding:2px 8px;border-radius:6px;background:${stColor}">${String(t.status||'待处理')}</span>
+      </div>
+      <div style="font-size:11px;color:#6b7280">${String(t.id||'')} · ${String(t.category||'')} · ${String(t.time||'')}</div>
+      <div style="font-size:13px;color:#4b5563;margin-top:6px;line-height:1.6">${String(t.content||'').replace(/</g,'&lt;')}</div>
+    </div>`;
+  }).join('') : '<div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">还没有提交过工单</div>';
 }
 
 // ===== 更新日志 =====
@@ -3907,7 +3930,8 @@ function renderChangelog(){
       '全部板块独立单页，按综合/技术/生活/求助/活动/闲聊筛选帖子；社区热榜独立单页，按点赞、评论、抽奖参与数排序；App 福利暂提示开发中',
       '意见反馈接入云端记录，超管可在员工服务中查看、标记处理或删除',
       '未授权用户可在开发者中心提交申请（类别、邮箱、个人经验、作品集链接），超管审核通过即授权开发者',
-      '开发者授权管理迁移至员工服务「开发者管理」，移除个人主页与开发者中心内的旧授权入口'
+      '开发者授权管理迁移至员工服务「开发者管理」，移除个人主页与开发者中心内的旧授权入口',
+      '移除员工服务「会议」二级页；用户服务新增「工单提交」，可选择类别、填写标题与描述，提交后进入超管公单处理列表'
     ]},
     { ver: 'v1.1.0', date: '2026-11-14', items: [
       '首页「活跃用户」入口改为「签到抽奖」，点击进入独立抽奖单页，每日可抽一次金币或经验',
