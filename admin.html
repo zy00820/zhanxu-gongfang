@@ -323,6 +323,23 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 .field label { color:#374151 !important; }
 .login-foot { color:#6b7280 !important; }
 option{background:#fff;color:#1f2937}
+
+/* ===== 侧边抽屉 ===== */
+.menu-btn{background:none;border:none;font-size:20px;color:#1f2937;cursor:pointer;padding:4px 6px;line-height:1}
+.drawer-backdrop{position:fixed;inset:0;background:rgba(15,23,42,0.35);z-index:260;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-backdrop.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:80%;max-width:320px;background:#fff;z-index:261;transform:translateX(-100%);transition:transform .28s ease;display:flex;flex-direction:column;padding:18px 16px;box-shadow:4px 0 24px rgba(16,24,40,0.12)}
+.drawer.show{transform:translateX(0)}
+.drawer-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.drawer-logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#a78bfa);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.drawer-close{margin-left:auto;width:34px;height:34px;border-radius:50%;border:1.5px solid #bfdbfe;background:#fff;color:#2563eb;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px}
+.drawer-user{display:flex;align-items:center;gap:12px;background:#f7f8fa;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer}
+.drawer-user .post-avatar{width:40px;height:40px}
+.drawer-menu{flex:1;overflow-y:auto}
+.drawer-item{display:flex;align-items:center;gap:14px;padding:14px 6px;font-size:15px;color:#1f2937;cursor:pointer;border-bottom:1px solid #f3f4f6}
+.drawer-item .di-ico{width:22px;text-align:center;color:#6b7280;font-size:16px}
+.drawer-foot{display:flex;gap:18px;padding:14px 6px;font-size:12px;color:#6b7280}
+.drawer-foot span{cursor:pointer}
 </style>
 </head>
 <body>
@@ -432,7 +449,10 @@ option{background:#fff;color:#1f2937}
 <!-- ===== 管理后台 ===== -->
 <div id="app">
   <div class="topbar">
-    <div class="logo">栈序云</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="menu-btn" onclick="openDrawer()" aria-label="菜单">☰</button>
+      <div class="logo">栈序云</div>
+    </div>
     <div class="user-area">
       <div class="user-chip" onclick="openProfile()" style="cursor:pointer">
         <div class="avatar" id="avatarText">张</div>
@@ -442,6 +462,36 @@ option{background:#fff;color:#1f2937}
       <button class="btn-logout" onclick="openSettings()" style="font-size:16px;padding:6px 10px">⚙</button>
     </div>
   </div>
+
+  <!-- 侧边抽屉 -->
+  <div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-head">
+      <div class="drawer-logo">栈</div>
+      <div style="font-size:17px;font-weight:600;color:#111827">栈序云</div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-user" onclick="closeDrawer();openProfile()">
+      <div class="post-avatar" id="drawerAvatar">张</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600;color:#111827" id="drawerName">—</div>
+      </div>
+      <span style="color:#9ca3af">›</span>
+    </div>
+    <div class="drawer-menu">
+      <div class="drawer-item" onclick="drawerGo('post')"><span class="di-ico">🔥</span>社区热榜</div>
+      <div class="drawer-item" onclick="drawerGo('post')"><span class="di-ico">▦</span>全部板块</div>
+      <div class="drawer-item" onclick="closeDrawer();openPostEditor()"><span class="di-ico">✎</span>发布帖子</div>
+      <div class="drawer-item" onclick="drawerGo('me')"><span class="di-ico">⬇</span>App 福利</div>
+      <div class="drawer-item" onclick="toastMsg('官方 QQ 群入口即将开放')"><span class="di-ico">👥</span>官方 QQ 群</div>
+      <div class="drawer-item" onclick="toastMsg('可在帖子或用户详情页发起意见反馈')"><span class="di-ico">❗</span>意见反馈</div>
+      <div class="drawer-item" onclick="closeDrawer();openDevCenter()"><span class="di-ico">‹›</span>开发者中心</div>
+    </div>
+    <div class="drawer-foot">
+      <span onclick="glassAlert('用户协议','欢迎使用栈序云。用户协议内容将在后续版本完善。')">用户协议</span>
+      <span onclick="glassAlert('隐私政策','我们仅在本地与仓库记录必要的账号与发帖信息。隐私政策内容将在后续版本完善。')">隐私政策</span>
+    </div>
+  </aside>
 
   <!-- 设置弹窗 -->
   <div id="settingsMask" onclick="if(event.target===this)closeSettings()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
@@ -1301,6 +1351,25 @@ function checkAuth(){
   loadBans();
   const u = sessionStorage.getItem('zx_user');
   if(u && ACCOUNTS[u]){ showApp(u); } else { showLogin(); }
+}
+function openDrawer(){
+  const nm = document.getElementById('unameText');
+  const av = document.getElementById('avatarText');
+  const dn = document.getElementById('drawerName');
+  const da = document.getElementById('drawerAvatar');
+  if(dn) dn.textContent = nm ? nm.textContent : '—';
+  if(da) da.textContent = av ? av.textContent.charAt(0) : '张';
+  document.getElementById('drawer').classList.add('show');
+  document.getElementById('drawerBackdrop').classList.add('show');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('show');
+  document.getElementById('drawerBackdrop').classList.remove('show');
+}
+function drawerGo(v){
+  closeDrawer();
+  const t = document.querySelector('.tab[data-view="'+v+'"]');
+  if(t) t.click();
 }
 function showLogin(){
   document.getElementById('loginPage').style.display = 'flex';
@@ -3542,7 +3611,8 @@ function renderChangelog(){
       '私信、设置、发帖编辑器弹层背景同步浅色；移除登录后弹出的公告提醒与右上角通知铃铛',
       '登录 / 注册 / 解锁表单及个人资料、公告、商城、活动、编辑员工、签到抽奖、帖子详情、提现、举报等其余弹窗背景统一为浅白色',
       '修复登录页注册入口颜色过淡不可见；发帖加号按钮登录前隐藏',
-      '提示浮层与下拉选项改为浅色；应用下载兜底链接携带下载属性，避免直接打开二进制出现乱码'
+      '提示浮层与下拉选项改为浅色；应用下载兜底链接携带下载属性，避免直接打开二进制出现乱码',
+      '顶栏左侧新增汉堡按钮，打开侧边抽屉（个人入口、社区热榜、全部板块、发布帖子、App 福利、QQ 群、意见反馈、开发者中心、协议入口）'
     ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
