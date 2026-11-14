@@ -225,6 +225,14 @@ body{
 .post-card .post-tag{background:rgba(47,107,255,0.12);color:#5b8def;border-radius:8px}
 .post-card .post-content{font-size:14px;color:#dbe5f5;line-height:1.65}
 .post-card .post-actions{gap:20px;color:#8a97ad}
+.post-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:640px){.post-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.post-grid .post-card{padding:13px;margin-bottom:0;cursor:pointer}
+.post-grid .post-avatar{width:32px;height:32px;font-size:12px}
+.post-grid .post-name{font-size:13px}
+.post-grid .post-time{font-size:10px}
+.post-grid .post-content{font-size:13px;line-height:1.55;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.post-grid .post-actions{gap:14px;font-size:11px}
 /* ===== Toast ===== */
 .toast{
   position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
@@ -1060,6 +1068,17 @@ body.plain .ann-card.open{
   </div>
 
   <!-- 发帖两步单页：话题 -> 内容编辑 -->
+<!-- 帖子详情单页 -->
+<div id="postDetailMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(4,6,12,0.6);backdrop-filter:blur(16px)">
+  <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.96);backdrop-filter:blur(30px) saturate(180%)">
+    <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08)">
+      <button onclick="closePostDetail()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a8c7;font-size:12px;cursor:pointer">返回</button>
+      <div style="flex:1;text-align:center;font-size:15px;font-weight:600;color:#f0f5ff">帖子详情</div>
+      <span style="width:56px"></span>
+    </div>
+    <div id="postDetailBody" style="flex:1;overflow-y:auto;padding:18px 16px"></div>
+  </div>
+</div>
 <div id="postEditorMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(4,6,12,0.6);backdrop-filter:blur(16px)">
   <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.96);backdrop-filter:blur(30px) saturate(180%)">
     <div id="peStepTopic" style="display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:18px 16px">
@@ -2792,6 +2811,7 @@ async function toggleLike(pid){
   }
   const ok = await saveInteract();
   renderPosts(postsCache);
+  refreshIfDetail();
   if(!ok) toastMsg('网络异常，点赞已先存本地');
   else toastMsg(idx >= 0 ? '已取消点赞' : '已点赞');
 }
@@ -2814,6 +2834,7 @@ async function addComment(pid){
   const ok = await saveInteract();
   postsExpanded[pid] = true;
   renderPosts(postsCache);
+  refreshIfDetail();
   toastMsg(ok ? '评论已发布并云端同步' : '网络异常，评论已先存本地');
 }
 let postFilter = 'all';
@@ -2849,33 +2870,69 @@ function renderPosts(list){
     const likes = postLikes(pid);
     const cms = postComments(pid);
     const liked = iLiked(pid);
-    const joinedLot = iJoinedLottery(pid);
-    const open = !!postsExpanded[pid];
-    html += `<div class="card post-card" onpointerdown="ppStart(event,'${pid}')" onpointerup="ppEnd()" onpointercancel="ppEnd()" onpointermove="ppMove(event)" onpointerleave="ppEnd()">
+    html += `<div class="card post-card" onclick="openPostDetail('${pid}')" onpointerdown="ppStart(event,'${pid}')" onpointerup="ppEnd()" onpointercancel="ppEnd()" onpointermove="ppMove(event)" onpointerleave="ppEnd()">
       <div class="post-head">
         <div class="post-avatar" onclick="event.stopPropagation();postAvatarClick('${String(p.uid||'')}')" style="background:${grad};cursor:pointer">${(p.name||'?').charAt(0)}</div>
-        <div class="post-info"><div class="post-name">${p.name}</div><div class="post-time">${p.time} · 来自 栈序工坊</div></div>
+        <div class="post-info"><div class="post-name">${p.name}</div><div class="post-time">${p.time}</div></div>
         <div class="post-tag">${p.tag||'综合'}</div>
       </div>
-      ${p.title ? '<div style="font-size:15px;font-weight:600;color:#e8f0ff;margin-bottom:6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : ''}
+      ${p.title ? '<div style="font-size:14px;font-weight:600;color:#e8f0ff;margin-bottom:6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : ''}
       <div class="post-content">${peRenderText(p.content)}</div>
-      ${p.lottery && p.lottery.on ? '<div style="margin-bottom:10px"><div style="font-size:11px;color:#34d399">'+lotteryCard(p)+'</div>'+(!p.lottery.drawn ? '<div style="display:flex;align-items:center;gap:10px;margin-top:8px"><button onclick="toggleLotteryJoin(\''+pid+'\')" style="padding:6px 13px;border-radius:8px;background:'+(joinedLot?'rgba(52,211,153,0.18)':'rgba(115,184,255,0.12)')+';border:1px solid rgba(115,184,255,0.3);color:'+(joinedLot?'#34d399':'#73b8ff')+';font-size:12px;cursor:'+(joinedLot?'default':'pointer')+';opacity:'+(joinedLot?'.75':'1')+'">'+(joinedLot?'已参与':'参与抽奖')+'</button><span style="font-size:11px;color:#607494">'+lotteryJoiners(pid).length+' 人已参与</span></div>' : '')+'</div>' : ''}
+      ${p.lottery && p.lottery.on ? '<div style="font-size:11px;color:#34d399;margin-bottom:8px">'+lotteryCard(p)+'</div>' : ''}
       <div class="post-actions">
-        <span onclick="toggleLike('${pid}')" style="cursor:pointer;color:${liked?'#f472b6':'inherit'}">${liked?'♥':'♡'} ${likes} 赞</span>
-        <span onclick="toggleComments('${pid}')" style="cursor:pointer">${cms.length} 评论</span>
-        <span style="color:#607494">收藏</span>
+        <span style="color:${liked?'#f472b6':'inherit'}">${liked?'♥':'♡'} ${likes}</span>
+        <span style="color:#607494">${cms.length} 评论</span>
       </div>
-      ${open ? `<div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px">
-        ${cms.length ? cms.map(m=>`<div style="margin-bottom:8px;font-size:12px;line-height:1.6"><span style="color:#73b8ff">${(m.name||'').replace(/</g,'&lt;')}</span> <span style="color:#607494;font-size:11px">${m.time||''}</span><div style="color:#a0b4d2;margin-top:2px">${String(m.text||'').replace(/</g,'&lt;')}</div></div>`).join('') : `<div style="font-size:12px;color:#607494;margin-bottom:8px">还没有评论</div>`}
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <input id="pcmtIn-${pid}" maxlength="200" placeholder="写评论…" style="flex:1;padding:9px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
-          <button onclick="addComment('${pid}')" style="padding:9px 14px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:9px;font-size:13px;cursor:pointer">发送</button>
-        </div>
-      </div>` : ''}
     </div>`;
   });
   const box = document.getElementById('extraPosts');
-  if(box) box.innerHTML = html || '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:24px">还没有帖子，来发第一条吧</div>';
+  if(box) box.innerHTML = sorted.length ? '<div class="post-grid">'+html+'</div>' : '<div class="card" style="text-align:center;color:#607494;font-size:13px;padding:24px">还没有帖子，来发第一条吧</div>';
+}
+
+// ===== 帖子详情单页 =====
+let detailPid = null;
+function openPostDetail(pid){
+  detailPid = pid;
+  renderPostDetail();
+  document.getElementById('postDetailMask').style.display = 'block';
+}
+function closePostDetail(){ document.getElementById('postDetailMask').style.display = 'none'; }
+function refreshIfDetail(){
+  const m = document.getElementById('postDetailMask');
+  if(m && m.style.display === 'block') renderPostDetail();
+}
+function renderPostDetail(){
+  const box = document.getElementById('postDetailBody');
+  if(!box) return;
+  const p = (postsCache || []).find(x => pidOf(x) === detailPid);
+  if(!p){ box.innerHTML = '<div style="color:#607494;text-align:center;padding:30px">帖子不存在或已删除</div>'; return; }
+  const pid = pidOf(p);
+  const likes = postLikes(pid), cms = postComments(pid), liked = iLiked(pid), joinedLot = iJoinedLottery(pid);
+  const grad = p.grad || 'linear-gradient(135deg,#60a5fa,#3b82f6)';
+  let lotteryHtml = '';
+  if(p.lottery && p.lottery.on){
+    lotteryHtml = '<div style="margin:12px 0;padding:12px;border-radius:12px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2)">'+
+      '<div style="font-size:12px;color:#34d399;margin-bottom:8px">'+lotteryCard(p)+'</div>'+
+      (!p.lottery.drawn ? '<div style="display:flex;align-items:center;gap:10px"><button onclick="toggleLotteryJoin(\''+pid+'\')" style="padding:7px 14px;border-radius:8px;background:'+(joinedLot?'rgba(52,211,153,0.18)':'rgba(115,184,255,0.12)')+';border:1px solid rgba(115,184,255,0.3);color:'+(joinedLot?'#34d399':'#73b8ff')+';font-size:12px;cursor:'+(joinedLot?'default':'pointer')+'">'+(joinedLot?'已参与':'参与抽奖')+'</button><span style="font-size:11px;color:#607494">'+lotteryJoiners(pid).length+' 人已参与</span></div>' : '')+
+    '</div>';
+  }
+  const cmtHtml = cms.length ? cms.map(m=>'<div style="margin-bottom:10px;font-size:12px;line-height:1.6"><span style="color:#73b8ff">'+String(m.name||'').replace(/</g,'&lt;')+'</span> <span style="color:#607494;font-size:11px">'+(m.time||'')+'</span><div style="color:#a0b4d2;margin-top:2px">'+String(m.text||'').replace(/</g,'&lt;')+'</div></div>').join('') : '<div style="font-size:12px;color:#607494;margin-bottom:8px">还没有评论</div>';
+  box.innerHTML =
+    '<div class="post-head">'+
+      '<div class="post-avatar" onclick="event.stopPropagation();postAvatarClick(\''+String(p.uid||'')+'\')" style="background:'+grad+';cursor:pointer">'+(p.name||'?').charAt(0)+'</div>'+
+      '<div class="post-info"><div class="post-name">'+String(p.name||'').replace(/</g,'&lt;')+'</div><div class="post-time">'+String(p.time||'')+' · 来自 栈序工坊</div></div>'+
+      '<div class="post-tag">'+String(p.tag||'综合')+'</div>'+
+    '</div>'+
+    (p.title ? '<div style="font-size:16px;font-weight:600;color:#e8f0ff;margin:10px 0 6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : '')+
+    '<div class="post-content" style="margin-bottom:12px">'+peRenderText(p.content)+'</div>'+
+    lotteryHtml+
+    '<div class="post-actions" style="margin-bottom:12px">'+
+      '<span onclick="toggleLike(\''+pid+'\')" style="cursor:pointer;color:'+(liked?'#f472b6':'inherit')+'">'+(liked?'♥':'♡')+' '+likes+' 赞</span>'+
+      '<span style="color:#607494">'+cms.length+' 评论</span>'+
+    '</div>'+
+    '<div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px">'+cmtHtml+
+      '<div style="display:flex;gap:8px;margin-top:6px"><input id="pcmtIn-'+pid+'" maxlength="200" placeholder="写评论…" style="flex:1;padding:9px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none"><button onclick="addComment(\''+pid+'\')" style="padding:9px 14px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.3);color:#73b8ff;border-radius:9px;font-size:13px;cursor:pointer">发送</button></div>'+
+    '</div>';
 }
 
 // ===== 帖子长按操作（举报 / 查看主页 / 超管删帖） =====
@@ -3090,6 +3147,7 @@ async function toggleLotteryJoin(pid){
   interactCache.push({ pid: pid, type: 'lottery', uid: me, name: (ACCOUNTS[me]||{}).name || me, ts: Date.now(), time: dmTime(Date.now()) });
   const ok = await saveInteract();
   renderPosts(postsCache);
+  refreshIfDetail();
   toastMsg(ok ? '已参与抽奖' : '网络异常，参与状态已先存本地');
 }
 async function checkLotteries(){
@@ -3344,7 +3402,7 @@ function renderChangelog(){
       '发帖改为右下角加号两步流程：先选话题，再填标题与 500 字以内内容，支持 @提及、#话题与发帖者开关抽奖',
       '抽奖支持奖品名称、个数与开奖时间；到期自动开奖，中奖人在通知中心与私信收到提醒',
       '抽奖改为独立「参与抽奖」按钮，帖子显示已参与人数，开奖从参与者中抽取',
-      '抽奖参与后不可退出；帖子卡片参照轻腕社区调整圆角、阴影与排版'
+      '抽奖参与后不可退出；帖子列表改为多列卡片，点击进入独立详情页'
     ]},
     { ver: 'v1.0.14', date: '2026-11-13', items: [
       '开发者中心入口移至「我的」页面，排在我发布的帖子上方',
