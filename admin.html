@@ -303,6 +303,12 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 .app-tag{padding:2px 8px;border-radius:6px;background:rgba(37,99,235,0.1);color:#2563eb;font-size:11px}
 .app-action{flex-shrink:0;align-self:center;padding:8px 16px;border-radius:10px;background:rgba(37,99,235,0.1);color:#2563eb;font-size:13px;text-decoration:none;font-weight:500;border:none;cursor:pointer;font-family:inherit}
 .app-action.disabled{background:#f3f4f6;color:#9ca3af}
+
+/* ===== 弹层浅色同步 ===== */
+#settingsMask, #dmMask, #dmSetMask, #grpSetMask, #postEditorMask { background:rgba(15,23,42,0.35) !important; }
+#settingsMask > div, #dmMask > div, #dmSetMask > div, #grpSetMask > div, #postEditorMask > div { background:#fff !important; border-color:#eef1f5 !important; }
+#dmList, #dmSetBox, #grpSetBox { background:#fff; }
+#peMentionPanel { background:#f7f8fa !important; border-color:#e5e7eb !important; }
 </style>
 </head>
 <body>
@@ -419,7 +425,6 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
         <div class="uname" id="unameText">张岳</div>
         <div class="ulevel" id="ulevelText">超级管理员</div>
       </div>
-      <button onclick="toastMsg('暂无通知')" style="background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.25);color:#2563eb;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer">🔔</button>
       <button class="btn-logout" onclick="openSettings()" style="font-size:16px;padding:6px 10px">⚙</button>
     </div>
   </div>
@@ -1349,22 +1354,6 @@ async function showApp(u){
   requestNotifyPermission();
   const myAvatar = document.getElementById('postMyAvatar');
   if(myAvatar) myAvatar.textContent = acc.name.charAt(0);
-  // 登录后依次提醒
-  if(!sessionStorage.getItem('zx_welcomed')){
-    sessionStorage.setItem('zx_welcomed','1');
-    setTimeout(()=>showWelcome(acc), 400);
-  }
-}
-async function showWelcome(acc){
-  await glassAlert('更新日志', 'v1.1.0 已发布：首页新增签到抽奖单页，每日可抽一次奖励。');
-  await glassAlert('最新公告', '关于栈序OS 1.2 版本灰度推送的通知。');
-  await glassAlert('通知', `欢迎回来，${acc.name}！祝您工作顺利。`);
-  if(acc.level === '超级管理员'){
-    const pending = ticketData.filter(t=>t.status==='待处理').length;
-    if(pending > 0){
-      await glassAlert('工单处理', `您有 ${pending} 条待处理工单，请前往公单处理查看。`);
-    }
-  }
 }
 function renderStaff(currentAcc){
   const isSuper = currentAcc.level === '超级管理员';
@@ -3525,7 +3514,8 @@ function renderChangelog(){
       '右上角签到入口移除，每日签到并入签到抽奖单页；用户列表更名为用户服务，下分用户列表与用户公告二级菜单',
       '一级菜单改为底部固定导航（图标+文字），首页主体调整为浅色背景与白色卡片',
       '底部导航新增「发现」（应用中心），首页原应用中心卡片移除；普通用户不可见员工服务入口',
-      '发现页改版：搜索栏、分类 / 适配设备 / 排序筛选，应用卡片含图标、作者、评分下载量与获取按钮；获取改为本地打包下载，避免浏览器内打开二进制文件出现乱码'
+      '发现页改版：搜索栏、分类 / 适配设备 / 排序筛选，应用卡片含图标、作者、评分下载量与获取按钮；获取改为本地打包下载，避免浏览器内打开二进制文件出现乱码',
+      '私信、设置、发帖编辑器弹层背景同步浅色；移除登录后弹出的公告提醒与右上角通知铃铛'
     ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
