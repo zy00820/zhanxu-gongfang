@@ -731,20 +731,6 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
       <div id="activityList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">加载中…</div></div>
     </div>
 
-    <!-- 开发者中心 -->
-    <!-- 应用中心 -->
-    <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div>
-          <div style="font-size:15px;font-weight:600;color:#111827">应用中心</div>
-          <div style="font-size:11px;color:#6b7280;margin-top:3px">开发者上传 · 超管审核通过后上架</div>
-        </div>
-        <div style="display:flex;gap:6px">
-          <button id="appTab-应用" onclick="appCenterTab('应用',this)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb;font-size:12px;cursor:pointer">应用</button>
-          <button id="appTab-表盘" onclick="appCenterTab('表盘',this)" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">表盘</button>
-        </div>
-      </div>
-      <div id="appCenterList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">加载中…</div></div>
     </div>
 
 
@@ -752,6 +738,7 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
     <div class="tabs">
       <div class="tab active" data-view="staffSvc"><span class="t-ico">🏠</span><span class="t-label">员工服务</span></div>
       <div class="tab" data-view="post"><span class="t-ico">🧭</span><span class="t-label">社区发帖</span></div>
+      <div class="tab" data-view="discover"><span class="t-ico">📦</span><span class="t-label">发现</span></div>
       <div class="tab" data-view="dm"><span class="t-ico">💬</span><span class="t-label">消息</span></div>
       <div class="tab" data-view="users"><span class="t-ico">👥</span><span class="t-label">用户服务</span></div>
       <div class="tab" data-view="me"><span class="t-ico">👤</span><span class="t-label">我的</span></div>
@@ -858,6 +845,22 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
         <div id="pst-follow" onclick="postFilterTab('follow')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#6b7280">关注</div>
       </div>
       <div id="extraPosts"></div>
+    </div>
+
+    <!-- 发现（应用中心） -->
+    <div class="view" id="view-discover">
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#111827">发现</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:3px">开发者上传 · 超管审核通过后上架</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button id="appTab-应用" onclick="appCenterTab('应用',this)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb;font-size:12px;cursor:pointer">应用</button>
+          <button id="appTab-表盘" onclick="appCenterTab('表盘',this)" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">表盘</button>
+        </div>
+      </div>
+      <div id="appCenterList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">加载中…</div></div>
     </div>
 
     <!-- 消息（原公单处理主 tab 位置） -->
@@ -1287,6 +1290,20 @@ async function showApp(u){
   if(myBal) myBal.textContent = '¥' + Number(acc.balance || 0).toFixed(2);
   renderStaff(acc);
   currentIsSuper = acc.level === '超级管理员';
+  const staffTabEl = document.querySelector('.tab[data-view="staffSvc"]');
+  const isStaff = acc.level !== '用户';
+  if(staffTabEl) staffTabEl.style.display = isStaff ? '' : 'none';
+  if(!isStaff){
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    const pt = document.querySelector('.tab[data-view="post"]');
+    if(pt) pt.classList.add('active');
+    const pv = document.getElementById('view-post');
+    if(pv) pv.classList.add('active');
+    const dash0 = document.getElementById('homeDash');
+    if(dash0) dash0.style.display = 'none';
+    document.getElementById('subtabs').style.display = 'none';
+  }
   renderActivities();
   syncCheckin(u);
   setTimeout(()=>renderShop(), 300);
@@ -1645,14 +1662,17 @@ function openChangelog(){
 }
 function closeChangelog(){
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
-  const t = document.querySelector('.tab[data-view="staffSvc"]');
+  const staffT = document.querySelector('.tab[data-view="staffSvc"]');
+  const useStaff = staffT && staffT.style.display !== 'none';
+  const rv = useStaff ? 'staffSvc' : 'post';
+  const t = document.querySelector('.tab[data-view="'+rv+'"]');
   if(t) t.classList.add('active');
-  const v = document.getElementById('view-staffSvc');
+  const v = document.getElementById('view-'+rv);
   if(v) v.classList.add('active');
   const dash = document.getElementById('homeDash');
-  if(dash) dash.style.display = 'block';
+  if(dash) dash.style.display = useStaff ? 'block' : 'none';
   const st = document.getElementById('subtabs');
-  if(st) st.style.display = 'flex';
+  if(st) st.style.display = useStaff ? 'flex' : 'none';
   window.scrollTo(0,0);
 }
 function closeSettings(){ document.getElementById('settingsMask').style.display='none'; }
@@ -1711,6 +1731,7 @@ document.querySelectorAll('.tab').forEach(t=>{
     if(dash) dash.style.display = v==='staffSvc' ? 'block' : 'none';
     activateSubtabs(v);
     if(v==='dm'){ dmSubTab(dmSub); }
+    if(v==='discover'){ renderAppCenter(); }
     if(v==='me') renderMePage();
   }
 });
@@ -1918,7 +1939,9 @@ function closeDevCenter(){
   currentDevView = false;
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
-  const rv = _devReturnView || 'staffSvc';
+  let rv = _devReturnView || 'staffSvc';
+  const rvTab = document.querySelector('.tab[data-view="' + rv + '"]');
+  if(rvTab && rvTab.style.display === 'none') rv = 'post';
   const t = document.querySelector('.tab[data-view="' + rv + '"]');
   if(t) t.classList.add('active');
   const v = document.getElementById('view-' + rv);
@@ -3437,7 +3460,8 @@ function renderChangelog(){
       '首页「活跃用户」入口改为「签到抽奖」，点击进入独立抽奖单页，每日可抽一次金币或经验',
       '帖子列表多列卡片与独立详情页，抽奖参与后不可退出',
       '右上角签到入口移除，每日签到并入签到抽奖单页；用户列表更名为用户服务，下分用户列表与用户公告二级菜单',
-      '一级菜单改为底部固定导航（图标+文字），首页主体调整为浅色背景与白色卡片'
+      '一级菜单改为底部固定导航（图标+文字），首页主体调整为浅色背景与白色卡片',
+      '底部导航新增「发现」（应用中心），首页原应用中心卡片移除；普通用户不可见员工服务入口'
     ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
