@@ -309,10 +309,10 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 /* ===== 弹层浅色同步 ===== */
 #settingsMask, #dmMask, #dmSetMask, #grpSetMask, #postEditorMask,
 #profileMask, #postSheetMask, #noticeMask, #shopMask, #actMask, #gcCreateMask,
-#editStaffMask, #checkinLotteryMask, #postDetailMask, #boardMask, #hotMask, #glassMask, #wdMask, #rpMask { background:rgba(15,23,42,0.35) !important; }
+#editStaffMask, #checkinLotteryMask, #postDetailMask, #boardMask, #hotMask, #fbMask, #applyMask, #glassMask, #wdMask, #rpMask { background:rgba(15,23,42,0.35) !important; }
 #settingsMask > div, #dmMask > div, #dmSetMask > div, #grpSetMask > div, #postEditorMask > div,
 #profileMask > div, #postSheetMask > div, #noticeMask > div, #shopMask > div, #actMask > div, #gcCreateMask > div,
-#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #boardMask > div, #hotMask > div, #glassMask > div, #wdMask > div, #rpMask > div { background:#fff !important; border-color:#eef1f5 !important; }
+#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #boardMask > div, #hotMask > div, #fbMask > div, #applyMask > div, #glassMask > div, #wdMask > div, #rpMask > div { background:#fff !important; border-color:#eef1f5 !important; }
 #dmList, #dmSetBox, #grpSetBox, #gchatList, #gcMembers { background:#fff; }
 #peMentionPanel { background:#f7f8fa !important; border-color:#e5e7eb !important; }
 #glassMsg{white-space:pre-line;text-align:left !important}
@@ -485,7 +485,7 @@ option{background:#fff;color:#1f2937}
       <div class="drawer-item" onclick="closeDrawer();openPostEditor()"><span class="di-ico">✎</span>发布帖子</div>
       <div class="drawer-item" onclick="glassAlert('App 福利','功能开发中，敬请期待。')"><span class="di-ico">⬇</span>App 福利</div>
       <div class="drawer-item" onclick="openQqGroup()"><span class="di-ico">👥</span>官方 QQ 群</div>
-      <div class="drawer-item" onclick="toastMsg('可在帖子或用户详情页发起意见反馈')"><span class="di-ico">❗</span>意见反馈</div>
+      <div class="drawer-item" onclick="openFeedback()"><span class="di-ico">❗</span>意见反馈</div>
       <div class="drawer-item" onclick="closeDrawer();openDevCenter()"><span class="di-ico">‹›</span>开发者中心</div>
     </div>
     <div class="drawer-foot">
@@ -881,6 +881,18 @@ option{background:#fff;color:#1f2937}
         </div>
         <div id="rpList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">加载中…</div></div>
       </div>
+
+      <!-- 超管：意见反馈（云端实时） -->
+      <div class="card" id="fbPanel" style="display:none;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#111827">意见反馈</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:3px">用户通过侧边抽屉提交，超管可标记处理或删除</div>
+          </div>
+          <button onclick="renderFeedbackPanel(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+        </div>
+        <div id="fbList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">加载中…</div></div>
+      </div>
       </div><!-- /sub-ann -->
 
     <!-- 员工管理（二级tab，默认隐藏） -->
@@ -1083,7 +1095,8 @@ option{background:#fff;color:#1f2937}
 
       <div class="card" id="devGateCard" style="display:none;text-align:center;padding:34px 16px">
         <div style="font-size:15px;font-weight:600;color:#111827;margin-bottom:8px">开发者中心</div>
-        <div style="font-size:13px;color:#6b7280;line-height:1.8">请先申请开发者权限</div>
+        <div style="font-size:13px;color:#6b7280;line-height:1.8">请先申请开发者权限，审核通过后即可上传作品</div>
+        <button onclick="openDevApply()" style="margin-top:18px;padding:11px 24px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:10px;font-size:14px;cursor:pointer">立即申请</button>
       </div>
 
       <div class="card" id="devUploadCard" style="margin-bottom:12px">
@@ -1110,6 +1123,14 @@ option{background:#fff;color:#1f2937}
           <button onclick="renderDevCenter(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
         </div>
         <div id="devPendingList"></div>
+      </div>
+
+      <div class="card" id="devApplyCard" style="display:none;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:14px;font-weight:600;color:#111827">开发者申请审核</div>
+          <button onclick="renderDevApply(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+        </div>
+        <div id="devApplyList"></div>
       </div>
 
       <div class="card" id="devAuthCard" style="display:none;margin-bottom:12px">
@@ -1347,6 +1368,47 @@ option{background:#fff;color:#1f2937}
   </div>
 </div>
 
+<div id="fbMask" onclick="if(event.target===this)closeFeedback()" style="display:none;position:fixed;inset:0;z-index:340;background:rgba(15,23,42,0.35)">
+  <div style="position:absolute;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:#fff;border-top:1px solid #eef1f5;border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
+    <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:14px">意见反馈</div>
+    <div style="font-size:13px;color:#4b5563;margin-bottom:8px">反馈类别</div>
+    <select id="fbCategory" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
+      <option>问题反馈</option><option>功能建议</option><option>内容举报</option><option>其他</option>
+    </select>
+    <div style="font-size:13px;color:#4b5563;margin-bottom:8px">联系方式（邮箱 / QQ，选填）</div>
+    <input id="fbContact" placeholder="便于我们回复你" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
+    <div style="font-size:13px;color:#4b5563;margin-bottom:8px">反馈内容</div>
+    <textarea id="fbContent" rows="5" placeholder="请描述你遇到的问题或建议…" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;resize:vertical"></textarea>
+    <div id="fbErr" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button onclick="closeFeedback()" style="flex:1;padding:12px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">取消</button>
+      <button onclick="submitFeedback()" style="flex:1;padding:12px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">提交反馈</button>
+    </div>
+  </div>
+</div>
+
+<div id="applyMask" onclick="if(event.target===this)closeDevApply()" style="display:none;position:fixed;inset:0;z-index:340;background:rgba(15,23,42,0.35)">
+  <div style="position:absolute;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:#fff;border-top:1px solid #eef1f5;border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
+    <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:6px">申请开发者权限</div>
+    <div style="text-align:center;font-size:12px;color:#6b7280;margin-bottom:14px">提交信息后由超级管理员审核</div>
+    <div style="font-size:13px;color:#4b5563;margin-bottom:8px">申请类别</div>
+    <select id="apCategory" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
+      <option>应用</option><option>表盘</option>
+    </select>
+    <div style="font-size:13px;color:#4b5563;margin-bottom:8px">联系方式邮箱</div>
+    <input id="apEmail" placeholder="example@mail.com" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
+    <div style="font-size:13px;color:#4b5563;margin-bottom:8px">个人经验</div>
+    <textarea id="apExperience" rows="4" placeholder="介绍你的开发经验、擅长方向或过往作品…" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;resize:vertical;margin-bottom:12px"></textarea>
+    <div style="font-size:13px;color:#4b5563;margin-bottom:8px">作品集链接（选填）</div>
+    <input id="apPortfolio" placeholder="GitHub / 作品主页链接" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box">
+    <div id="apErr" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button onclick="closeDevApply()" style="flex:1;padding:12px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">取消</button>
+      <button onclick="submitDevApply()" style="flex:1;padding:12px;background:linear-gradient(135deg,#a78bfa,#8b5cf6);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">提交申请</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const ACCOUNTS = {
   "100000000": { hash: "b17349ef2f8a82e224e4d3b8f3e4355702dca317a7f0d90cf61d9ddada6217b7", name: "张岳", level: "超级管理员", key: "57a67bfc", balance: 1162 },
@@ -1455,7 +1517,9 @@ async function showApp(u){
   if(wdPanel) wdPanel.style.display = currentIsSuper ? 'block' : 'none';
   const rpPanel = document.getElementById('rpPanel');
   if(rpPanel) rpPanel.style.display = currentIsSuper ? 'block' : 'none';
-  if(currentIsSuper){ renderWdPanel(); renderReportPanel(); }
+  const fbPanel = document.getElementById('fbPanel');
+  if(fbPanel) fbPanel.style.display = currentIsSuper ? 'block' : 'none';
+  if(currentIsSuper){ renderWdPanel(); renderReportPanel(); renderFeedbackPanel(); }
   document.getElementById('btnAddMeeting').style.display = currentIsSuper ? '' : 'none';
   document.getElementById('meetingLock').style.display = currentIsSuper ? 'none' : 'block';
   renderMeetings();
@@ -2144,6 +2208,9 @@ async function renderDevCenter(force){
   if(review) review.style.display = (currentIsSuper && allowed) ? 'block' : 'none';
   const authCard = document.getElementById('devAuthCard');
   if(authCard) authCard.style.display = (currentIsSuper && allowed) ? 'block' : 'none';
+  const applyCard = document.getElementById('devApplyCard');
+  if(applyCard) applyCard.style.display = currentIsSuper ? 'block' : 'none';
+  renderDevApply();
   const myCard = document.querySelector('#view-dev .card:last-child');
 
   // 待审核
@@ -2318,6 +2385,153 @@ async function loadRpList(force){
   rpListLoaded = true;
   return rpListCache;
 }
+const GH_FEEDBACK_PATH = 'feedback-records.json';
+const GH_DEV_APPLY_PATH = 'dev-apply-records.json';
+let feedbackCache = [], feedbackLoaded = false;
+let applyCache = [], applyLoaded = false;
+
+async function loadFeedback(force){
+  if(feedbackLoaded && !force) return feedbackCache;
+  try { const r = await ghGetRecords(GH_FEEDBACK_PATH); feedbackCache = r.list || []; }
+  catch(e){ try { feedbackCache = JSON.parse(localStorage.getItem('zx_feedback_records')||'[]'); } catch(x){ feedbackCache = []; } }
+  if(!Array.isArray(feedbackCache)) feedbackCache = [];
+  feedbackLoaded = true; return feedbackCache;
+}
+async function loadApply(force){
+  if(applyLoaded && !force) return applyCache;
+  try { const r = await ghGetRecords(GH_DEV_APPLY_PATH); applyCache = r.list || []; }
+  catch(e){ try { applyCache = JSON.parse(localStorage.getItem('zx_dev_apply_records')||'[]'); } catch(x){ applyCache = []; } }
+  if(!Array.isArray(applyCache)) applyCache = [];
+  applyLoaded = true; return applyCache;
+}
+
+// ===== 意见反馈（用户提交，超管查看） =====
+function openFeedback(){
+  document.getElementById('fbCategory').value = '问题反馈';
+  document.getElementById('fbContact').value = '';
+  document.getElementById('fbContent').value = '';
+  document.getElementById('fbErr').textContent = '';
+  document.getElementById('fbMask').style.display = 'block';
+}
+function closeFeedback(){ document.getElementById('fbMask').style.display = 'none'; }
+async function submitFeedback(){
+  const content = document.getElementById('fbContent').value.trim();
+  const contact = document.getElementById('fbContact').value.trim();
+  const category = document.getElementById('fbCategory').value;
+  if(!content){ document.getElementById('fbErr').textContent = '请填写反馈内容'; return; }
+  const me = myUid();
+  const rec = {
+    secret: 'FB' + Date.now(), uid: me,
+    name: (ACCOUNTS[me] ? ACCOUNTS[me].name : myName() || me),
+    contact: contact, category: category, content: content,
+    time: new Date().toLocaleString(), ts: Date.now(), status: '待处理'
+  };
+  try { await ghAppendRecord(GH_FEEDBACK_PATH, rec, 'zx_feedback_records'); }
+  catch(e){ const l = JSON.parse(localStorage.getItem('zx_feedback_records')||'[]'); l.push(rec); localStorage.setItem('zx_feedback_records', JSON.stringify(l)); }
+  closeFeedback(); toastMsg('反馈已提交，感谢你的建议');
+}
+async function renderFeedbackPanel(force){
+  const box = document.getElementById('fbList'); if(!box) return;
+  await loadFeedback(force);
+  if(!feedbackCache.length){ box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">暂无反馈记录</div>'; return; }
+  box.innerHTML = feedbackCache.slice().reverse().map((r,i)=>
+    '<div style="padding:11px 0;border-bottom:1px solid #f0f2f5">' +
+      '<div style="display:flex;justify-content:space-between;gap:8px">' +
+        '<div style="font-size:13px;color:#1f2937">' + String(r.category||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(r.name||r.uid||'') + ' · ' + String(r.uid||'') + '</span></div>' +
+        '<span style="font-size:11px;color:' + (r.status==='已处理' ? '#34d399' : '#fbbf24') + '">' + String(r.status||'待处理') + '</span>' +
+      '</div>' +
+      '<div style="font-size:13px;color:#4b5563;margin-top:5px;line-height:1.6">' + String(r.content||'').replace(/</g,'&lt;') + '</div>' +
+      '<div style="font-size:11px;color:#6b7280;margin-top:4px">' + (r.contact ? '联系方式：' + String(r.contact).replace(/</g,'&lt;') + ' · ' : '') + String(r.time||'') + '</div>' +
+      '<div style="display:flex;gap:8px;margin-top:8px">' +
+        '<button onclick="markFeedback(' + i + ')" style="flex:1;padding:7px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;border-radius:7px;font-size:12px;cursor:pointer">标记已处理</button>' +
+        '<button onclick="deleteFeedback(' + i + ')" style="padding:7px 12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:12px;cursor:pointer">删除</button>' +
+      '</div>' +
+    '</div>').join('');
+}
+async function markFeedback(revIdx){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可处理'); return; }
+  const idx = feedbackCache.length - 1 - Number(revIdx);
+  if(idx < 0) return;
+  feedbackCache[idx].status = '已处理';
+  try { await ghWriteRecords(GH_FEEDBACK_PATH, feedbackCache, 'zx_feedback_records'); toastMsg('已标记处理'); }
+  catch(e){ toastMsg('保存失败，请检查网络'); }
+  renderFeedbackPanel();
+}
+async function deleteFeedback(revIdx){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可删除'); return; }
+  const ok = await glassConfirm('删除反馈', '确认删除这条反馈？删除后不可恢复');
+  if(!ok) return;
+  const idx = feedbackCache.length - 1 - Number(revIdx);
+  if(idx < 0) return;
+  feedbackCache.splice(idx, 1);
+  try { await ghWriteRecords(GH_FEEDBACK_PATH, feedbackCache, 'zx_feedback_records'); toastMsg('反馈已删除'); }
+  catch(e){ toastMsg('删除失败，请检查网络'); }
+  renderFeedbackPanel();
+}
+
+// ===== 开发者申请（用户提交，超管审核，通过即授权） =====
+function openDevApply(){
+  document.getElementById('apCategory').value = '应用';
+  document.getElementById('apEmail').value = '';
+  document.getElementById('apExperience').value = '';
+  document.getElementById('apPortfolio').value = '';
+  document.getElementById('apErr').textContent = '';
+  document.getElementById('applyMask').style.display = 'block';
+}
+function closeDevApply(){ document.getElementById('applyMask').style.display = 'none'; }
+async function submitDevApply(){
+  const email = document.getElementById('apEmail').value.trim();
+  const exp = document.getElementById('apExperience').value.trim();
+  const port = document.getElementById('apPortfolio').value.trim();
+  const category = document.getElementById('apCategory').value;
+  const err = document.getElementById('apErr');
+  if(!email){ err.textContent = '请填写联系方式邮箱'; return; }
+  if(!exp){ err.textContent = '请填写个人经验'; return; }
+  const me = myUid();
+  const rec = {
+    secret: 'AP' + Date.now(), uid: me,
+    name: (ACCOUNTS[me] ? ACCOUNTS[me].name : myName() || me),
+    email: email, experience: exp, portfolio: port, category: category,
+    time: new Date().toLocaleString(), ts: Date.now(), status: '待审核'
+  };
+  try { await ghAppendRecord(GH_DEV_APPLY_PATH, rec, 'zx_dev_apply_records'); }
+  catch(e){ const l = JSON.parse(localStorage.getItem('zx_dev_apply_records')||'[]'); l.push(rec); localStorage.setItem('zx_dev_apply_records', JSON.stringify(l)); }
+  closeDevApply(); toastMsg('申请已提交，等待超管审核');
+}
+async function renderDevApply(force){
+  const box = document.getElementById('devApplyList'); if(!box) return;
+  await loadApply(force);
+  const pending = applyCache.filter(x => x.status === '待审核').sort((a,b)=>(b.ts||0)-(a.ts||0));
+  box.innerHTML = pending.length ? pending.map(x=>
+    '<div style="padding:11px 0;border-bottom:1px solid #f0f2f5">' +
+      '<div style="display:flex;justify-content:space-between;gap:8px">' +
+        '<div style="font-size:13px;color:#1f2937">' + String(x.name||x.uid||'') + ' <span style="font-size:11px;color:#6b7280">' + String(x.category||'') + ' · ' + String(x.uid||'') + '</span></div>' +
+        '<span style="font-size:11px;color:#fbbf24">待审核</span>' +
+      '</div>' +
+      '<div style="font-size:12px;color:#4b5563;margin-top:5px;line-height:1.7">邮箱：' + String(x.email||'').replace(/</g,'&lt;') +
+        '<br>经验：' + String(x.experience||'').replace(/</g,'&lt;') +
+        (x.portfolio ? '<br>作品集：' + String(x.portfolio).replace(/</g,'&lt;') : '') +
+        '<br><span style="color:#6b7280">' + String(x.time||'') + '</span></div>' +
+      '<div style="display:flex;gap:8px;margin-top:8px">' +
+        '<button onclick="setApplyStatus(\'' + String(x.uid||'') + '\',\'已通过\')" style="flex:1;padding:7px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;border-radius:7px;font-size:12px;cursor:pointer">通过</button>' +
+        '<button onclick="setApplyStatus(\'' + String(x.uid||'') + '\',\'已拒绝\')" style="flex:1;padding:7px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:12px;cursor:pointer">拒绝</button>' +
+      '</div>' +
+    '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">暂无待审核申请</div>';
+}
+async function setApplyStatus(uid, status){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可审核'); return; }
+  const rec = applyCache.find(x => String(x.uid) === String(uid));
+  if(!rec) return;
+  rec.status = status;
+  if(status === '已通过'){
+    if(devAuthCache.map(String).indexOf(String(uid)) < 0) devAuthCache.push(String(uid));
+    try { await ghWriteRecords(GH_DEV_AUTH_PATH, devAuthCache); } catch(e){}
+  }
+  try { await ghWriteRecords(GH_DEV_APPLY_PATH, applyCache, 'zx_dev_apply_records'); toastMsg(status === '已通过' ? '已通过并授权开发者' : '已拒绝'); }
+  catch(e){ toastMsg('保存失败，请检查网络'); }
+  renderDevApply(); renderDevCenter(true);
+}
+
 const WD_VALID_MS = 72 * 60 * 60 * 1000;   // 提现有效期 72 小时
 function wdExpire(r){
   let t = Number(r.ts);
@@ -3679,7 +3893,9 @@ function renderChangelog(){
       '补充官方 QQ 群号 586352356，点击可复制群号',
       '补充用户协议与隐私政策说明',
       '侧边抽屉菜单入口完善',
-      '全部板块独立单页，按综合/技术/生活/求助/活动/闲聊筛选帖子；社区热榜独立单页，按点赞、评论、抽奖参与数排序；App 福利暂提示开发中'
+      '全部板块独立单页，按综合/技术/生活/求助/活动/闲聊筛选帖子；社区热榜独立单页，按点赞、评论、抽奖参与数排序；App 福利暂提示开发中',
+      '意见反馈接入云端记录，超管可在员工服务中查看、标记处理或删除',
+      '未授权用户可在开发者中心提交申请（类别、邮箱、个人经验、作品集链接），超管审核通过即授权开发者'
     ]},
     { ver: 'v1.1.0', date: '2026-11-14', items: [
       '首页「活跃用户」入口改为「签到抽奖」，点击进入独立抽奖单页，每日可抽一次金币或经验',
