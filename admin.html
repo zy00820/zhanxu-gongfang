@@ -301,7 +301,7 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 .app-author{font-size:12px;color:#6b7280;margin-top:3px}
 .app-meta{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:12px;color:#6b7280}
 .app-tag{padding:2px 8px;border-radius:6px;background:rgba(37,99,235,0.1);color:#2563eb;font-size:11px}
-.app-action{flex-shrink:0;align-self:center;padding:8px 16px;border-radius:10px;background:rgba(37,99,235,0.1);color:#2563eb;font-size:13px;text-decoration:none;font-weight:500}
+.app-action{flex-shrink:0;align-self:center;padding:8px 16px;border-radius:10px;background:rgba(37,99,235,0.1);color:#2563eb;font-size:13px;text-decoration:none;font-weight:500;border:none;cursor:pointer;font-family:inherit}
 .app-action.disabled{background:#f3f4f6;color:#9ca3af}
 </style>
 </head>
@@ -1902,6 +1902,26 @@ async function renderAppCenter(force){
   }
   box.innerHTML = list.map(discoverItemHtml).join('');
 }
+async function downloadDevItem(id){
+  const x = (devCache||[]).find(y=>String(y.id)===String(id));
+  if(!x || !x.url){ toastMsg('文件暂未上架'); return; }
+  try{
+    toastMsg('正在下载…');
+    const r = await fetch(x.url);
+    if(!r.ok) throw new Error('http '+r.status);
+    const buf = await r.arrayBuffer();
+    const blob = new Blob([buf], {type:'application/octet-stream'});
+    const fname = (x.name||'item').replace(/[\\/:*?"<>|]/g,'_') + '.rpk';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 8000);
+    toastMsg('已开始下载 ' + fname);
+  }catch(e){
+    window.open(x.url, '_blank');
+  }
+}
 function discoverItemHtml(x){
   const name = escS(x.name), author = escS(x.byName || x.by), type = escS(x.type || '应用');
   const grads = ['linear-gradient(135deg,#60a5fa,#3b82f6)','linear-gradient(135deg,#a78bfa,#7c3aed)','linear-gradient(135deg,#34d399,#10b981)'];
@@ -1911,7 +1931,7 @@ function discoverItemHtml(x){
   if(x.dl != null && x.dl !== '') meta.push('<span>↓ ' + x.dl + '</span>');
   meta.push('<span class="app-tag">' + type + '</span>');
   const action = x.url
-    ? '<a class="app-action" href="' + escS(x.url) + '" target="_blank" rel="noopener">获取</a>'
+    ? '<button class="app-action" onclick="downloadDevItem(\'' + escS(x.id) + '\')">获取</button>'
     : '<span class="app-action disabled">未上架</span>';
   return '<div class="app-card">' +
     '<div class="app-thumb" style="background:' + grad + '">' + name.charAt(0) + '</div>' +
@@ -2029,7 +2049,7 @@ async function renderDevCenter(force){
         '<div style="display:flex;gap:8px;margin-top:8px">' +
           '<button onclick="setDevStatus(\'' + x.id + '\',\'已通过\')" style="flex:1;padding:7px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;border-radius:7px;font-size:12px;cursor:pointer">通过</button>' +
           '<button onclick="setDevStatus(\'' + x.id + '\',\'已拒绝\')" style="flex:1;padding:7px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:12px;cursor:pointer">拒绝</button>' +
-          '<a href="' + String(x.url||'#') + '" target="_blank" rel="noopener" style="padding:7px 12px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;border-radius:7px;font-size:12px;text-decoration:none">下载</a>' +
+          '<button onclick="downloadDevItem(\''+String(x.id||'')+'\')" style="padding:7px 12px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;border-radius:7px;font-size:12px;cursor:pointer">下载</button>' +
         '</div>' +
       '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">暂无待审核作品</div>';
   }
@@ -2047,7 +2067,7 @@ async function renderDevCenter(force){
           '<div style="font-size:11px;color:' + devStatusColor(x.status) + '">' + String(x.status||'') + '</div>' +
         '</div>' +
         '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.6">' + String(x.version||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '<br>' + String(x.time||'') + '</div>' +
-        (x.status === '已通过' && x.url ? '<div style="margin-top:6px"><a href="' + String(x.url) + '" target="_blank" rel="noopener" style="font-size:11px;color:#2563eb">下载已上架文件</a></div>' : '') +
+        (x.status === '已通过' && x.url ? '<div style="margin-top:6px"><button onclick="downloadDevItem(\''+String(x.id||'')+'\')" style="font-size:11px;color:#2563eb;background:none;border:none;cursor:pointer;padding:0">下载已上架文件</button></div>' : '') +
         (x.status === '已拒绝' && x.reason ? '<div style="margin-top:5px;font-size:11px;color:#f87171">原因：' + String(x.reason).replace(/</g,'&lt;') + '</div>' : '') +
       '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">还没有提交过作品</div>';
   }
@@ -3505,7 +3525,7 @@ function renderChangelog(){
       '右上角签到入口移除，每日签到并入签到抽奖单页；用户列表更名为用户服务，下分用户列表与用户公告二级菜单',
       '一级菜单改为底部固定导航（图标+文字），首页主体调整为浅色背景与白色卡片',
       '底部导航新增「发现」（应用中心），首页原应用中心卡片移除；普通用户不可见员工服务入口',
-      '发现页改版：搜索栏、分类 / 适配设备 / 排序筛选，应用卡片含图标、作者、评分下载量与获取按钮'
+      '发现页改版：搜索栏、分类 / 适配设备 / 排序筛选，应用卡片含图标、作者、评分下载量与获取按钮；获取改为本地打包下载，避免浏览器内打开二进制文件出现乱码'
     ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
