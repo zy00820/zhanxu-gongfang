@@ -288,6 +288,21 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 .post-name,.ann-title{color:#111827 !important}
 .post-content,.ann-body{color:#374151 !important}
 .post-time,.post-actions,.ann-meta{color:#6b7280 !important}
+
+/* ===== 发现页 ===== */
+.chip-row{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;padding:2px 1px;scrollbar-width:none}
+.chip-row::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:8px 14px;border-radius:10px;background:#f3f4f6;color:#6b7280;font-size:13px;cursor:pointer;border:1px solid transparent;white-space:nowrap}
+.chip.active{background:#fff;color:#111827;font-weight:600;box-shadow:0 1px 4px rgba(16,24,40,0.12)}
+.chip.blue.active{background:#2563eb;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,0.3)}
+.app-card{background:#fff;border:1px solid #eef1f5;border-radius:16px;padding:14px;margin-bottom:12px;display:flex;gap:12px;box-shadow:0 1px 3px rgba(16,24,40,0.06)}
+.app-thumb{width:60px;height:60px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:600}
+.app-name{font-size:15px;font-weight:600;color:#111827}
+.app-author{font-size:12px;color:#6b7280;margin-top:3px}
+.app-meta{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:12px;color:#6b7280}
+.app-tag{padding:2px 8px;border-radius:6px;background:rgba(37,99,235,0.1);color:#2563eb;font-size:11px}
+.app-action{flex-shrink:0;align-self:center;padding:8px 16px;border-radius:10px;background:rgba(37,99,235,0.1);color:#2563eb;font-size:13px;text-decoration:none;font-weight:500}
+.app-action.disabled{background:#f3f4f6;color:#9ca3af}
 </style>
 </head>
 <body>
@@ -849,18 +864,23 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 
     <!-- 发现（应用中心） -->
     <div class="view" id="view-discover">
-    <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div>
-          <div style="font-size:15px;font-weight:600;color:#111827">发现</div>
-          <div style="font-size:11px;color:#6b7280;margin-top:3px">开发者上传 · 超管审核通过后上架</div>
-        </div>
-        <div style="display:flex;gap:6px">
-          <button id="appTab-应用" onclick="appCenterTab('应用',this)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb;font-size:12px;cursor:pointer">应用</button>
-          <button id="appTab-表盘" onclick="appCenterTab('表盘',this)" style="padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">表盘</button>
-        </div>
+      <div class="card" style="margin-bottom:12px;display:flex;align-items:center;gap:10px;padding:12px 14px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="discoverSearch" placeholder="搜索应用、表盘…" oninput="discoverKw=this.value.trim();renderAppCenter()" style="flex:1;border:none;background:transparent;outline:none;color:#1f2937;font-size:14px">
       </div>
-      <div id="appCenterList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">加载中…</div></div>
+      <div id="discoverCats" class="chip-row"></div>
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(37,99,235,0.1);display:flex;align-items:center;justify-content:center;color:#2563eb;font-size:18px">◈</div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:600;color:#111827">适配设备</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:3px">可多选品牌或具体型号，过滤不兼容的应用</div>
+          </div>
+        </div>
+        <div id="discoverDevices" class="chip-row" style="margin-top:12px;margin-bottom:0"></div>
+      </div>
+      <div id="discoverSorts" class="chip-row"></div>
+      <div id="appCenterList"></div>
     </div>
 
     <!-- 消息（原公单处理主 tab 位置） -->
@@ -1842,41 +1862,64 @@ async function superEditCoin(uid){
   toastMsg(ok ? '积分已调整为 ' + n : '网络异常，积分调整失败');
 }
 
-// ===== 应用中心（首页，单页展示已审核通过的应用 / 表盘） =====
-let appCenterCat = '应用';
-function appCenterTab(cat, el){
-  appCenterCat = cat;
-  ['应用','表盘'].forEach(k=>{
-    const b = document.getElementById('appTab-' + k);
-    if(!b) return;
-    const on = k === cat;
-    b.style.background = on ? 'rgba(115,184,255,0.16)' : 'rgba(255,255,255,0.05)';
-    b.style.border = on ? '1px solid rgba(115,184,255,0.35)' : '1px solid rgba(255,255,255,0.12)';
-    b.style.color = on ? '#2563eb' : '#6b7280';
-  });
+// ===== 发现（应用中心，单页展示已审核通过的应用 / 表盘） =====
+let discoverCat = '全部', discoverSort = '最新', discoverDevice = '全部设备', discoverKw = '';
+const DISCOVER_CATS = ['全部','应用','表盘','工具','娱乐','游戏','运动健康'];
+const DISCOVER_DEVICES = ['全部设备','vivo','小米','华为'];
+const DISCOVER_SORTS = ['最新','下载量','评分'];
+function discoverSet(k, v){
+  if(k === 'cat') discoverCat = v;
+  else if(k === 'sort') discoverSort = v;
+  else discoverDevice = v;
   renderAppCenter();
 }
+function dChip(active, k, label, blue){
+  return '<button class="chip' + (active ? ' active' : '') + (blue && active ? ' blue' : '') + '" onclick="discoverSet(\'' + k + '\',\'' + label + '\')">' + label + '</button>';
+}
+function discoverRenderChips(){
+  document.getElementById('discoverCats').innerHTML = DISCOVER_CATS.map(x=>dChip(discoverCat===x,'cat',x,false)).join('');
+  document.getElementById('discoverDevices').innerHTML = DISCOVER_DEVICES.map(x=>dChip(discoverDevice===x,'device',x,true)).join('');
+  document.getElementById('discoverSorts').innerHTML = DISCOVER_SORTS.map(x=>dChip(discoverSort===x,'sort',x,false)).join('');
+}
+function escS(s){ return String(s==null?'':s).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 async function renderAppCenter(force){
   const box = document.getElementById('appCenterList');
   if(!box) return;
+  discoverRenderChips();
   await loadDevItems(force);
-  const list = devCache
-    .filter(x=>x.status === '已通过' && x.type === appCenterCat)
-    .sort((a,b)=>(b.ts||0)-(a.ts||0));
+  let list = (devCache||[]).filter(x=>x.status === '已通过');
+  if(discoverKw){
+    const k = discoverKw.toLowerCase();
+    list = list.filter(x=>[x.name,x.desc,x.byName].some(s=>String(s||'').toLowerCase().includes(k)));
+  }
+  if(discoverCat !== '全部') list = list.filter(x=>x.type === discoverCat || x.category === discoverCat);
+  if(discoverSort === '下载量') list.sort((a,b)=>(b.dl||0)-(a.dl||0));
+  else if(discoverSort === '评分') list.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  else list.sort((a,b)=>(b.ts||0)-(a.ts||0));
   if(!list.length){
-    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:16px">暂无上架的' + appCenterCat + '，开发者提交并通过审核后会出现在这里</div>';
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:30px 16px">暂无上架的应用，开发者提交并通过审核后会出现在这里</div>';
     return;
   }
-  box.innerHTML = list.map(x=>
-    '<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
-      '<div style="width:38px;height:38px;border-radius:10px;background:rgba(115,184,255,0.16);display:flex;align-items:center;justify-content:center;font-size:16px;color:#2563eb">' + (x.type === '表盘' ? '◷' : '▣') + '</div>' +
-      '<div style="flex:1;min-width:0">' +
-        '<div style="font-size:14px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.version||'') + '</span></div>' +
-        '<div style="font-size:11px;color:#6b7280;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + String(x.desc||'').replace(/</g,'&lt;') + ' · ' + String(x.byName||'') + '</div>' +
-      '</div>' +
-      (x.url ? '<a href="' + String(x.url) + '" target="_blank" rel="noopener" style="flex-shrink:0;padding:7px 13px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;border-radius:8px;font-size:12px;text-decoration:none">下载</a>'
-             : '<span style="font-size:11px;color:#6b7280">无文件</span>') +
-    '</div>').join('');
+  box.innerHTML = list.map(discoverItemHtml).join('');
+}
+function discoverItemHtml(x){
+  const name = escS(x.name), author = escS(x.byName || x.by), type = escS(x.type || '应用');
+  const grads = ['linear-gradient(135deg,#60a5fa,#3b82f6)','linear-gradient(135deg,#a78bfa,#7c3aed)','linear-gradient(135deg,#34d399,#10b981)'];
+  const grad = grads[Math.abs(String(x.id || name).length) % 3];
+  const meta = [];
+  if(x.rating) meta.push('<span>★ ' + x.rating + '</span>');
+  if(x.dl != null && x.dl !== '') meta.push('<span>↓ ' + x.dl + '</span>');
+  meta.push('<span class="app-tag">' + type + '</span>');
+  const action = x.url
+    ? '<a class="app-action" href="' + escS(x.url) + '" target="_blank" rel="noopener">获取</a>'
+    : '<span class="app-action disabled">未上架</span>';
+  return '<div class="app-card">' +
+    '<div class="app-thumb" style="background:' + grad + '">' + name.charAt(0) + '</div>' +
+    '<div style="flex:1;min-width:0">' +
+      '<div class="app-name">' + name + '</div>' +
+      '<div class="app-author">' + author + '</div>' +
+      '<div class="app-meta">' + meta.join('') + '</div>' +
+    '</div>' + action + '</div>';
 }
 
 // ===== 开发者中心（单页，上传应用 / 表盘，超管审核，文件存仓库） =====
@@ -3461,7 +3504,8 @@ function renderChangelog(){
       '帖子列表多列卡片与独立详情页，抽奖参与后不可退出',
       '右上角签到入口移除，每日签到并入签到抽奖单页；用户列表更名为用户服务，下分用户列表与用户公告二级菜单',
       '一级菜单改为底部固定导航（图标+文字），首页主体调整为浅色背景与白色卡片',
-      '底部导航新增「发现」（应用中心），首页原应用中心卡片移除；普通用户不可见员工服务入口'
+      '底部导航新增「发现」（应用中心），首页原应用中心卡片移除；普通用户不可见员工服务入口',
+      '发现页改版：搜索栏、分类 / 适配设备 / 排序筛选，应用卡片含图标、作者、评分下载量与获取按钮'
     ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
