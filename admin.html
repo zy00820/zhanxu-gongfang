@@ -315,6 +315,7 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 #editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #glassMask > div, #wdMask > div, #rpMask > div { background:#fff !important; border-color:#eef1f5 !important; }
 #dmList, #dmSetBox, #grpSetBox, #gchatList, #gcMembers { background:#fff; }
 #peMentionPanel { background:#f7f8fa !important; border-color:#e5e7eb !important; }
+#glassMsg{white-space:pre-line;text-align:left !important}
 
 /* ===== 登录 / 注册 / 解锁表单浅色 ===== */
 .login-box { background:#fff !important; border-color:#eef1f5 !important; box-shadow:0 8px 32px rgba(16,24,40,0.12) !important; }
@@ -379,7 +380,7 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.0 更新</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.1 更新</div>
         <div style="font-size:11px;color:#6b7280;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -483,13 +484,13 @@ option{background:#fff;color:#1f2937}
       <div class="drawer-item" onclick="drawerGo('post')"><span class="di-ico">▦</span>全部板块</div>
       <div class="drawer-item" onclick="closeDrawer();openPostEditor()"><span class="di-ico">✎</span>发布帖子</div>
       <div class="drawer-item" onclick="drawerGo('me')"><span class="di-ico">⬇</span>App 福利</div>
-      <div class="drawer-item" onclick="toastMsg('官方 QQ 群入口即将开放')"><span class="di-ico">👥</span>官方 QQ 群</div>
+      <div class="drawer-item" onclick="openQqGroup()"><span class="di-ico">👥</span>官方 QQ 群</div>
       <div class="drawer-item" onclick="toastMsg('可在帖子或用户详情页发起意见反馈')"><span class="di-ico">❗</span>意见反馈</div>
       <div class="drawer-item" onclick="closeDrawer();openDevCenter()"><span class="di-ico">‹›</span>开发者中心</div>
     </div>
     <div class="drawer-foot">
-      <span onclick="glassAlert('用户协议','欢迎使用栈序云。用户协议内容将在后续版本完善。')">用户协议</span>
-      <span onclick="glassAlert('隐私政策','我们仅在本地与仓库记录必要的账号与发帖信息。隐私政策内容将在后续版本完善。')">隐私政策</span>
+      <span onclick="glassAlert('用户协议', AGREEMENT_TEXT)">用户协议</span>
+      <span onclick="glassAlert('隐私政策', PRIVACY_TEXT)">隐私政策</span>
     </div>
   </aside>
 
@@ -517,7 +518,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.0</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.1</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -1003,7 +1004,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.0</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.1</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -1351,6 +1352,13 @@ function checkAuth(){
   loadBans();
   const u = sessionStorage.getItem('zx_user');
   if(u && ACCOUNTS[u]){ showApp(u); } else { showLogin(); }
+}
+const AGREEMENT_TEXT = '欢迎使用栈序云。使用本应用即表示您同意以下条款：\n1. 账号：您应妥善保管账号与密码，因本人泄露或转借造成的损失自行承担。\n2. 内容：您发布的帖子、评论、私信等应遵守法律法规，不得发布违规、侵权、骚扰或虚假信息。\n3. 规范：禁止恶意刷屏、骚扰他人、诈骗、传播违规资源或破坏平台秩序的行为。\n4. 管理：平台有权对违规内容进行删除，并对违规账号采取提醒、限制功能或封禁等措施。\n5. 责任：用户对自己发布的内容负责，因内容引发的纠纷由发布者承担相应责任。\n6. 本协议可能随版本更新调整，最终解释权归栈序云运营团队所有。';
+const PRIVACY_TEXT = '我们仅记录登录、发帖、私信、签到、抽奖等功能所必需的信息，用于账号识别与数据同步。\n我们不会向第三方出售您的个人信息；除法律法规要求外，不对外披露您的私信与账号资料。\n清除本地缓存或退出登录不会删除仓库中的历史记录，如需删除个人内容请联系管理员。';
+function openQqGroup(){
+  const qq = '586352356';
+  glassAlert('官方 QQ 群', '群号：' + qq + '\n请在 QQ 中搜索该群号加入，交流表盘、应用与社区问题。');
+  try{ if(navigator.clipboard){ navigator.clipboard.writeText(qq); toastMsg('群号已复制：' + qq); } }catch(e){}
 }
 function openDrawer(){
   const nm = document.getElementById('unameText');
@@ -3601,6 +3609,11 @@ function resolveTicket(i){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.1.1', date: '2026-11-14', items: [
+      '补充官方 QQ 群号 586352356，点击可复制群号',
+      '补充用户协议与隐私政策说明',
+      '侧边抽屉菜单入口完善'
+    ]},
     { ver: 'v1.1.0', date: '2026-11-14', items: [
       '首页「活跃用户」入口改为「签到抽奖」，点击进入独立抽奖单页，每日可抽一次金币或经验',
       '帖子列表多列卡片与独立详情页，抽奖参与后不可退出',
