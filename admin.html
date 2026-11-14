@@ -392,7 +392,6 @@ body.plain .ann-card.open{
         <div class="ulevel" id="ulevelText">超级管理员</div>
       </div>
       <button onclick="toastMsg('暂无通知')" style="background:rgba(115,184,255,0.1);border:1px solid rgba(115,184,255,0.25);color:#73b8ff;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer">🔔</button>
-      <button onclick="doCheckin()" id="btnCheckin" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer">签到</button>
       <button class="btn-logout" onclick="openSettings()" style="font-size:16px;padding:6px 10px">⚙</button>
     </div>
   </div>
@@ -690,15 +689,6 @@ body.plain .ann-card.open{
       <div class="stat" onclick="openCheckinLottery()" style="cursor:pointer"><div class="num" id="statLottery">抽奖</div><div class="label">签到抽奖</div></div>
     </div>
 
-    <!-- 签到中心 -->
-    <div class="card" style="margin-bottom:18px;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div style="font-size:15px;font-weight:600;color:#f0f5ff;margin-bottom:4px">每日签到</div>
-        <div style="font-size:12px;color:#607494">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">0</span> 天</div>
-      </div>
-      <button id="btnSign" onclick="doCheckin()" style="padding:10px 22px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">签到</button>
-    </div>
-
     <!-- 积分商城 -->
     <div class="card" style="margin-bottom:18px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -750,16 +740,18 @@ body.plain .ann-card.open{
       <div class="tab active" data-view="staffSvc">员工服务</div>
       <div class="tab" data-view="post">社区发帖</div>
       <div class="tab" data-view="dm">消息</div>
-      <div class="tab" data-view="users">用户列表</div>
+      <div class="tab" data-view="users">用户服务</div>
       <div class="tab" data-view="me">我的</div>
     </div>
 
     <!-- 员工服务二级tab -->
     <div class="subtabs" id="subtabs" style="display:none">
-      <div class="subtab active" data-sub="ann">公告</div>
-      <div class="subtab" data-sub="staff">员工管理</div>
-      <div class="subtab" data-sub="meeting">会议</div>
-      <div class="subtab" data-sub="ticket">公单处理</div>
+      <div class="subtab active" data-view="staffSvc" data-sub="ann">公告</div>
+      <div class="subtab" data-view="staffSvc" data-sub="staff">员工管理</div>
+      <div class="subtab" data-view="staffSvc" data-sub="meeting">会议</div>
+      <div class="subtab" data-view="staffSvc" data-sub="ticket">公单处理</div>
+      <div class="subtab" data-view="users" data-sub="userList">用户列表</div>
+      <div class="subtab" data-view="users" data-sub="userAnn">用户公告</div>
     </div>
 
     <!-- ===== 员工服务（含公告/员工管理/会议） ===== -->
@@ -804,54 +796,7 @@ body.plain .ann-card.open{
         </div>
         <div id="rpList"><div style="text-align:center;color:#607494;font-size:13px;padding:16px">加载中…</div></div>
       </div>
-      <div class="card ann-card" onclick="this.classList.toggle('open')">
-        <div class="ann-head">
-          <div style="flex:1">
-            <div class="ann-meta">
-              <span class="badge">置顶</span>
-              <span class="badge blue">全员</span>
-              <span>栈序管理组 · 2026-10-22</span>
-            </div>
-            <div class="ann-title">关于栈序OS 1.2 版本灰度推送的通知</div>
-          </div>
-          <div class="ann-arrow">▼</div>
-        </div>
-        <div class="ann-body">本次灰度覆盖 Vivo T1x、iQOO Z9 共约 200 台设备。OTA 差分包大小约 180MB，升级前请确保电量 ≥ 60%。升级完成后如遇 NFC 异常，可在「设置-系统-重置NFC服务」一键恢复。</div>
-      </div>
-      <div class="card ann-card" onclick="this.classList.toggle('open')">
-        <div class="ann-head">
-          <div style="flex:1">
-            <div class="ann-meta">
-              <span class="badge blue">部门</span>
-              <span>技术部 · 2026-10-20</span>
-            </div>
-            <div class="ann-title">栈序工坊 APK 3.1 内部测试计划</div>
-          </div>
-          <div class="ann-arrow">▼</div>
-        </div>
-        <div class="ann-body">本周内完成 3.1 版本内测：新增手表查找双向呼叫、心率数据导出 CSV。参与内测人员请于周五前在「栈序联动」App 内勾选「参与内测」。</div>
-      </div>
-      <div class="card ann-card" onclick="this.classList.toggle('open')">
-        <div class="ann-head">
-          <div style="flex:1">
-            <div class="ann-meta"><span>运营部 · 2026-10-18</span></div>
-            <div class="ann-title">10月开发者结算单已生成</div>
-          </div>
-          <div class="ann-arrow">▼</div>
-        </div>
-        <div class="ann-body">10月分成结算单已推送至各位开发者的邮箱，请在 10 月 31 日前确认。逾期未确认将按默认账单执行打款。如有异议联系邮箱 zy291817@outlook.com。</div>
-      </div>
-      <div class="card ann-card" onclick="this.classList.toggle('open')">
-        <div class="ann-head">
-          <div style="flex:1">
-            <div class="ann-meta"><span>行政 · 2026-10-15</span></div>
-            <div class="ann-title">国庆后远程办公安排</div>
-          </div>
-          <div class="ann-arrow">▼</div>
-        </div>
-        <div class="ann-body">10月剩余工作日，技术部支持每周最多 2 天远程。其余人员正常坐班。远程期间需保持飞书在线响应。</div>
-      </div>
-    </div><!-- /sub-ann -->
+      </div><!-- /sub-ann -->
 
     <!-- 员工管理（二级tab，默认隐藏） -->
     <div id="sub-staff" style="display:none">
@@ -961,12 +906,63 @@ body.plain .ann-card.open{
       </div>
     </div>
 
-    <!-- 用户列表 -->
+    <!-- 用户服务 -->
     <div class="view" id="view-users">
-      <div class="card" style="margin-bottom:12px">
-        <input type="text" id="userSearch" placeholder="搜索用户昵称 / 账号…" style="width:100%;padding:11px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" oninput="searchUsers(this.value)">
+      <div id="sub-userList">
+        <div class="card" style="margin-bottom:12px">
+          <input type="text" id="userSearch" placeholder="搜索用户昵称 / 账号…" style="width:100%;padding:11px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" oninput="searchUsers(this.value)">
+        </div>
+        <div id="userList"></div>
       </div>
-      <div id="userList"></div>
+      <div id="sub-userAnn" style="display:none">
+<div class="card ann-card" onclick="this.classList.toggle('open')">
+        <div class="ann-head">
+          <div style="flex:1">
+            <div class="ann-meta">
+              <span class="badge">置顶</span>
+              <span class="badge blue">全员</span>
+              <span>栈序管理组 · 2026-10-22</span>
+            </div>
+            <div class="ann-title">关于栈序OS 1.2 版本灰度推送的通知</div>
+          </div>
+          <div class="ann-arrow">▼</div>
+        </div>
+        <div class="ann-body">本次灰度覆盖 Vivo T1x、iQOO Z9 共约 200 台设备。OTA 差分包大小约 180MB，升级前请确保电量 ≥ 60%。升级完成后如遇 NFC 异常，可在「设置-系统-重置NFC服务」一键恢复。</div>
+      </div>
+      <div class="card ann-card" onclick="this.classList.toggle('open')">
+        <div class="ann-head">
+          <div style="flex:1">
+            <div class="ann-meta">
+              <span class="badge blue">部门</span>
+              <span>技术部 · 2026-10-20</span>
+            </div>
+            <div class="ann-title">栈序工坊 APK 3.1 内部测试计划</div>
+          </div>
+          <div class="ann-arrow">▼</div>
+        </div>
+        <div class="ann-body">本周内完成 3.1 版本内测：新增手表查找双向呼叫、心率数据导出 CSV。参与内测人员请于周五前在「栈序联动」App 内勾选「参与内测」。</div>
+      </div>
+      <div class="card ann-card" onclick="this.classList.toggle('open')">
+        <div class="ann-head">
+          <div style="flex:1">
+            <div class="ann-meta"><span>运营部 · 2026-10-18</span></div>
+            <div class="ann-title">10月开发者结算单已生成</div>
+          </div>
+          <div class="ann-arrow">▼</div>
+        </div>
+        <div class="ann-body">10月分成结算单已推送至各位开发者的邮箱，请在 10 月 31 日前确认。逾期未确认将按默认账单执行打款。如有异议联系邮箱 zy291817@outlook.com。</div>
+      </div>
+      <div class="card ann-card" onclick="this.classList.toggle('open')">
+        <div class="ann-head">
+          <div style="flex:1">
+            <div class="ann-meta"><span>行政 · 2026-10-15</span></div>
+            <div class="ann-title">国庆后远程办公安排</div>
+          </div>
+          <div class="ann-arrow">▼</div>
+        </div>
+        <div class="ann-body">10月剩余工作日，技术部支持每周最多 2 天远程。其余人员正常坐班。远程期间需保持飞书在线响应。</div>
+      </div>
+      </div>
     </div>
 
     <!-- 开发者中心（单页，不跳 dev.html） -->
@@ -1700,22 +1696,40 @@ document.querySelectorAll('.tab').forEach(t=>{
     // 员工服务才显示二级tab
     const dash = document.getElementById('homeDash');
     if(dash) dash.style.display = v==='staffSvc' ? 'block' : 'none';
-    document.getElementById('subtabs').style.display = v==='staffSvc' ? 'flex' : 'none';
+    activateSubtabs(v);
     if(v==='dm'){ dmSubTab(dmSub); }
     if(v==='me') renderMePage();
   }
 });
 // 二级Tab
+function activateSubtabs(v, fire){
+  const bar = document.getElementById('subtabs');
+  const subs = [...bar.querySelectorAll('.subtab')];
+  const match = subs.filter(x=>x.dataset.view===v);
+  bar.style.display = match.length ? 'flex' : 'none';
+  subs.forEach(x=>{ x.classList.remove('active'); x.style.display = (x.dataset.view===v) ? '' : 'none'; });
+  if(match.length){ match[0].classList.add('active'); if(fire!==false) match[0].onclick(); }
+}
 document.querySelectorAll('.subtab').forEach(s=>{
   s.onclick=()=>{
     document.querySelectorAll('.subtab').forEach(x=>x.classList.remove('active'));
     s.classList.add('active');
-    ['ann','staff','meeting','ticket'].forEach(k=>{
-      document.getElementById('sub-'+k).style.display = k===s.dataset.sub ? 'block' : 'none';
-    });
-    if(s.dataset.sub === 'ann') renderActivities();
+    const v = s.dataset.view;
+    if(v==='staffSvc'){
+      ['ann','staff','meeting','ticket'].forEach(k=>{
+        const el = document.getElementById('sub-'+k);
+        if(el) el.style.display = k===s.dataset.sub ? 'block' : 'none';
+      });
+      if(s.dataset.sub === 'ann') renderActivities();
+    } else if(v==='users'){
+      ['userList','userAnn'].forEach(k=>{
+        const el = document.getElementById('sub-'+k);
+        if(el) el.style.display = k===s.dataset.sub ? 'block' : 'none';
+      });
+    }
   }
 });
+activateSubtabs('staffSvc', false);
 
 // 维护中
 function showMaint(){
@@ -3408,7 +3422,8 @@ function renderChangelog(){
   const logs = [
     { ver: 'v1.1.0', date: '2026-11-14', items: [
       '首页「活跃用户」入口改为「签到抽奖」，点击进入独立抽奖单页，每日可抽一次金币或经验',
-      '帖子列表多列卡片与独立详情页，抽奖参与后不可退出'
+      '帖子列表多列卡片与独立详情页，抽奖参与后不可退出',
+      '右上角签到入口移除，每日签到并入签到抽奖单页；用户列表更名为用户服务，下分用户列表与用户公告二级菜单'
     ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
@@ -3710,8 +3725,6 @@ function saveUserStats(uid, s){
   try { localStorage.setItem(k, JSON.stringify(s)); sessionStorage.setItem(k, JSON.stringify(s)); } catch(e){}
 }
 function applySignUI(uid, stats){
-  const btn = document.getElementById('btnCheckin');
-  if(btn) btn.textContent = stats.checkedIn ? '已签到' : '签到';
   const days = document.getElementById('signDays');
   if(days) days.textContent = stats.days || 0;
   const bs = document.getElementById('btnSign');
@@ -3765,7 +3778,14 @@ async function renderCheckinLottery(){
   const histHtml = history.length
     ? history.map(x => '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px"><span style="color:#a0b4d2">'+String(x.label||'奖励')+'</span><span style="color:#607494">'+String(x.date||'')+'</span></div>').join('')
     : '<div style="font-size:12px;color:#607494;padding:10px 0">暂无抽奖记录</div>';
+  const stats = getUserStats(uid);
+  const signBtn = stats.checkedIn ? '已签到' : '签到';
+  const signCard = '<div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">'+
+    '<div><div style="font-size:14px;font-weight:600;color:#f0f5ff;margin-bottom:4px">每日签到</div>'+
+    '<div style="font-size:12px;color:#607494">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">'+(stats.days||0)+'</span> 天</div></div>'+
+    '<button id="btnSign" onclick="doCheckin()" style="padding:10px 20px;background:linear-gradient(135deg,#73b8ff,#5b8def);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">'+signBtn+'</button></div>';
   box.innerHTML =
+    signCard+
     '<div style="text-align:center;margin-bottom:16px"><div style="font-size:13px;color:#607494">每日可抽奖一次，奖励金币或经验</div></div>'+
     '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">'+poolHtml+'</div>'+
     '<div style="text-align:center;margin-bottom:18px">'+
