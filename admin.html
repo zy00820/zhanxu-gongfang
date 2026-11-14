@@ -305,10 +305,21 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 .app-action.disabled{background:#f3f4f6;color:#9ca3af}
 
 /* ===== 弹层浅色同步 ===== */
-#settingsMask, #dmMask, #dmSetMask, #grpSetMask, #postEditorMask { background:rgba(15,23,42,0.35) !important; }
-#settingsMask > div, #dmMask > div, #dmSetMask > div, #grpSetMask > div, #postEditorMask > div { background:#fff !important; border-color:#eef1f5 !important; }
-#dmList, #dmSetBox, #grpSetBox { background:#fff; }
+#settingsMask, #dmMask, #dmSetMask, #grpSetMask, #postEditorMask,
+#profileMask, #postSheetMask, #noticeMask, #shopMask, #actMask, #gcCreateMask,
+#editStaffMask, #checkinLotteryMask, #postDetailMask, #glassMask, #wdMask, #rpMask { background:rgba(15,23,42,0.35) !important; }
+#settingsMask > div, #dmMask > div, #dmSetMask > div, #grpSetMask > div, #postEditorMask > div,
+#profileMask > div, #postSheetMask > div, #noticeMask > div, #shopMask > div, #actMask > div, #gcCreateMask > div,
+#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #glassMask > div, #wdMask > div, #rpMask > div { background:#fff !important; border-color:#eef1f5 !important; }
+#dmList, #dmSetBox, #grpSetBox, #gchatList, #gcMembers { background:#fff; }
 #peMentionPanel { background:#f7f8fa !important; border-color:#e5e7eb !important; }
+
+/* ===== 登录 / 注册 / 解锁表单浅色 ===== */
+.login-box { background:#fff !important; border-color:#eef1f5 !important; box-shadow:0 8px 32px rgba(16,24,40,0.12) !important; }
+.login-logo h1 { color:#111827 !important; }
+.login-logo p { color:#6b7280 !important; }
+.field label { color:#374151 !important; }
+.login-foot { color:#6b7280 !important; }
 </style>
 </head>
 <body>
@@ -3515,7 +3526,8 @@ function renderChangelog(){
       '一级菜单改为底部固定导航（图标+文字），首页主体调整为浅色背景与白色卡片',
       '底部导航新增「发现」（应用中心），首页原应用中心卡片移除；普通用户不可见员工服务入口',
       '发现页改版：搜索栏、分类 / 适配设备 / 排序筛选，应用卡片含图标、作者、评分下载量与获取按钮；获取改为本地打包下载，避免浏览器内打开二进制文件出现乱码',
-      '私信、设置、发帖编辑器弹层背景同步浅色；移除登录后弹出的公告提醒与右上角通知铃铛'
+      '私信、设置、发帖编辑器弹层背景同步浅色；移除登录后弹出的公告提醒与右上角通知铃铛',
+      '登录 / 注册 / 解锁表单及个人资料、公告、商城、活动、编辑员工、签到抽奖、帖子详情、提现、举报等其余弹窗背景统一为浅白色'
     ]},
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
