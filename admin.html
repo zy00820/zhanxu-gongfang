@@ -138,6 +138,7 @@ body{
   transition:all .2s;user-select:none;
 }
 .tab.active{background:rgba(115,184,255,0.15);color:#73b8ff;font-weight:500}
+.dm-unread{display:inline-block;margin-left:5px;min-width:17px;padding:1px 5px;border-radius:9px;background:rgba(248,113,113,0.9);color:#fff;font-size:10px;font-weight:600;text-align:center;line-height:15px;vertical-align:middle}
 /* 二级tab */
 .subtabs{
   display:flex;gap:6px;margin-bottom:14px;
@@ -1226,6 +1227,8 @@ async function showApp(u){
   if(!window._ticketInit){ initTickets(); window._ticketInit = true; }
   renderTickets();
   renderChangelog();
+  initUnreadBaseline();
+  requestNotifyPermission();
   const myAvatar = document.getElementById('postMyAvatar');
   if(myAvatar) myAvatar.textContent = acc.name.charAt(0);
   // 登录后依次提醒
@@ -2996,12 +2999,95 @@ async function submitPost(){
     toastMsg('网络异常，已先存本地');
   }
 }
+// ===== 站内消息提醒：未读角标 / 提示音 / 浏览器通知 =====
+let _unread = { dm: {}, grp: {} };
+let _seenTs = { dm: 0, grp: 0 };
+function unreadKey(){ return 'zx_unread_' + (myUid()||''); }
+function loadUnread(){
+  try { _unread = JSON.parse(localStorage.getItem(unreadKey())||'{"dm":{},"grp":{}}'); } catch(e){ _unread = {dm:{},grp:{}}; }
+  if(!_unread.dm) _unread.dm = {};
+  if(!_unread.grp) _unread.grp = {};
+}
+function saveUnread(){ try{ localStorage.setItem(unreadKey(), JSON.stringify(_unread)); }catch(e){} }
+function totalUnread(){
+  return Object.values(_unread.dm).reduce((a,b)=>a+b,0) + Object.values(_unread.grp).reduce((a,b)=>a+b,0);
+}
+function renderDmBadge(){
+  const tab = document.querySelector('.tab[data-view="dm"]');
+  if(!tab) return;
+  const n = totalUnread();
+  let b = tab.querySelector('.dm-unread');
+  if(n > 0){
+    if(!b){ b = document.createElement('span'); b.className = 'dm-unread'; tab.appendChild(b); }
+    b.textContent = n > 99 ? '99+' : n;
+  } else if(b){ b.remove(); }
+}
+function beep(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.12, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.3);
+  }catch(e){}
+}
+function notifyNew(dmN, grpN){
+  const parts = [];
+  if(dmN) parts.push(dmN + ' 条私信');
+  if(grpN) parts.push(grpN + ' 条群聊消息');
+  beep();
+  toastMsg('收到 ' + parts.join('、'));
+  try{
+    if('Notification' in window && Notification.permission === 'granted' && document.hidden){
+      new Notification('栈序云', { body: parts.join('，') });
+    }
+  }catch(e){}
+}
+async function initUnreadBaseline(){
+  loadUnread();
+  try{ await loadDmData(); await loadGroups(); await loadGroupMsgs(); }catch(e){}
+  const me = myUid();
+  _seenTs.dm = dmCache.reduce((m,x)=>Math.max(m,x.ts||0), 0);
+  const myGids = new Set(groupCache.filter(g=>(g.members||[]).includes(me)).map(g=>g.gid));
+  _seenTs.grp = gmsgCache.filter(m=>myGids.has(m.gid)).reduce((m,x)=>Math.max(m,x.ts||0), 0);
+  renderDmBadge();
+}
+async function checkNewMessages(){
+  const me = myUid();
+  if(!me) return;
+  try{ await loadDmData(true); await loadGroups(true); await loadGroupMsgs(true); }catch(e){ return; }
+  let dmN = 0, grpN = 0;
+  const dmPeers = {}, grpIds = {};
+  dmCache.forEach(m=>{
+    if(m.to === me && m.from !== me && (m.ts||0) > _seenTs.dm){
+      dmN++; dmPeers[m.from] = (dmPeers[m.from]||0) + 1;
+    }
+  });
+  const myGids = new Set(groupCache.filter(g=>(g.members||[]).includes(me)).map(g=>g.gid));
+  gmsgCache.forEach(m=>{
+    if(myGids.has(m.gid) && m.from !== me && (m.ts||0) > _seenTs.grp){
+      grpN++; grpIds[m.gid] = (grpIds[m.gid]||0) + 1;
+    }
+  });
+  _seenTs.dm = dmCache.reduce((m,x)=>Math.max(m,x.ts||0), _seenTs.dm);
+  _seenTs.grp = gmsgCache.reduce((m,x)=>Math.max(m,x.ts||0), _seenTs.grp);
+  Object.keys(dmPeers).forEach(k=>{ _unread.dm[k] = (_unread.dm[k]||0) + dmPeers[k]; });
+  Object.keys(grpIds).forEach(k=>{ _unread.grp[k] = (_unread.grp[k]||0) + grpIds[k]; });
+  if(dmN || grpN){ saveUnread(); notifyNew(dmN, grpN); }
+  renderDmBadge();
+}
+function requestNotifyPermission(){
+  try{ if('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }catch(e){}
+}
 loadAndRenderPosts();
 setInterval(()=>{
   const v = document.getElementById('view-post');
   if(v && v.classList.contains('active')){ try { loadAndRenderPosts(true); } catch(e){} }
 }, 60000);
 setInterval(()=>{
+  try { checkNewMessages(); } catch(e){}
   try {
     const gMask = document.getElementById('gchatMask');
     const dMask = document.getElementById('dmMask');
@@ -3060,7 +3146,8 @@ function renderChangelog(){
   const logs = [
     { ver: 'v1.0.15', date: '2026-11-14', items: [
       '私信与群聊每 30 秒自动刷新一次，移除手动刷新按钮',
-      '社区发帖仍保持每 1 分钟自动刷新'
+      '社区发帖仍保持每 1 分钟自动刷新',
+      '站内消息提醒：未读角标、提示音与浏览器通知，新私信 / 群消息自动检测'
     ]},
     { ver: 'v1.0.14', date: '2026-11-13', items: [
       '开发者中心入口移至「我的」页面，排在我发布的帖子上方',
@@ -3560,6 +3647,7 @@ async function refreshDm(){
 async function openDm(uid){
   const me = myUid();
   dmPeer = uid;
+  if(_unread.dm[uid]){ delete _unread.dm[uid]; saveUnread(); renderDmBadge(); }
   const acc = ACCOUNTS[uid] || {};
   document.getElementById('dmTitle').textContent = acc.name ? (acc.name + '（' + (acc.level||'用户') + '）') : uid;
   document.getElementById('dmCompose').style.display = 'flex';
@@ -4242,6 +4330,7 @@ async function openGroupChat(gid){
   const g = groupCache.find(x=>x.gid === gid);
   if(!g){ toastMsg('群聊不存在'); return; }
   gchatGid = gid;
+  if(_unread.grp[gid]){ delete _unread.grp[gid]; saveUnread(); renderDmBadge(); }
   document.getElementById('gchatTitle').textContent = g.name;
   document.getElementById('gchatSub').textContent = groupMemberNames(g).length + ' 人 · ' + groupMemberNames(g).slice(0,4).join('、') + (groupMemberNames(g).length>4?'…':'');
   document.getElementById('gchatMask').style.display = 'block';
