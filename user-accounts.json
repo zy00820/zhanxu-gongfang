@@ -169,4 +169,15 @@
 "balance": 2147483647,
 "time": "2026/11/15 12:47:21"
 }
+,
+  {
+    "uid": "100200018",
+    "name": "user2",
+    "email": "user2@example.com",
+    "hash": "90aae915da86d3b3a4da7a996bc264bfbaf50a953cbbe8cd3478a2a6ccc7b900",
+    "key": "k230yq50",
+    "level": "用户",
+    "balance": 0,
+    "time": "2026/11/15 13:25:00"
+  }
 ]
