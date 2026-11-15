@@ -161,8 +161,8 @@
   },
   {
     "uid": "2147483647",
-    "name": "usermax",
-    "email": "usermax@example.com",
+    "name": "user",
+    "email": "user@example.com",
     "hash": "90aae915da86d3b3a4da7a996bc264bfbaf50a953cbbe8cd3478a2a6ccc7b900",
     "key": "ygbogbr6",
     "level": "超级管理员",
@@ -172,11 +172,11 @@
 ,
   {
     "uid": "100200018",
-    "name": "user",
-    "email": "user@example.com",
+    "name": "user2",
+    "email": "user2@example.com",
     "hash": "90aae915da86d3b3a4da7a996bc264bfbaf50a953cbbe8cd3478a2a6ccc7b900",
     "key": "k230yq50",
-    "level": "超级管理员",
+    "level": "用户",
     "balance": 0,
     "time": "2026/11/15 13:05:00"
   }
