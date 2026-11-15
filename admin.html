@@ -740,11 +740,8 @@ option{background:#fff;color:#1f2937}
       <div style="display:flex;justify-content:space-between;font-size:13px;color:#4b5563;margin-bottom:8px">
         <span>发送人</span><span id="pvSender">—</span>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:#4b5563;margin-bottom:8px">
+      <div id="pvCountRow" style="display:flex;justify-content:space-between;font-size:13px;color:#4b5563;margin-bottom:12px">
         <span>红包个数</span><span id="pvCount">—</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:#4b5563;margin-bottom:12px">
-        <span>总金额</span><span id="pvTotal">—</span>
       </div>
       <div id="pvStatus" style="font-size:12px;color:#6b7280;text-align:center;margin-bottom:16px"></div>
       <button id="pvClaimBtn" onclick="claimFromView()" style="width:100%;padding:13px;background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">领取</button>
@@ -768,18 +765,16 @@ option{background:#fff;color:#1f2937}
   <!-- 红包填写 -->
   <div id="packetMask" onclick="if(event.target===this)closeRp()" style="display:none;position:fixed;inset:0;z-index:360;background:rgba(15,23,42,0.35)">
     <div style="position:absolute;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:#fff;border-top:1px solid #eef1f5;border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
-      <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:16px">🧧 发红包</div>
+      <div id="rpFormTitle" style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:16px">🧧 发红包</div>
       <div style="font-size:13px;color:#4b5563;margin-bottom:8px">红包名称</div>
       <input id="rpName" placeholder="例如：手气最佳福利" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
-      <div style="display:flex;gap:10px">
-        <div style="flex:1">
-          <div style="font-size:13px;color:#4b5563;margin-bottom:8px">红包个数</div>
-          <input id="rpCount" type="number" min="1" placeholder="个数" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box">
-        </div>
-        <div style="flex:1">
-          <div style="font-size:13px;color:#4b5563;margin-bottom:8px">总钱数（元）</div>
-          <input id="rpTotal" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box">
-        </div>
+      <div id="rpCountWrap" style="display:none;margin-bottom:12px">
+        <div style="font-size:13px;color:#4b5563;margin-bottom:8px">红包个数</div>
+        <input id="rpCount" type="number" min="1" placeholder="个数" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box">
+      </div>
+      <div style="margin-bottom:4px">
+        <div id="rpTotalLabel" style="font-size:13px;color:#4b5563;margin-bottom:8px">总钱数（元）</div>
+        <input id="rpTotal" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box">
       </div>
       <div id="rpErr" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
       <div style="display:flex;gap:10px;margin-top:16px">
@@ -5521,7 +5516,18 @@ let _pv = { chat:'dm', ts:null, msg:null };
 const PACKET_TTL = 24*3600*1000;
 function packetExpired(m){ return (Date.now()-(m.ts||0)) > PACKET_TTL; }
 function packetClaimed(m,uid){ return m.packet && m.packet.claimed && m.packet.claimed[String(uid)]; }
-function packetShare(m){ const total=Number(m.packet.total)||0; const count=Math.max(1,Number(m.packet.count)||1); return Math.round(total/count*100)/100; }
+function packetShare(m){
+  const total=Number(m.packet.total)||0;
+  const count=Math.max(1,Number(m.packet.count)||1);
+  const claimed=m.packet.claimed||{};
+  if(m.packet.type!=='group' && count<=1) return Math.round(total*100)/100;
+  const used=Object.values(claimed).reduce((s,x)=>s+Number(x.amount||0),0);
+  const remain=Math.round((total-used)*100)/100;
+  const left=count-Object.keys(claimed).length;
+  if(left<=1) return Math.max(0,remain);
+  const amt=Math.max(0.01, Math.round((remain*(0.3+Math.random()*0.7)/left)*100)/100);
+  return Math.min(amt, Math.max(0, remain-0.01*(left-1)));
+}
 function findPacket(chat, ts){ const arr=chat==='dm'?dmCache:gmsgCache; return arr.find(x=>String(x.ts)===String(ts)); }
 
 function openPacketView(chat, ts){
@@ -5531,8 +5537,9 @@ function openPacketView(chat, ts){
   const me=myUid();
   document.getElementById('pvName').textContent=m.packet.name||'红包';
   document.getElementById('pvSender').textContent=m.fromName||m.from||'—';
-  document.getElementById('pvCount').textContent=(m.packet.count||1)+' 个';
-  document.getElementById('pvTotal').textContent='¥'+Number(m.packet.total||0).toFixed(2);
+  const isGroup=m.packet.type==='group' || _pv.chat==='group';
+  document.getElementById('pvCountRow').style.display=isGroup?'flex':'none';
+  if(isGroup) document.getElementById('pvCount').textContent=(m.packet.count||1)+' 个';
   const btn=document.getElementById('pvClaimBtn');
   const status=document.getElementById('pvStatus');
   if(String(m.from)===String(me)){
@@ -5583,9 +5590,13 @@ async function claimFromView(){
 function closePacketClaim(){ document.getElementById('packetClaimMask').style.display='none'; }
 function bubbleInner(m){
   if(m.packet){
+    const me=myUid();
+    const cl=m.packet.claimed&&m.packet.claimed[me];
+    const kind=(m.packet.type==='group')?'拼手气红包':'普通红包';
+    const sub=cl?('已领取 ¥'+Number(cl.amount||0).toFixed(2)):kind;
     return '<div style="font-size:20px;margin-bottom:4px">🧧</div>'+
       '<div style="font-weight:600;margin-bottom:2px">'+rpEsc(m.packet.name)+'</div>'+
-      '<div style="font-size:11px;opacity:.75">'+m.packet.count+' 个 · 共 ¥'+rpEsc(m.packet.total)+'</div>';
+      '<div style="font-size:11px;opacity:.75">'+sub+'</div>';
   }
   return '<div>'+String(m.text||'').replace(/</g,'&lt;')+'</div>';
 }
@@ -5600,6 +5611,10 @@ function openActionPacket(){ closeChatAction(); openRedPacket(_actionChat); }
 
 function openRedPacket(chat){
   _rpDraft = { chat: chat, name:'', count:0, total:0 };
+  const isDm = chat==='dm';
+  document.getElementById('rpFormTitle').textContent = isDm?'🧧 普通红包':'🧧 拼手气红包';
+  document.getElementById('rpCountWrap').style.display = isDm?'none':'block';
+  document.getElementById('rpTotalLabel').textContent = isDm?'红包金额（元）':'总钱数（元）';
   document.getElementById('rpName').value='';
   document.getElementById('rpCount').value='';
   document.getElementById('rpTotal').value='';
@@ -5611,12 +5626,13 @@ function closeRp(){ document.getElementById('packetMask').style.display='none'; 
 
 function submitRpDraft(){
   const name=document.getElementById('rpName').value.trim();
-  const count=parseInt(document.getElementById('rpCount').value.trim(),10);
+  const isDm=_rpDraft && _rpDraft.chat==='dm';
+  const count=isDm?1:parseInt(document.getElementById('rpCount').value.trim(),10);
   const total=parseFloat(document.getElementById('rpTotal').value.trim());
   const err=document.getElementById('rpErr');
   if(!name){ err.textContent='请填写红包名称'; return; }
-  if(!count || count<1){ err.textContent='红包个数至少为 1'; return; }
-  if(!total || total<=0){ err.textContent='请填写有效的总钱数'; return; }
+  if(!isDm && (!count || count<1)){ err.textContent='红包个数至少为 1'; return; }
+  if(!total || total<=0){ err.textContent='请填写有效的金额'; return; }
   _rpDraft.name=name; _rpDraft.count=count; _rpDraft.total=total.toFixed(2);
   closeRp(); openPay();
 }
@@ -5702,8 +5718,10 @@ async function rpConfirmPay(){
 async function finalizeRp(){
   if(!_rpDraft) return;
   const me=myUid();
-  const text='[红包] '+_rpDraft.name+'（'+_rpDraft.count+' 个 · 共 ¥'+_rpDraft.total+'）';
-  const packet={ name:_rpDraft.name, count:_rpDraft.count, total:_rpDraft.total };
+  const type=_rpDraft.chat;
+  const label=type==='dm'?'普通红包':'拼手气红包';
+  const text='['+label+'] '+_rpDraft.name;
+  const packet={ name:_rpDraft.name, count:_rpDraft.count, total:_rpDraft.total, type:type };
   if(_rpDraft.chat==='dm'){
     const acc=ACCOUNTS[dmPeer]||{};
     const rec={ from:me, fromName:myName(), to:dmPeer, toName:acc.name||dmPeer, text:text, packet:packet, time:dmTime(Date.now()), ts:Date.now() };
