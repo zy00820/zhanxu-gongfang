@@ -1511,7 +1511,6 @@ const ACCOUNTS = {
   "100000016": { hash: "7c4be761f4cd4c829dcd8a12011e1afb566dcb2be74ad3701bbd78cb77c88d91", name: "冯天宇", level: "管理员", keyHash: "02076c777ed6e32aa1fadc4738e31f61e1e674450f33d800b226bf0b26bb4f7e", balance: 0 },
   "999999999": { hash: "937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244", name: "测试员", level: "管理员", keyHash: "7dcf407fa84a0e0519c7991154c4148de0244d7589020c0d9842db9efad82094", balance: 0 },
   "100000027": { hash: "49a0f2827ddb6421939ede7a9ce9d2f95fea29c95a5b73bd9273ac67f29bb68c", name: "宋欣辉", level: "管理员", keyHash: "8238757ca2891dea51717bda48f21ba2da546e1569d15ce57b7f2d49b7a91476", balance: 0 },
-  "100200001": { hash: "c9fda7c4079f32b37b428e49629aa8fc7be1fb121401837b66df1ac1549666aa", name: "柯", level: "用户", keyHash: "d8d75eabe735257ec821f476c31ab93640ce88da072a131e1e136ad21b11de1c", balance: 2 },
   "100000028": { hash: "398696ab66151a362fccf03eb2d6f384ac7aa79ef0cb852ad71dcf31545c2d0a", name: "朱昱芃", level: "管理员", keyHash: "e4bfaa1ff220092fc60e4249a3781191bfab1b0213355a629e307e68718592e9", balance: 0 },
   "100000024": { hash: "4e3df4580adfaee149a98db292e270843331c7d5775ec073bd85e8e5439a0b6e", name: "丁义宸", level: "管理员", keyHash: "4110cf42ba9f894a3345021bf011bfefcef393fc0e393cb9811b30753eaac99c", balance: 5 }
 };
@@ -3987,7 +3986,8 @@ function renderChangelog(){
     { ver: 'v1.1.2', date: '2026-11-15', items: [
       '私信与群聊输入栏右侧新增加号，展开可发送文字红包；填写红包名称、个数、总钱数后进入支付密码页',
       '首次使用支付密码需先验证邮箱与验证码，设置后哈希存储；已设置用户输入密码即可完成发红包',
-      '支付密码限定为 6 位数字'
+      '支付密码限定为 6 位数字',
+      '移除普通用户权限测试号及其遗留的测试工单、私信红包与群成员记录'
     ]},
     { ver: 'v1.1.1', date: '2026-11-14', items: [
       '补充官方 QQ 群号 586352356，点击可复制群号',
