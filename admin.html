@@ -309,10 +309,10 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 /* ===== 弹层浅色同步 ===== */
 #settingsMask, #dmMask, #dmSetMask, #grpSetMask, #postEditorMask,
 #profileMask, #postSheetMask, #noticeMask, #shopMask, #actMask, #gcCreateMask,
-#editStaffMask, #checkinLotteryMask, #postDetailMask, #boardMask, #hotMask, #fbMask, #applyMask, #glassMask, #wdMask, #rpMask { background:rgba(15,23,42,0.35) !important; }
+#editStaffMask, #checkinLotteryMask, #postDetailMask, #boardMask, #hotMask, #fbMask, #applyMask, #glassMask, #wdMask, #rpMask, #packetMask, #payMask { background:rgba(15,23,42,0.35) !important; }
 #settingsMask > div, #dmMask > div, #dmSetMask > div, #grpSetMask > div, #postEditorMask > div,
 #profileMask > div, #postSheetMask > div, #noticeMask > div, #shopMask > div, #actMask > div, #gcCreateMask > div,
-#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #boardMask > div, #hotMask > div, #fbMask > div, #applyMask > div, #glassMask > div, #wdMask > div, #rpMask > div { background:#fff !important; border-color:#eef1f5 !important; }
+#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #boardMask > div, #hotMask > div, #fbMask > div, #applyMask > div, #glassMask > div, #wdMask > div, #rpMask > div, #packetMask > div, #payMask > div { background:#fff !important; border-color:#eef1f5 !important; }
 #dmList, #dmSetBox, #grpSetBox, #gchatList, #gcMembers { background:#fff; }
 #peMentionPanel { background:#f7f8fa !important; border-color:#e5e7eb !important; }
 #glassMsg{white-space:pre-line;text-align:left !important}
@@ -380,7 +380,7 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.1 更新</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.2 更新</div>
         <div style="font-size:11px;color:#6b7280;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -518,7 +518,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.1</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.2</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -705,10 +705,72 @@ option{background:#fff;color:#1f2937}
         </div>
       </div>
       <div id="gchatList" style="flex:1;overflow-y:auto;padding:16px;background:#ffffff"></div>
-      <div style="display:flex;gap:8px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #eef0f4;background:#ffffff">
-        <input id="gchatInput" maxlength="300" placeholder="发送消息…" style="flex:1;padding:11px 14px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:10px;color:#111827;font-size:14px;outline:none">
-        <button onclick="submitGroupMsg()" style="padding:11px 18px;background:#2563eb;border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">发送</button>
+      <div style="padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #eef0f4;background:#ffffff">
+        <div id="gAttach" style="display:none;gap:12px;margin-bottom:10px;overflow-x:auto">
+          <button onclick="openRedPacket('group')" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;padding:10px 12px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:12px;cursor:pointer">
+            <span style="font-size:22px">🧧</span><span style="font-size:11px;color:#4b5563">文字红包</span>
+          </button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input id="gchatInput" maxlength="300" placeholder="发送消息…" style="flex:1;padding:11px 14px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:10px;color:#111827;font-size:14px;outline:none">
+          <button onclick="toggleGAttach()" style="width:42px;padding:11px 0;background:#f3f4f6;border:1px solid #e5e7eb;color:#374151;border-radius:10px;font-size:18px;font-weight:600;cursor:pointer">+</button>
+          <button onclick="submitGroupMsg()" style="padding:11px 18px;background:#2563eb;border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">发送</button>
+        </div>
       </div>
+    </div>
+  </div>
+
+
+  <!-- 红包填写 -->
+  <div id="packetMask" onclick="if(event.target===this)closeRp()" style="display:none;position:fixed;inset:0;z-index:360;background:rgba(15,23,42,0.35)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:#fff;border-top:1px solid #eef1f5;border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:16px">🧧 发红包</div>
+      <div style="font-size:13px;color:#4b5563;margin-bottom:8px">红包名称</div>
+      <input id="rpName" placeholder="例如：手气最佳福利" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
+      <div style="display:flex;gap:10px">
+        <div style="flex:1">
+          <div style="font-size:13px;color:#4b5563;margin-bottom:8px">红包个数</div>
+          <input id="rpCount" type="number" min="1" placeholder="个数" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box">
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:#4b5563;margin-bottom:8px">总钱数（元）</div>
+          <input id="rpTotal" type="number" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box">
+        </div>
+      </div>
+      <div id="rpErr" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="closeRp()" style="flex:1;padding:12px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">取消</button>
+        <button onclick="submitRpDraft()" style="flex:1;padding:12px;background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">发红包</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 支付密码 -->
+  <div id="payMask" onclick="if(event.target===this)closePay()" style="display:none;position:fixed;inset:0;z-index:370;background:rgba(15,23,42,0.35)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:#fff;border-top:1px solid #eef1f5;border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:16px" id="payTitle">支付密码</div>
+      <div id="payVerifyBox">
+        <div style="font-size:13px;color:#4b5563;margin-bottom:8px">验证邮箱（首次使用需先验证）</div>
+        <input id="rpEmail" placeholder="example@mail.com" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px">
+        <div style="display:flex;gap:10px">
+          <input id="rpCode" maxlength="6" placeholder="邮箱验证码" style="flex:1;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box">
+          <button onclick="rpSendCode()" style="flex-shrink:0;padding:12px 14px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.4);color:#2563eb;font-size:13px;cursor:pointer;border-radius:10px">发送验证码</button>
+        </div>
+        <button onclick="rpVerifyEmail()" style="width:100%;margin-top:12px;padding:12px;background:#f3f4f6;border:1px solid #e5e7eb;color:#374151;border-radius:10px;font-size:14px;cursor:pointer">验证并继续</button>
+      </div>
+      <div id="paySetBox" style="display:none">
+        <div style="font-size:13px;color:#4b5563;margin-bottom:8px">设置新支付密码（至少 6 位）</div>
+        <input id="rpPwd1" type="password" placeholder="新支付密码" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px">
+        <input id="rpPwd2" type="password" placeholder="确认新支付密码" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px">
+        <button onclick="rpSetPwd()" style="width:100%;padding:12px;background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">完成设置并发红包</button>
+      </div>
+      <div id="payConfirmBox" style="display:none">
+        <div style="font-size:13px;color:#4b5563;margin-bottom:8px">输入支付密码完成支付</div>
+        <input id="payPwd" type="password" placeholder="支付密码" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
+        <button onclick="rpConfirmPay()" style="width:100%;padding:12px;background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">确认支付并发红包</button>
+      </div>
+      <div id="payErr" style="font-size:12px;color:#f87171;margin-top:10px;min-height:14px"></div>
+      <div style="margin-top:12px"><button onclick="closePay()" style="width:100%;padding:11px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">取消</button></div>
     </div>
   </div>
 
@@ -723,9 +785,17 @@ option{background:#fff;color:#1f2937}
         </div>
       </div>
       <div id="dmList" style="flex:1;overflow-y:auto;padding:14px 16px"></div>
-      <div id="dmCompose" style="display:none;gap:8px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,0.08)">
-        <input id="dmInput" maxlength="300" placeholder="输入私信内容…" style="flex:1;padding:11px 14px;background:rgba(255,255,255,0.07);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
-        <button onclick="submitDm()" class="btn-send">发送</button>
+      <div id="dmCompose" style="display:none;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,0.08)">
+        <div id="dmAttach" style="display:none;gap:12px;margin-bottom:10px;overflow-x:auto">
+          <button onclick="openRedPacket('dm')" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;padding:10px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;cursor:pointer">
+            <span style="font-size:22px">🧧</span><span style="font-size:11px;color:#9ca3af">文字红包</span>
+          </button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input id="dmInput" maxlength="300" placeholder="输入私信内容…" style="flex:1;padding:11px 14px;background:rgba(255,255,255,0.07);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
+          <button onclick="toggleDmAttach()" style="width:42px;padding:11px 0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#d1d5db;border-radius:10px;font-size:18px;font-weight:600;cursor:pointer">+</button>
+          <button onclick="submitDm()" class="btn-send">发送</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1017,7 +1087,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.1</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.2</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -3914,6 +3984,10 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.1.2', date: '2026-11-15', items: [
+      '私信与群聊输入栏右侧新增加号，展开可发送文字红包；填写红包名称、个数、总钱数后进入支付密码页',
+      '首次使用支付密码需先验证邮箱与验证码，设置后哈希存储；已设置用户输入密码即可完成发红包'
+    ]},
     { ver: 'v1.1.1', date: '2026-11-14', items: [
       '补充官方 QQ 群号 586352356，点击可复制群号',
       '补充用户协议与隐私政策说明',
@@ -4522,7 +4596,7 @@ async function openDm(uid){
       '<div style="max-width:78%;padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.6;'+
       (mine ? 'background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.3);color:#1f2937'
             : 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#374151')+'">'+
-      '<div>'+String(m.text||'').replace(/</g,'&lt;')+'</div>'+
+      bubbleInner(m)+
       '<div style="font-size:10px;margin-top:4px;color:#6b7280;text-align:'+(mine?'right':'left')+'">'+dmTime(m.ts)+'</div>'+
       '</div></div>';
   }).join('');
@@ -5205,7 +5279,7 @@ async function openGroupChat(gid){
       '<div style="max-width:72%">'+
         '<div style="font-size:11px;color:#9ca3af;margin-bottom:3px;text-align:'+(mine?'right':'left')+'">'+(mine?'我':String(m.fromName||''))+' · '+dmTime(m.ts)+'</div>'+
         '<div style="padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.6;text-align:left;'+
-          (mine ? 'background:#2563eb;color:#ffffff' : 'background:#f3f4f6;color:#111827')+'">'+String(m.text||'').replace(/</g,'&lt;')+'</div>'+
+          (mine ? 'background:#2563eb;color:#ffffff' : 'background:#f3f4f6;color:#111827')+'">'+bubbleInner(m)+'</div>'+
       '</div></div>';
   }).join('');
   box.scrollTop = box.scrollHeight;
@@ -5353,6 +5427,138 @@ async function grpDemote(gid, uid){
   try { await persistGroups(); toastMsg('已取消管理员'); } catch(e){ toastMsg('保存失败'); return; }
   renderGrpSetting();
 }
+
+function rpEsc(s){ return String(s==null?'':s).replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function bubbleInner(m){
+  if(m.packet){
+    return '<div style="font-size:20px;margin-bottom:4px">🧧</div>'+
+      '<div style="font-weight:600;margin-bottom:2px">'+rpEsc(m.packet.name)+'</div>'+
+      '<div style="font-size:11px;opacity:.75">'+m.packet.count+' 个 · 共 ¥'+rpEsc(m.packet.total)+'</div>';
+  }
+  return '<div>'+String(m.text||'').replace(/</g,'&lt;')+'</div>';
+}
+
+
+// ===== 红包与支付密码 =====
+let _rpDraft = null;
+function toggleAttach(id){ const el=document.getElementById(id); if(el) el.style.display = el.style.display==='block'?'none':'block'; }
+function toggleDmAttach(){ toggleAttach('dmAttach'); }
+function toggleGAttach(){ toggleAttach('gAttach'); }
+
+function openRedPacket(chat){
+  _rpDraft = { chat: chat, name:'', count:0, total:0 };
+  document.getElementById('rpName').value='';
+  document.getElementById('rpCount').value='';
+  document.getElementById('rpTotal').value='';
+  document.getElementById('rpErr').textContent='';
+  document.getElementById('dmAttach').style.display='none';
+  document.getElementById('gAttach').style.display='none';
+  document.getElementById('packetMask').style.display='block';
+}
+function closeRp(){ document.getElementById('packetMask').style.display='none'; }
+
+function submitRpDraft(){
+  const name=document.getElementById('rpName').value.trim();
+  const count=parseInt(document.getElementById('rpCount').value.trim(),10);
+  const total=parseFloat(document.getElementById('rpTotal').value.trim());
+  const err=document.getElementById('rpErr');
+  if(!name){ err.textContent='请填写红包名称'; return; }
+  if(!count || count<1){ err.textContent='红包个数至少为 1'; return; }
+  if(!total || total<=0){ err.textContent='请填写有效的总钱数'; return; }
+  _rpDraft.name=name; _rpDraft.count=count; _rpDraft.total=total.toFixed(2);
+  closeRp(); openPay();
+}
+
+function payPwdKey(){ return 'zx_pay_pwd_'+myUid(); }
+function openPay(){
+  const me=myUid();
+  const existing=localStorage.getItem(payPwdKey());
+  document.getElementById('payErr').textContent='';
+  document.getElementById('payVerifyBox').style.display=existing?'none':'block';
+  document.getElementById('paySetBox').style.display='none';
+  document.getElementById('payConfirmBox').style.display=existing?'block':'none';
+  if(!existing){
+    const acc=ACCOUNTS[me]||{};
+    document.getElementById('rpEmail').value=acc.email||'';
+    document.getElementById('rpCode').value='';
+    document.getElementById('payTitle').textContent='设置支付密码';
+  } else {
+    document.getElementById('payPwd').value='';
+    document.getElementById('payTitle').textContent='输入支付密码';
+  }
+  document.getElementById('payMask').style.display='block';
+}
+function closePay(){ document.getElementById('payMask').style.display='none'; }
+
+async function rpSendCode(){
+  const email=document.getElementById('rpEmail').value.trim();
+  const err=document.getElementById('payErr');
+  if(!email){ err.textContent='请填写邮箱'; return; }
+  if(!isValidEmail(email)){ err.textContent='邮箱格式不正确'; return; }
+  if(!mailReady()){ err.textContent='邮件服务暂未配置，无法发送验证码'; return; }
+  const code=String(Math.floor(100000+Math.random()*900000));
+  const r=await dispatchMail(email, code, (ACCOUNTS[myUid()]||{}).name||'用户');
+  if(!r.ok){ err.textContent='验证码发送失败：'+r.reason; return; }
+  localStorage.setItem('zx_email_code', JSON.stringify({email:email.toLowerCase(), code:code, exp:Date.now()+10*60*1000}));
+  err.textContent=''; toastMsg('验证码已发送，约 1 分钟内到达');
+}
+
+function rpVerifyEmail(){
+  const email=document.getElementById('rpEmail').value.trim().toLowerCase();
+  const code=document.getElementById('rpCode').value.trim();
+  const err=document.getElementById('payErr');
+  let saved=null;
+  try{ saved=JSON.parse(localStorage.getItem('zx_email_code')||'null'); }catch(x){}
+  if(!saved||saved.email!==email){ err.textContent='请先发送验证码'; return; }
+  if(Date.now()>saved.exp){ err.textContent='验证码已过期，请重新获取'; return; }
+  if(code!==saved.code){ err.textContent='验证码不正确'; return; }
+  document.getElementById('payVerifyBox').style.display='none';
+  document.getElementById('paySetBox').style.display='block';
+  document.getElementById('rpPwd1').value=''; document.getElementById('rpPwd2').value='';
+  document.getElementById('payTitle').textContent='设置支付密码';
+  err.textContent='';
+}
+
+async function rpSetPwd(){
+  const p1=document.getElementById('rpPwd1').value;
+  const p2=document.getElementById('rpPwd2').value;
+  const err=document.getElementById('payErr');
+  if(p1.length<6){ err.textContent='支付密码至少 6 位'; return; }
+  if(p1!==p2){ err.textContent='两次输入的密码不一致'; return; }
+  const h=await sha256(p1);
+  localStorage.setItem(payPwdKey(), h);
+  toastMsg('支付密码已设置');
+  await finalizeRp();
+}
+
+async function rpConfirmPay(){
+  const p=document.getElementById('payPwd').value;
+  const err=document.getElementById('payErr');
+  const h=await sha256(p);
+  if(h!==localStorage.getItem(payPwdKey())){ err.textContent='支付密码错误'; return; }
+  await finalizeRp();
+}
+
+async function finalizeRp(){
+  if(!_rpDraft) return;
+  const me=myUid();
+  const text='[红包] '+_rpDraft.name+'（'+_rpDraft.count+' 个 · 共 ¥'+_rpDraft.total+'）';
+  const packet={ name:_rpDraft.name, count:_rpDraft.count, total:_rpDraft.total };
+  if(_rpDraft.chat==='dm'){
+    const acc=ACCOUNTS[dmPeer]||{};
+    const rec={ from:me, fromName:myName(), to:dmPeer, toName:acc.name||dmPeer, text:text, packet:packet, time:dmTime(Date.now()), ts:Date.now() };
+    try{ await ghAppendRecord(GH_DM_PATH, rec, 'zx_dms'); dmCache.push(rec); dmLoaded=true; }
+    catch(e){ dmCache.push(rec); dmLoaded=true; localStorage.setItem('zx_dms', JSON.stringify(dmCache)); }
+    closePay(); openDm(dmPeer);
+  } else {
+    const rec={ gid:gchatGid, from:me, fromName:(ACCOUNTS[me]||{}).name||me, text:text, packet:packet, time:dmTime(Date.now()), ts:Date.now() };
+    try{ await ghAppendRecord(GH_GMSG_PATH, rec, 'zx_gmsgs'); gmsgCache.push(rec); gmsgsLoaded=true; }
+    catch(e){ gmsgCache.push(rec); gmsgsLoaded=true; localStorage.setItem('zx_gmsgs', JSON.stringify(gmsgCache)); }
+    closePay(); openGroupChat(gchatGid);
+  }
+  toastMsg('红包已发送');
+}
+
 async function submitGroupMsg(){
   const me = myUid();
   if(!me || !gchatGid) return;
