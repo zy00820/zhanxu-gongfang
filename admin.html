@@ -1412,8 +1412,12 @@ option{background:#fff;color:#1f2937}
     <input id="apEmail" placeholder="example@mail.com" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
     <div style="font-size:13px;color:#4b5563;margin-bottom:8px">个人经验</div>
     <textarea id="apExperience" rows="4" placeholder="介绍你的开发经验、擅长方向或过往作品…" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;resize:vertical;margin-bottom:12px"></textarea>
-    <div style="font-size:13px;color:#4b5563;margin-bottom:8px">作品集链接（选填）</div>
+    <div style="font-size:13px;color:#4b5563;margin-bottom:8px">作品集链接（必填）</div>
     <input id="apPortfolio" placeholder="GitHub / 作品主页链接" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box">
+    <label style="display:flex;align-items:flex-start;gap:8px;margin:12px 0 4px;font-size:12px;color:#4b5563;cursor:pointer">
+      <input type="checkbox" id="apAgree" style="accent-color:#8b5cf6;margin-top:2px">
+      <span>我已阅读并同意 <span style="color:#8b5cf6;cursor:pointer;text-decoration:underline" onclick="event.stopPropagation();glassAlert('开发者协议', DEV_AGREEMENT_TEXT)">《开发者协议》</span></span>
+    </label>
     <div id="apErr" style="font-size:12px;color:#f87171;margin-top:8px;min-height:14px"></div>
     <div style="display:flex;gap:10px;margin-top:16px">
       <button onclick="closeDevApply()" style="flex:1;padding:12px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">取消</button>
@@ -1451,6 +1455,7 @@ function checkAuth(){
 }
 const AGREEMENT_TEXT = '欢迎使用栈序云。使用本应用即表示您同意以下条款：\n1. 账号：您应妥善保管账号与密码，因本人泄露或转借造成的损失自行承担。\n2. 内容：您发布的帖子、评论、私信等应遵守法律法规，不得发布违规、侵权、骚扰或虚假信息。\n3. 规范：禁止恶意刷屏、骚扰他人、诈骗、传播违规资源或破坏平台秩序的行为。\n4. 管理：平台有权对违规内容进行删除，并对违规账号采取提醒、限制功能或封禁等措施。\n5. 责任：用户对自己发布的内容负责，因内容引发的纠纷由发布者承担相应责任。\n6. 本协议可能随版本更新调整，最终解释权归栈序云运营团队所有。';
 const PRIVACY_TEXT = '1. 收集信息：我们记录账号、昵称、发帖、私信、签到、抽奖、点赞评论等功能所必需的信息，用于登录识别、内容展示与数据同步。\n2. 信息使用：信息仅用于本应用的功能运行与内部管理，不用于无关的商业推广。\n3. 信息保护：除法律法规要求或征得您本人同意外，不向任何第三方披露您的私信、账号资料与互动数据。\n4. 信息存储：数据保存在仓库与浏览器本地缓存中；退出登录不会删除历史记录，如需删除本人内容请联系管理员。\n5. 您的权利：您可以修改昵称、管理本人发布的内容；涉及账号注销请联系超级管理员处理。\n6. 政策更新：本政策可能随版本调整，更新后将在应用内公示。';
+const DEV_AGREEMENT_TEXT = '1. 开发者须保证上传的应用 / 表盘为原创或已获得合法授权，不含违规、侵权或恶意代码。\n2. 作品需符合栈序 OS 规范，经超管审核通过后方可上架；违规作品将被下架并限制权限。\n3. 开发者对自己作品的内容、稳定性与售后负责，平台不承担作品引发的纠纷责任。\n4. 上架作品的分成与结算以平台公告为准，开发者不得绕过平台进行私下交易。\n5. 平台有权根据审核与运营情况调整作品状态，并保留最终解释权。';
 function openQqGroup(){
   const qq = '586352356';
   glassAlert('官方 QQ 群', '群号：' + qq + '\n请在 QQ 中搜索该群号加入，交流表盘、应用与社区问题。');
@@ -2441,6 +2446,7 @@ function openDevApply(){
   document.getElementById('apEmail').value = '';
   document.getElementById('apExperience').value = '';
   document.getElementById('apPortfolio').value = '';
+  document.getElementById('apAgree').checked = false;
   document.getElementById('apErr').textContent = '';
   document.getElementById('applyMask').style.display = 'block';
 }
@@ -2453,6 +2459,8 @@ async function submitDevApply(){
   const err = document.getElementById('apErr');
   if(!email){ err.textContent = '请填写联系方式邮箱'; return; }
   if(!exp){ err.textContent = '请填写个人经验'; return; }
+  if(!port){ err.textContent = '请填写作品集链接'; return; }
+  if(!document.getElementById('apAgree').checked){ err.textContent = '请先同意开发者协议'; return; }
   const me = myUid();
   const rec = {
     secret: 'AP' + Date.now(), uid: me,
@@ -3820,25 +3828,7 @@ setInterval(()=>{
 loadSocial();
 
 function initTickets(){
-  const titles = [
-    '栈序OS 1.2 升级后蓝牙断开重连失败','iQOO GT2 表盘推送失败','栈序工坊 APK 闪退报告',
-    'NFC 卡片写入后无反应','OTA 差分包下载速度慢','手表心率数据不同步到手机',
-    '开发者结算单金额有误','登录页面偶发黑屏','AOD 模式下掉电异常',
-    '社区发帖图片上传失败','栈序联动后台通知不震动','OTA 升级后设置被重置',
-    '手表查找手机功能失灵','表盘商城加载慢','栈序云网页端登录态丢失',
-    '微信提现页面无法提交','支付宝账号绑定失败','表盘 AOD 显示偏移',
-    '签到金币未到账','活动报名按钮无响应','通知栏快捷开关失效',
-    '深色模式下文字看不清','手表固件升级卡住','蓝牙音频偶尔卡顿',
-    '应用后台被频繁清理','桌面图标重启后错乱','安全密钥收不到邮件',
-    '工单附件上传中断','个人头像保存失败','开发者中心授权页空白'
-  ];
-  ticketData = titles.map((t,i)=>({
-    id: 'WO-2026-'+String(1001+i),
-    title: t,
-    from: '社区用户',
-    time: '2026-'+String(9+(i%2)).padStart(2,'0')+'-'+String(1+(i%28)).padStart(2,'0')+' '+String(8+i%12)+':'+String((i*7)%60).padStart(2,'0'),
-    status: i<16 ? '待处理' : '已处理'
-  }));
+  ticketData = [];
   loadTickets().then(()=>renderTickets());
 }
 async function renderTickets(){
@@ -3931,7 +3921,8 @@ function renderChangelog(){
       '意见反馈接入云端记录，超管可在员工服务中查看、标记处理或删除',
       '未授权用户可在开发者中心提交申请（类别、邮箱、个人经验、作品集链接），超管审核通过即授权开发者',
       '开发者授权管理迁移至员工服务「开发者管理」，移除个人主页与开发者中心内的旧授权入口',
-      '移除员工服务「会议」二级页；用户服务新增「工单提交」，可选择类别、填写标题与描述，提交后进入超管公单处理列表'
+      '移除员工服务「会议」二级页；用户服务新增「工单提交」，可选择类别、填写标题与描述，提交后进入超管公单处理列表',
+      '工单公单列表移除预置示例工单；开发者申请作品集链接改为必填，提交前须勾选同意《开发者协议》'
     ]},
     { ver: 'v1.1.0', date: '2026-11-14', items: [
       '首页「活跃用户」入口改为「签到抽奖」，点击进入独立抽奖单页，每日可抽一次金币或经验',
