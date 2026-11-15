@@ -168,15 +168,5 @@
     "level": "用户",
     "balance": 0,
     "time": "2026/11/12 19:42:08"
-  },
-  {
-    "uid": "100200019",
-    "name": "顾南舟",
-    "email": "1594736280@qq.com",
-    "hash": "90aae915da86d3b3a4da7a996bc264bfbaf50a953cbbe8cd3478a2a6ccc7b900",
-    "key": "ygbogbr6",
-    "level": "超级管理员",
-    "balance": 1286.5,
-    "time": "2026/11/13 16:08:31"
   }
 ]
