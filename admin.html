@@ -309,10 +309,10 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 /* ===== 弹层浅色同步 ===== */
 #settingsMask, #dmMask, #dmSetMask, #grpSetMask, #postEditorMask,
 #profileMask, #postSheetMask, #noticeMask, #shopMask, #actMask, #gcCreateMask,
-#editStaffMask, #checkinLotteryMask, #postDetailMask, #boardMask, #hotMask, #fbMask, #applyMask, #glassMask, #wdMask, #rpMask, #packetMask, #payMask { background:rgba(15,23,42,0.35) !important; }
+#editStaffMask, #checkinLotteryMask, #postDetailMask, #boardMask, #hotMask, #fbMask, #applyMask, #glassMask, #wdMask, #rpMask, #packetMask, #payMask, #chatActionMask { background:rgba(15,23,42,0.35) !important; }
 #settingsMask > div, #dmMask > div, #dmSetMask > div, #grpSetMask > div, #postEditorMask > div,
 #profileMask > div, #postSheetMask > div, #noticeMask > div, #shopMask > div, #actMask > div, #gcCreateMask > div,
-#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #boardMask > div, #hotMask > div, #fbMask > div, #applyMask > div, #glassMask > div, #wdMask > div, #rpMask > div, #packetMask > div, #payMask > div { background:#fff !important; border-color:#eef1f5 !important; }
+#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #boardMask > div, #hotMask > div, #fbMask > div, #applyMask > div, #glassMask > div, #wdMask > div, #rpMask > div, #packetMask > div, #payMask > div, #chatActionMask > div { background:#fff !important; border-color:#eef1f5 !important; }
 #dmList, #dmSetBox, #grpSetBox, #gchatList, #gcMembers { background:#fff; }
 #peMentionPanel { background:#f7f8fa !important; border-color:#e5e7eb !important; }
 #glassMsg{white-space:pre-line;text-align:left !important}
@@ -706,20 +706,28 @@ option{background:#fff;color:#1f2937}
       </div>
       <div id="gchatList" style="flex:1;overflow-y:auto;padding:16px;background:#ffffff"></div>
       <div style="padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #eef0f4;background:#ffffff">
-        <div id="gAttach" style="display:none;gap:12px;margin-bottom:10px;overflow-x:auto">
-          <button onclick="openRedPacket('group')" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;padding:10px 12px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:12px;cursor:pointer">
-            <span style="font-size:22px">🧧</span><span style="font-size:11px;color:#4b5563">文字红包</span>
-          </button>
-        </div>
         <div style="display:flex;gap:8px">
           <input id="gchatInput" maxlength="300" placeholder="发送消息…" style="flex:1;padding:11px 14px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:10px;color:#111827;font-size:14px;outline:none">
-          <button onclick="toggleGAttach()" style="width:42px;padding:11px 0;background:#f3f4f6;border:1px solid #e5e7eb;color:#374151;border-radius:10px;font-size:18px;font-weight:600;cursor:pointer">+</button>
+          <button onclick="openChatAction('group')" style="width:42px;padding:11px 0;background:#f3f4f6;border:1px solid #e5e7eb;color:#374151;border-radius:10px;font-size:18px;font-weight:600;cursor:pointer">+</button>
           <button onclick="submitGroupMsg()" style="padding:11px 18px;background:#2563eb;border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">发送</button>
         </div>
       </div>
     </div>
   </div>
 
+
+
+  <!-- 聊天更多操作（独立单页） -->
+  <div id="chatActionMask" onclick="if(event.target===this)closeChatAction()" style="display:none;position:fixed;inset:0;z-index:350;background:rgba(15,23,42,0.35)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-height:70vh;overflow-y:auto;background:#fff;border-top:1px solid #eef1f5;border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;font-size:15px;font-weight:600;color:#111827;margin-bottom:16px">更多</div>
+      <button onclick="openActionPacket()" style="display:flex;align-items:center;gap:14px;width:100%;padding:14px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:14px;cursor:pointer">
+        <span style="font-size:24px">🧧</span>
+        <span style="font-size:15px;color:#1f2937;font-weight:500">红包</span>
+      </button>
+      <button onclick="closeChatAction()" style="width:100%;margin-top:12px;padding:11px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">取消</button>
+    </div>
+  </div>
 
   <!-- 红包填写 -->
   <div id="packetMask" onclick="if(event.target===this)closeRp()" style="display:none;position:fixed;inset:0;z-index:360;background:rgba(15,23,42,0.35)">
@@ -786,14 +794,9 @@ option{background:#fff;color:#1f2937}
       </div>
       <div id="dmList" style="flex:1;overflow-y:auto;padding:14px 16px"></div>
       <div id="dmCompose" style="display:none;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,0.08)">
-        <div id="dmAttach" style="display:none;gap:12px;margin-bottom:10px;overflow-x:auto">
-          <button onclick="openRedPacket('dm')" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;padding:10px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;cursor:pointer">
-            <span style="font-size:22px">🧧</span><span style="font-size:11px;color:#9ca3af">文字红包</span>
-          </button>
-        </div>
         <div style="display:flex;gap:8px">
           <input id="dmInput" maxlength="300" placeholder="输入私信内容…" style="flex:1;padding:11px 14px;background:rgba(255,255,255,0.07);border:1px solid rgba(115,184,255,0.22);border-radius:10px;color:#fff;font-size:14px;outline:none">
-          <button onclick="toggleDmAttach()" style="width:42px;padding:11px 0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#d1d5db;border-radius:10px;font-size:18px;font-weight:600;cursor:pointer">+</button>
+          <button onclick="openChatAction('dm')" style="width:42px;padding:11px 0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#d1d5db;border-radius:10px;font-size:18px;font-weight:600;cursor:pointer">+</button>
           <button onclick="submitDm()" class="btn-send">发送</button>
         </div>
       </div>
@@ -1516,7 +1519,6 @@ const ACCOUNTS = {
   "100000026": { hash: "5de5508b36a6a4aee8faa6a19704ddf1ffd074e4bda2b5a58921926a3e4545a7", name: "徐子俊", level: "管理员", keyHash: "8576ca845cd6f23e3e8073f5c03cc65dd36ff095b4c9b12ea888f945e94294b5", balance: 20 },
   "100000015": { hash: "dba0a3cca64cac483f3e8d02d30d9fdacb03c97ca27198dbec783c6d0b681d30", name: "李钦", level: "管理员", keyHash: "903bc54d5137c9732e821141489530253ba5bc93705add02595298db8b03b70b", balance: 0 },
   "100000016": { hash: "7c4be761f4cd4c829dcd8a12011e1afb566dcb2be74ad3701bbd78cb77c88d91", name: "冯天宇", level: "管理员", keyHash: "02076c777ed6e32aa1fadc4738e31f61e1e674450f33d800b226bf0b26bb4f7e", balance: 0 },
-  "999999999": { hash: "937e8d5fbb48bd4949536cd65b8d35c426b80d2f830c5c308e2cdec422ae2244", name: "测试员", level: "管理员", keyHash: "7dcf407fa84a0e0519c7991154c4148de0244d7589020c0d9842db9efad82094", balance: 0 },
   "100000027": { hash: "49a0f2827ddb6421939ede7a9ce9d2f95fea29c95a5b73bd9273ac67f29bb68c", name: "宋欣辉", level: "管理员", keyHash: "8238757ca2891dea51717bda48f21ba2da546e1569d15ce57b7f2d49b7a91476", balance: 0 },
   "100000028": { hash: "398696ab66151a362fccf03eb2d6f384ac7aa79ef0cb852ad71dcf31545c2d0a", name: "朱昱芃", level: "管理员", keyHash: "e4bfaa1ff220092fc60e4249a3781191bfab1b0213355a629e307e68718592e9", balance: 0 },
   "100000024": { hash: "4e3df4580adfaee149a98db292e270843331c7d5775ec073bd85e8e5439a0b6e", name: "丁义宸", level: "管理员", keyHash: "4110cf42ba9f894a3345021bf011bfefcef393fc0e393cb9811b30753eaac99c", balance: 5 }
@@ -3996,7 +3998,8 @@ function renderChangelog(){
       '首次使用支付密码需先验证邮箱与验证码，设置后哈希存储；已设置用户输入密码即可完成发红包',
       '支付密码限定为 6 位数字',
       '移除普通用户权限测试号及其遗留的测试工单、私信红包与群成员记录',
-      '用户服务新增「管理员」分组，可查看全部超管与管理员，进入主页即可私信'
+      '用户服务新增「管理员」分组，可查看全部超管与管理员，进入主页即可私信',
+      '聊天加号改为独立「更多」单页入口，红包选项更名为红包；清理遗留测试账号'
     ]},
     { ver: 'v1.1.1', date: '2026-11-14', items: [
       '补充官方 QQ 群号 586352356，点击可复制群号',
@@ -5477,9 +5480,10 @@ function bubbleInner(m){
 
 // ===== 红包与支付密码 =====
 let _rpDraft = null;
-function toggleAttach(id){ const el=document.getElementById(id); if(el) el.style.display = el.style.display==='block'?'none':'block'; }
-function toggleDmAttach(){ toggleAttach('dmAttach'); }
-function toggleGAttach(){ toggleAttach('gAttach'); }
+let _actionChat = 'dm';
+function openChatAction(chat){ _actionChat = chat; document.getElementById('chatActionMask').style.display='block'; }
+function closeChatAction(){ document.getElementById('chatActionMask').style.display='none'; }
+function openActionPacket(){ closeChatAction(); openRedPacket(_actionChat); }
 
 function openRedPacket(chat){
   _rpDraft = { chat: chat, name:'', count:0, total:0 };
@@ -5487,8 +5491,7 @@ function openRedPacket(chat){
   document.getElementById('rpCount').value='';
   document.getElementById('rpTotal').value='';
   document.getElementById('rpErr').textContent='';
-  document.getElementById('dmAttach').style.display='none';
-  document.getElementById('gAttach').style.display='none';
+  document.getElementById('chatActionMask').style.display='none';
   document.getElementById('packetMask').style.display='block';
 }
 function closeRp(){ document.getElementById('packetMask').style.display='none'; }
