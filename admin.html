@@ -5542,8 +5542,8 @@ function openPacketView(chat, ts){
   if(isGroup) document.getElementById('pvCount').textContent=(m.packet.count||1)+' 个';
   const btn=document.getElementById('pvClaimBtn');
   const status=document.getElementById('pvStatus');
-  if(String(m.from)===String(me)){
-    status.textContent='这是你发出的红包，无需领取';
+  if(String(m.from)===String(me) && !isGroup){
+    status.textContent='私信不能领取自己发出的红包';
     btn.style.display='none';
   } else if(packetClaimed(m,me)){
     const cl=packetClaimed(m,me);
@@ -5565,7 +5565,8 @@ function closePacketView(){ document.getElementById('packetViewMask').style.disp
 async function claimFromView(){
   const m=_pv.msg, me=myUid();
   if(!m||!m.packet) return;
-  if(String(m.from)===String(me)){ toastMsg('不能领取自己发出的红包'); return; }
+  const isGroup=m.packet.type==='group'||_pv.chat==='group';
+  if(String(m.from)===String(me) && !isGroup){ toastMsg('私信不能领取自己发出的红包'); return; }
   if(packetExpired(m)){ toastMsg('红包已过期，无法领取'); return; }
   if(packetClaimed(m,me)){ toastMsg('你已领取该红包'); return; }
   const amount=packetShare(m);
