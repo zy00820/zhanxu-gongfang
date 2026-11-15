@@ -759,14 +759,14 @@ option{background:#fff;color:#1f2937}
         <button onclick="rpVerifyEmail()" style="width:100%;margin-top:12px;padding:12px;background:#f3f4f6;border:1px solid #e5e7eb;color:#374151;border-radius:10px;font-size:14px;cursor:pointer">验证并继续</button>
       </div>
       <div id="paySetBox" style="display:none">
-        <div style="font-size:13px;color:#4b5563;margin-bottom:8px">设置新支付密码（至少 6 位）</div>
-        <input id="rpPwd1" type="password" placeholder="新支付密码" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px">
-        <input id="rpPwd2" type="password" placeholder="确认新支付密码" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px">
+        <div style="font-size:13px;color:#4b5563;margin-bottom:8px">设置新支付密码（6 位数字）</div>
+        <input id="rpPwd1" type="password" maxlength="6" inputmode="numeric" placeholder="6 位数字支付密码" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px">
+        <input id="rpPwd2" type="password" maxlength="6" inputmode="numeric" placeholder="再次输入 6 位数字" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px">
         <button onclick="rpSetPwd()" style="width:100%;padding:12px;background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">完成设置并发红包</button>
       </div>
       <div id="payConfirmBox" style="display:none">
         <div style="font-size:13px;color:#4b5563;margin-bottom:8px">输入支付密码完成支付</div>
-        <input id="payPwd" type="password" placeholder="支付密码" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
+        <input id="payPwd" type="password" maxlength="6" inputmode="numeric" placeholder="请输入 6 位支付密码" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
         <button onclick="rpConfirmPay()" style="width:100%;padding:12px;background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">确认支付并发红包</button>
       </div>
       <div id="payErr" style="font-size:12px;color:#f87171;margin-top:10px;min-height:14px"></div>
@@ -3986,7 +3986,8 @@ function renderChangelog(){
   const logs = [
     { ver: 'v1.1.2', date: '2026-11-15', items: [
       '私信与群聊输入栏右侧新增加号，展开可发送文字红包；填写红包名称、个数、总钱数后进入支付密码页',
-      '首次使用支付密码需先验证邮箱与验证码，设置后哈希存储；已设置用户输入密码即可完成发红包'
+      '首次使用支付密码需先验证邮箱与验证码，设置后哈希存储；已设置用户输入密码即可完成发红包',
+      '支付密码限定为 6 位数字'
     ]},
     { ver: 'v1.1.1', date: '2026-11-14', items: [
       '补充官方 QQ 群号 586352356，点击可复制群号',
@@ -5523,7 +5524,7 @@ async function rpSetPwd(){
   const p1=document.getElementById('rpPwd1').value;
   const p2=document.getElementById('rpPwd2').value;
   const err=document.getElementById('payErr');
-  if(p1.length<6){ err.textContent='支付密码至少 6 位'; return; }
+  if(!/^\d{6}$/.test(p1)){ err.textContent='支付密码须为 6 位数字'; return; }
   if(p1!==p2){ err.textContent='两次输入的密码不一致'; return; }
   const h=await sha256(p1);
   localStorage.setItem(payPwdKey(), h);
