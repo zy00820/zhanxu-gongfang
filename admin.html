@@ -309,10 +309,10 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 /* ===== 弹层浅色同步 ===== */
 #settingsMask, #dmMask, #dmSetMask, #grpSetMask, #postEditorMask,
 #profileMask, #postSheetMask, #noticeMask, #shopMask, #actMask, #gcCreateMask,
-#editStaffMask, #checkinLotteryMask, #postDetailMask, #boardMask, #hotMask, #fbMask, #applyMask, #glassMask, #wdMask, #rpMask, #packetMask, #payMask, #chatActionMask { background:rgba(15,23,42,0.35) !important; }
+#editStaffMask, #checkinLotteryMask, #postDetailMask, #boardMask, #hotMask, #fbMask, #applyMask, #glassMask, #wdMask, #rpMask, #packetMask, #payMask, #chatActionMask, #packetViewMask, #packetClaimMask { background:rgba(15,23,42,0.35) !important; }
 #settingsMask > div, #dmMask > div, #dmSetMask > div, #grpSetMask > div, #postEditorMask > div,
 #profileMask > div, #postSheetMask > div, #noticeMask > div, #shopMask > div, #actMask > div, #gcCreateMask > div,
-#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #boardMask > div, #hotMask > div, #fbMask > div, #applyMask > div, #glassMask > div, #wdMask > div, #rpMask > div, #packetMask > div, #payMask > div, #chatActionMask > div { background:#fff !important; border-color:#eef1f5 !important; }
+#editStaffMask > div, #checkinLotteryMask > div, #postDetailMask > div, #boardMask > div, #hotMask > div, #fbMask > div, #applyMask > div, #glassMask > div, #wdMask > div, #rpMask > div, #packetMask > div, #payMask > div, #chatActionMask > div, #packetViewMask > div, #packetClaimMask > div { background:#fff !important; border-color:#eef1f5 !important; }
 #dmList, #dmSetBox, #grpSetBox, #gchatList, #gcMembers { background:#fff; }
 #peMentionPanel { background:#f7f8fa !important; border-color:#e5e7eb !important; }
 #glassMsg{white-space:pre-line;text-align:left !important}
@@ -380,7 +380,7 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.2 更新</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.3 更新</div>
         <div style="font-size:11px;color:#6b7280;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
       </div>
     </div>
@@ -518,7 +518,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.2</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.3</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -726,6 +726,42 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:15px;color:#1f2937;font-weight:500">红包</span>
       </button>
       <button onclick="closeChatAction()" style="width:100%;margin-top:12px;padding:11px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">取消</button>
+    </div>
+  </div>
+
+
+  <!-- 红包封面：领取单页 -->
+  <div id="packetViewMask" onclick="if(event.target===this)closePacketView()" style="display:none;position:fixed;inset:0;z-index:380;background:rgba(15,23,42,0.45)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-height:86vh;overflow-y:auto;background:#fff;border-top:1px solid #eef1f5;border-radius:20px 20px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:40px;margin-bottom:8px">🧧</div>
+        <div style="font-size:16px;font-weight:600;color:#111827" id="pvName">红包</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#4b5563;margin-bottom:8px">
+        <span>发送人</span><span id="pvSender">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#4b5563;margin-bottom:8px">
+        <span>红包个数</span><span id="pvCount">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#4b5563;margin-bottom:12px">
+        <span>总金额</span><span id="pvTotal">—</span>
+      </div>
+      <div id="pvStatus" style="font-size:12px;color:#6b7280;text-align:center;margin-bottom:16px"></div>
+      <button id="pvClaimBtn" onclick="claimFromView()" style="width:100%;padding:13px;background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">领取</button>
+      <button onclick="closePacketView()" style="width:100%;margin-top:10px;padding:11px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">关闭</button>
+    </div>
+  </div>
+
+  <!-- 领取结果：已存入钱包单页 -->
+  <div id="packetClaimMask" onclick="if(event.target===this)closePacketClaim()" style="display:none;position:fixed;inset:0;z-index:390;background:rgba(15,23,42,0.45)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-height:80vh;overflow-y:auto;background:#fff;border-top:1px solid #eef1f5;border-radius:20px 20px 0 0;padding:28px 20px calc(24px + env(safe-area-inset-bottom))">
+      <div style="text-align:center">
+        <div style="font-size:40px;margin-bottom:10px">🧧</div>
+        <div style="font-size:16px;font-weight:600;color:#111827;margin-bottom:6px">红包已存入钱包</div>
+        <div style="font-size:13px;color:#4b5563;margin-bottom:14px">来自 <span id="pvResSender">—</span></div>
+        <div style="font-size:28px;font-weight:700;color:#ef4444" id="pvResAmount">+¥0.00</div>
+      </div>
+      <button onclick="closePacketClaim()" style="width:100%;margin-top:24px;padding:12px;background:#2563eb;border:none;color:#fff;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">完成</button>
     </div>
   </div>
 
@@ -1091,7 +1127,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.2</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.3</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -3997,6 +4033,9 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.1.3', date: '2026-11-15', items: [
+      '红包消息 24 小时内可领取：点开进入红包封面单页，领取后进入结果单页，显示发送人与到账金额，并自动存入钱包'
+    ]},
     { ver: 'v1.1.2', date: '2026-11-15', items: [
       '私信与群聊输入栏右侧新增加号，展开可发送文字红包；填写红包名称、个数、总钱数后进入支付密码页',
       '首次使用支付密码需先验证邮箱与验证码，设置后哈希存储；已设置用户输入密码即可完成发红包',
@@ -4635,10 +4674,12 @@ async function openDm(uid){
   }
   box.innerHTML = msgs.map(m=>{
     const mine = m.from === me;
+    const pvClick = m.packet ? ' onclick="openPacketView(\'dm\',\''+m.ts+'\')"' : '';
+    const pvCursor = m.packet ? ';cursor:pointer' : '';
     return '<div style="display:flex;justify-content:'+(mine?'flex-end':'flex-start')+';margin-bottom:10px">'+
-      '<div style="max-width:78%;padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.6;'+
+      '<div style="max-width:78%;padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.6'+pvCursor+';'+
       (mine ? 'background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.3);color:#1f2937'
-            : 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#374151')+'">'+
+            : 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#374151')+'"'+pvClick+'>'+
       bubbleInner(m)+
       '<div style="font-size:10px;margin-top:4px;color:#6b7280;text-align:'+(mine?'right':'left')+'">'+dmTime(m.ts)+'</div>'+
       '</div></div>';
@@ -5317,12 +5358,14 @@ async function openGroupChat(gid){
   const me = myUid();
   box.innerHTML = msgs.map(m=>{
     const mine = m.from === me;
+    const pvClick = m.packet ? ' onclick="openPacketView(\'group\',\''+m.ts+'\')"' : '';
+    const pvCursor = m.packet ? ';cursor:pointer' : '';
     return '<div style="display:flex;flex-direction:'+(mine?'row-reverse':'row')+';gap:8px;margin-bottom:12px;align-items:flex-start">'+
       '<div style="width:32px;height:32px;border-radius:50%;background:#eff6ff;color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0">'+String(m.fromName||'?').charAt(0)+'</div>'+
       '<div style="max-width:72%">'+
         '<div style="font-size:11px;color:#9ca3af;margin-bottom:3px;text-align:'+(mine?'right':'left')+'">'+(mine?'我':String(m.fromName||''))+' · '+dmTime(m.ts)+'</div>'+
-        '<div style="padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.6;text-align:left;'+
-          (mine ? 'background:#2563eb;color:#ffffff' : 'background:#f3f4f6;color:#111827')+'">'+bubbleInner(m)+'</div>'+
+        '<div style="padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.6;text-align:left'+pvCursor+';'+
+          (mine ? 'background:#2563eb;color:#ffffff' : 'background:#f3f4f6;color:#111827')+'"'+pvClick+'>'+bubbleInner(m)+'</div>'+
       '</div></div>';
   }).join('');
   box.scrollTop = box.scrollHeight;
@@ -5472,6 +5515,72 @@ async function grpDemote(gid, uid){
 }
 
 function rpEsc(s){ return String(s==null?'':s).replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+// ===== 红包领取（24 小时内，领取后自动存入钱包） =====
+let _pv = { chat:'dm', ts:null, msg:null };
+const PACKET_TTL = 24*3600*1000;
+function packetExpired(m){ return (Date.now()-(m.ts||0)) > PACKET_TTL; }
+function packetClaimed(m,uid){ return m.packet && m.packet.claimed && m.packet.claimed[String(uid)]; }
+function packetShare(m){ const total=Number(m.packet.total)||0; const count=Math.max(1,Number(m.packet.count)||1); return Math.round(total/count*100)/100; }
+function findPacket(chat, ts){ const arr=chat==='dm'?dmCache:gmsgCache; return arr.find(x=>String(x.ts)===String(ts)); }
+
+function openPacketView(chat, ts){
+  const m=findPacket(chat,ts);
+  if(!m||!m.packet){ toastMsg('红包不存在或已撤回'); return; }
+  _pv={chat,ts:String(ts),msg:m};
+  const me=myUid();
+  document.getElementById('pvName').textContent=m.packet.name||'红包';
+  document.getElementById('pvSender').textContent=m.fromName||m.from||'—';
+  document.getElementById('pvCount').textContent=(m.packet.count||1)+' 个';
+  document.getElementById('pvTotal').textContent='¥'+Number(m.packet.total||0).toFixed(2);
+  const btn=document.getElementById('pvClaimBtn');
+  const status=document.getElementById('pvStatus');
+  if(String(m.from)===String(me)){
+    status.textContent='这是你发出的红包，无需领取';
+    btn.style.display='none';
+  } else if(packetClaimed(m,me)){
+    const cl=packetClaimed(m,me);
+    status.textContent='你已领取该红包，到账 ¥'+Number(cl.amount||0).toFixed(2);
+    btn.style.display='none';
+  } else if(packetExpired(m)){
+    status.textContent='已超过 24 小时，红包已过期';
+    btn.style.display='none';
+  } else {
+    const rem=PACKET_TTL-(Date.now()-(m.ts||0));
+    const h=Math.floor(rem/3600000), mm=Math.floor((rem%3600000)/60000);
+    status.textContent='剩余 '+h+' 小时 '+mm+' 分钟可领取';
+    btn.style.display='block';
+  }
+  document.getElementById('packetViewMask').style.display='block';
+}
+function closePacketView(){ document.getElementById('packetViewMask').style.display='none'; }
+
+async function claimFromView(){
+  const m=_pv.msg, me=myUid();
+  if(!m||!m.packet) return;
+  if(String(m.from)===String(me)){ toastMsg('不能领取自己发出的红包'); return; }
+  if(packetExpired(m)){ toastMsg('红包已过期，无法领取'); return; }
+  if(packetClaimed(m,me)){ toastMsg('你已领取该红包'); return; }
+  const amount=packetShare(m);
+  await loadWallets();
+  const acc=ACCOUNTS[me];
+  const cur=Number(acc&&acc.balance||0);
+  await writeWallet(me, cur+amount);
+  m.packet.claimed=m.packet.claimed||{};
+  m.packet.claimed[String(me)]={at:Date.now(), amount:amount};
+  const arr=_pv.chat==='dm'?dmCache:gmsgCache;
+  const path=_pv.chat==='dm'?GH_DM_PATH:GH_GMSG_PATH;
+  const key=_pv.chat==='dm'?'zx_dms':'zx_gmsgs';
+  try{ await ghWriteRecords(path,arr,key); }catch(e){ localStorage.setItem(key,JSON.stringify(arr)); }
+  if(acc) acc.balance=cur+amount;
+  const myBal=document.getElementById('myBalance');
+  if(myBal) myBal.textContent='¥'+(cur+amount).toFixed(2);
+  document.getElementById('pvResSender').textContent=m.fromName||m.from||'—';
+  document.getElementById('pvResAmount').textContent='+¥'+amount.toFixed(2);
+  closePacketView();
+  document.getElementById('packetClaimMask').style.display='block';
+}
+function closePacketClaim(){ document.getElementById('packetClaimMask').style.display='none'; }
 function bubbleInner(m){
   if(m.packet){
     return '<div style="font-size:20px;margin-bottom:4px">🧧</div>'+
