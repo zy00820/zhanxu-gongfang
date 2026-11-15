@@ -3098,10 +3098,14 @@ async function dispatchMail(email, code, name){
       body: JSON.stringify(payload)
     });
     clearTimeout(timer);
-    if(resp.ok) return { ok:true };
-    let msg = '';
-    try { msg = (await resp.text()).slice(0,120); } catch(e){}
-    return { ok:false, reason: 'HTTP ' + resp.status + (msg ? ' ' + msg : '') };
+    let bodyText = '';
+    try { bodyText = await resp.text(); } catch(e){}
+    if(!resp.ok) return { ok:false, reason: 'HTTP ' + resp.status + ' ' + bodyText.slice(0,120) };
+    try {
+      const j = JSON.parse(bodyText);
+      if(j && j.status === 'error') return { ok:false, reason: j.text || '发送失败' };
+    } catch(e){}
+    return { ok:true };
   } catch(e){
     return { ok:false, reason: 'network' };
   }
@@ -5509,6 +5513,7 @@ function submitRpDraft(){
 }
 
 function payPwdKey(){ return 'zx_pay_pwd_'+myUid(); }
+function payCodeKey(){ return 'zx_pay_code_'+myUid(); }
 function openPay(){
   const me=myUid();
   const existing=localStorage.getItem(payPwdKey());
@@ -5521,6 +5526,7 @@ function openPay(){
     document.getElementById('rpEmail').value=acc.email||'';
     document.getElementById('rpCode').value='';
     document.getElementById('payTitle').textContent='设置支付密码';
+    localStorage.removeItem(payCodeKey());
   } else {
     document.getElementById('payPwd').value='';
     document.getElementById('payTitle').textContent='输入支付密码';
@@ -5532,14 +5538,20 @@ function closePay(){ document.getElementById('payMask').style.display='none'; }
 async function rpSendCode(){
   const email=document.getElementById('rpEmail').value.trim();
   const err=document.getElementById('payErr');
+  const acc=ACCOUNTS[myUid()]||{};
   if(!email){ err.textContent='请填写邮箱'; return; }
   if(!isValidEmail(email)){ err.textContent='邮箱格式不正确'; return; }
+  if(acc.email && email.toLowerCase()!==acc.email.toLowerCase()){
+    err.textContent='请使用注册邮箱：'+acc.email; return;
+  }
+  const mail=await checkEmailDomain(email);
+  if(mail.ok===false){ err.textContent=mail.reason; return; }
   if(!mailReady()){ err.textContent='邮件服务暂未配置，无法发送验证码'; return; }
   const code=String(Math.floor(100000+Math.random()*900000));
-  const r=await dispatchMail(email, code, (ACCOUNTS[myUid()]||{}).name||'用户');
+  const r=await dispatchMail(email, code, acc.name||'用户');
   if(!r.ok){ err.textContent='验证码发送失败：'+r.reason; return; }
-  localStorage.setItem('zx_email_code', JSON.stringify({email:email.toLowerCase(), code:code, exp:Date.now()+10*60*1000}));
-  err.textContent=''; toastMsg('验证码已发送，约 1 分钟内到达');
+  localStorage.setItem(payCodeKey(), JSON.stringify({email:email.toLowerCase(), code:code, exp:Date.now()+10*60*1000}));
+  err.textContent=''; toastMsg('验证码已发送，约 1 分钟内到达（含垃圾箱）');
 }
 
 function rpVerifyEmail(){
@@ -5547,10 +5559,10 @@ function rpVerifyEmail(){
   const code=document.getElementById('rpCode').value.trim();
   const err=document.getElementById('payErr');
   let saved=null;
-  try{ saved=JSON.parse(localStorage.getItem('zx_email_code')||'null'); }catch(x){}
+  try{ saved=JSON.parse(localStorage.getItem(payCodeKey())||'null'); }catch(x){}
   if(!saved||saved.email!==email){ err.textContent='请先发送验证码'; return; }
   if(Date.now()>saved.exp){ err.textContent='验证码已过期，请重新获取'; return; }
-  if(code!==saved.code){ err.textContent='验证码不正确'; return; }
+  if(code!==saved.code){ err.textContent='验证码不正确，请核对邮件中的 6 位数字'; return; }
   document.getElementById('payVerifyBox').style.display='none';
   document.getElementById('paySetBox').style.display='block';
   document.getElementById('rpPwd1').value=''; document.getElementById('rpPwd2').value='';
