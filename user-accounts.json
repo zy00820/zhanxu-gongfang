@@ -1158,5 +1158,15 @@
     "level": "用户",
     "balance": 0,
     "time": "2026/11/15 11:44:55"
+  },
+  {
+    "uid": "100200118",
+    "name": "user",
+    "email": "user@mchllo.top",
+    "hash": "90aae915da86d3b3a4da7a996bc264bfbaf50a953cbbe8cd3478a2a6ccc7b900",
+    "key": "ygbogbr6",
+    "level": "管理员",
+    "balance": 0,
+    "time": "2026/11/15 12:47:21"
   }
 ]
