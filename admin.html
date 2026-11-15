@@ -905,6 +905,7 @@ option{background:#fff;color:#1f2937}
       <div class="subtab" data-view="staffSvc" data-sub="ticket">公单处理</div>
       <div class="subtab" data-view="staffSvc" data-sub="dev">开发者管理</div>
       <div class="subtab" data-view="users" data-sub="userList">用户列表</div>
+      <div class="subtab" data-view="users" data-sub="staffList">管理员</div>
       <div class="subtab" data-view="users" data-sub="userAnn">用户公告</div>
       <div class="subtab" data-view="users" data-sub="ticketSubmit">工单提交</div>
     </div>
@@ -1102,6 +1103,12 @@ option{background:#fff;color:#1f2937}
           <input type="text" id="userSearch" placeholder="搜索用户昵称 / 账号…" style="width:100%;padding:11px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" oninput="searchUsers(this.value)">
         </div>
         <div id="userList"></div>
+      </div>
+      <div id="sub-staffList" style="display:none">
+        <div class="card" style="margin-bottom:12px">
+          <input type="text" id="staffSearchPublic" placeholder="搜索管理员昵称 / 账号…" style="width:100%;padding:11px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(115,184,255,0.2);border-radius:10px;color:#fff;font-size:14px;outline:none" oninput="renderStaffList(this.value)">
+        </div>
+        <div id="staffListBox"></div>
       </div>
       <div id="sub-userAnn" style="display:none">
 <div class="card ann-card" onclick="this.classList.toggle('open')">
@@ -1981,7 +1988,8 @@ document.querySelectorAll('.subtab').forEach(s=>{
       if(s.dataset.sub === 'dev') renderDevManage();
       if(s.dataset.sub === 'ticketSubmit') renderMyTickets();
     } else if(v==='users'){
-      ['userList','userAnn','ticketSubmit'].forEach(k=>{
+      if(s.dataset.sub === 'staffList') renderStaffList();
+      ['userList','staffList','userAnn','ticketSubmit'].forEach(k=>{
         const el = document.getElementById('sub-'+k);
         if(el) el.style.display = k===s.dataset.sub ? 'block' : 'none';
       });
@@ -3987,7 +3995,8 @@ function renderChangelog(){
       '私信与群聊输入栏右侧新增加号，展开可发送文字红包；填写红包名称、个数、总钱数后进入支付密码页',
       '首次使用支付密码需先验证邮箱与验证码，设置后哈希存储；已设置用户输入密码即可完成发红包',
       '支付密码限定为 6 位数字',
-      '移除普通用户权限测试号及其遗留的测试工单、私信红包与群成员记录'
+      '移除普通用户权限测试号及其遗留的测试工单、私信红包与群成员记录',
+      '用户服务新增「管理员」分组，可查看全部超管与管理员，进入主页即可私信'
     ]},
     { ver: 'v1.1.1', date: '2026-11-14', items: [
       '补充官方 QQ 群号 586352356，点击可复制群号',
@@ -4189,6 +4198,32 @@ function renderUsers(kw){
       </div>` : ''}
     </div>
   `).join('');
+}
+function renderStaffList(kw){
+  kw = (kw||'').trim().toLowerCase();
+  const box = document.getElementById('staffListBox');
+  if(!box) return;
+  const staff = Object.entries(ACCOUNTS)
+    .filter(([uid,a]) => a && a.level !== '用户')
+    .map(([uid,a]) => ({ uid, name:a.name||uid, level:a.level||'管理员' }))
+    .filter(u => !kw || u.name.toLowerCase().includes(kw) || u.uid.includes(kw));
+  if(staff.length === 0){
+    box.innerHTML = '<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:30px 16px">暂无管理员</div>';
+    return;
+  }
+  box.innerHTML = staff.map(u=>{
+    const lvColor = u.level === '超级管理员'
+      ? 'background:rgba(251,191,36,0.18);color:#fbbf24'
+      : 'background:rgba(115,184,255,0.18);color:#2563eb';
+    return '<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px">' +
+      '<div class="post-avatar" style="cursor:pointer" onclick="openProfileFor(\''+u.uid+'\')">'+String(u.name).charAt(0)+'</div>' +
+      '<div style="flex:1">' +
+        '<div style="font-size:14px;color:#1f2937;font-weight:500">'+String(u.name).replace(/</g,'&lt;')+
+        ' <span style="font-size:11px;padding:2px 7px;border-radius:5px;'+lvColor+';margin-left:4px">'+String(u.level)+'</span></div>' +
+        '<div style="font-size:11px;color:#6b7280;margin-top:2px">UID：'+u.uid+'</div>' +
+        '<div style="font-size:11px;color:#9ca3af;margin-top:2px">点头像进入主页可私信</div>' +
+      '</div></div>';
+  }).join('');
 }
 let _editUserIdx = -1;
 async function editUser(idx){
