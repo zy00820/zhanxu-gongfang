@@ -1145,6 +1145,11 @@ option{background:#fff;color:#1f2937}
         <div id="staffListBox"></div>
       </div>
       <div id="sub-userAnn" style="display:none">
+<div class="card" style="margin-bottom:12px">
+  <div style="font-size:12px;color:#6b7280;margin-bottom:4px">我的余额</div>
+  <div style="font-size:22px;font-weight:700;color:#34d399" id="userAnnBalance">¥0.00</div>
+  <button onclick="openWithdraw()" style="width:100%;margin-top:10px;padding:11px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.35);color:#2563eb;border-radius:8px;font-size:14px;cursor:pointer">申请提现</button>
+</div>
 <div class="card ann-card" onclick="this.classList.toggle('open')">
         <div class="ann-head">
           <div style="flex:1">
@@ -2000,6 +2005,11 @@ document.querySelectorAll('.tab').forEach(t=>{
     if(v==='me') renderMePage();
   }
 });
+function renderUserAnn(){
+  const acc=ACCOUNTS[myUid()]||{};
+  const el=document.getElementById('userAnnBalance');
+  if(el) el.textContent='¥'+Number(acc.balance||0).toFixed(2);
+}
 // 二级Tab
 function activateSubtabs(v, fire){
   const bar = document.getElementById('subtabs');
@@ -2024,6 +2034,7 @@ document.querySelectorAll('.subtab').forEach(s=>{
       if(s.dataset.sub === 'ticketSubmit') renderMyTickets();
     } else if(v==='users'){
       if(s.dataset.sub === 'staffList') renderStaffList();
+      if(s.dataset.sub === 'userAnn') renderUserAnn();
       ['userList','staffList','userAnn','ticketSubmit'].forEach(k=>{
         const el = document.getElementById('sub-'+k);
         if(el) el.style.display = k===s.dataset.sub ? 'block' : 'none';
@@ -3049,7 +3060,7 @@ async function loadRemoteAccounts(){
     const list = r.list || [];
     list.forEach(a=>{
       if(a && a.uid && !ACCOUNTS[a.uid]){
-        ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', keyHash:a.keyHash, key:a.key, balance:a.balance||0, email:a.email||'' };
+        ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', keyHash:a.keyHash, key:a.key, balance:a.balance||0, email:a.email||'', payHash:a.payHash||'' };
       }
     });
     localStorage.setItem('zx_user_accounts', JSON.stringify(list));
@@ -3058,7 +3069,7 @@ async function loadRemoteAccounts(){
     try {
       JSON.parse(localStorage.getItem('zx_user_accounts')||'[]').forEach(a=>{
         if(a && a.uid && !ACCOUNTS[a.uid]){
-          ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', keyHash:a.keyHash, key:a.key, balance:a.balance||0, email:a.email||'' };
+          ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', keyHash:a.keyHash, key:a.key, balance:a.balance||0, email:a.email||'', payHash:a.payHash||'' };
         }
       });
     } catch(x){}
@@ -5644,10 +5655,24 @@ function submitRpDraft(){
 }
 
 function payPwdKey(){ return 'zx_pay_pwd_'+myUid(); }
+function getPayHash(){ const me=myUid(); return (ACCOUNTS[me]&&ACCOUNTS[me].payHash)||localStorage.getItem(payPwdKey())||''; }
+async function savePayCloudHash(h){
+  const me=myUid();
+  if(ACCOUNTS[me]) ACCOUNTS[me].payHash=h;
+  localStorage.setItem(payPwdKey(), h);
+  try{
+    const r=await ghGetRecords(GH_USERS_PATH);
+    const list=r.list||[];
+    let found=false;
+    list.forEach(a=>{ if(String(a.uid)===String(me)){ a.payHash=h; found=true; } });
+    if(!found) list.push({ uid:String(me), name:(ACCOUNTS[me]||{}).name||me, level:(ACCOUNTS[me]||{}).level||'用户', payHash:h, balance:(ACCOUNTS[me]||{}).balance||0 });
+    await ghWriteRecords(GH_USERS_PATH,list,'zx_user_accounts');
+  }catch(e){}
+}
 function payCodeKey(){ return 'zx_pay_code_'+myUid(); }
 function openPay(){
   const me=myUid();
-  const existing=localStorage.getItem(payPwdKey());
+  const existing=getPayHash();
   document.getElementById('payErr').textContent='';
   document.getElementById('payVerifyBox').style.display=existing?'none':'block';
   document.getElementById('paySetBox').style.display='none';
@@ -5708,8 +5733,8 @@ async function rpSetPwd(){
   if(!/^\d{6}$/.test(p1)){ err.textContent='支付密码须为 6 位数字'; return; }
   if(p1!==p2){ err.textContent='两次输入的密码不一致'; return; }
   const h=await sha256(p1);
-  localStorage.setItem(payPwdKey(), h);
-  toastMsg('支付密码已设置');
+  await savePayCloudHash(h);
+  toastMsg('支付密码已设置并同步');
   await finalizeRp();
 }
 
@@ -5717,7 +5742,7 @@ async function rpConfirmPay(){
   const p=document.getElementById('payPwd').value;
   const err=document.getElementById('payErr');
   const h=await sha256(p);
-  if(h!==localStorage.getItem(payPwdKey())){ err.textContent='支付密码错误'; return; }
+  if(h!==getPayHash()){ err.textContent='支付密码错误'; return; }
   await finalizeRp();
 }
 
@@ -5728,6 +5753,18 @@ async function finalizeRp(){
   const label=type==='dm'?'普通红包':'拼手气红包';
   const text='['+label+'] '+_rpDraft.name;
   const packet={ name:_rpDraft.name, count:_rpDraft.count, total:_rpDraft.total, type:type };
+  const amount=Number(_rpDraft.total)||0;
+  const cur=Number((ACCOUNTS[me]||{}).balance||0);
+  if(amount<=0){ toastMsg('红包金额无效'); return; }
+  if(cur<amount){ toastMsg('余额不足，无法发送红包'); return; }
+  const newBal=Math.round((cur-amount)*100)/100;
+  await loadWallets();
+  await writeWallet(me,newBal);
+  if(ACCOUNTS[me]) ACCOUNTS[me].balance=newBal;
+  const myBalEl=document.getElementById('myBalance');
+  if(myBalEl) myBalEl.textContent='¥'+newBal.toFixed(2);
+  const uaBal=document.getElementById('userAnnBalance');
+  if(uaBal) uaBal.textContent='¥'+newBal.toFixed(2);
   if(_rpDraft.chat==='dm'){
     const acc=ACCOUNTS[dmPeer]||{};
     const rec={ from:me, fromName:myName(), to:dmPeer, toName:acc.name||dmPeer, text:text, packet:packet, time:dmTime(Date.now()), ts:Date.now() };
