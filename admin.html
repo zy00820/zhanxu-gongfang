@@ -514,6 +514,10 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">消息通知</span>
         <span style="font-size:12px;color:#34d399">已开启</span>
       </div>
+      <div onclick="sbStatusTap()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
+        <span style="font-size:14px;color:#1f2937">云端后端</span>
+        <span id="sbStatusText" style="font-size:12px;color:#6b7280">检测中…</span>
+      </div>
       <div onclick="versionTap()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
@@ -1878,6 +1882,7 @@ async function doLogin(){
   sessionStorage.setItem('zx_user', u);
   err.textContent = '';
   try { localStorage.setItem('zx_saved_login', JSON.stringify({ uid: u, ts: Date.now() })); } catch(e){}
+  try { sbBindSession(u, (ACCOUNTS[u] || {}).email, p); } catch(e){}
   showApp(u);
 }
 async function autoLogin(){
@@ -5930,6 +5935,123 @@ function closeProfile(){
 }
 
 checkAuth();
+
+/* ===== Supabase 后端桥（M1 第一阶段：认证 + 资料读取） ===== */
+const SB_URL = 'https://dtqvmhknipzqbuflutob.supabase.co';
+const SB_KEY = 'sb_publishable_csJKpjMoN2IN4Vezf6wfTw_jtQiEUF9';
+const SB_ASSET = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+window.SB = { client: null, ready: false, session: null, uid: null, profile: null, err: null, loading: false };
+
+function sbLoadSdk(timeout){
+  return new Promise((resolve, reject) => {
+    if (window.supabase && window.supabase.createClient) return resolve(window.supabase);
+    const done = (ok, err) => { clearTimeout(tm); ok ? resolve(window.supabase) : reject(err); };
+    const tm = setTimeout(() => done(false, new Error('SDK 加载超时')), timeout || 12000);
+    const s = document.createElement('script');
+    s.src = SB_ASSET;
+    s.onload = () => (window.supabase && window.supabase.createClient)
+      ? done(true) : done(false, new Error('SDK 未初始化'));
+    s.onerror = () => done(false, new Error('SDK 加载失败'));
+    document.head.appendChild(s);
+  });
+}
+
+async function sbResolveProfile(){
+  if(!SB.client || !SB.session) return null;
+  try{
+    const r = await SB.client.from('profiles')
+      .select('uid,username,level,balance,coin,banned')
+      .eq('auth_id', SB.session.user.id)
+      .maybeSingle();
+    if(r.error){ SB.err = r.error.message; return null; }
+    SB.profile = r.data || null;
+    SB.uid = r.data ? r.data.uid : null;
+    SB.err = null;
+    return SB.profile;
+  }catch(e){ SB.err = e.message || String(e); return null; }
+}
+
+async function sbBoot(){
+  if(SB.loading) return;
+  SB.loading = true;
+  try{
+    const sdk = await sbLoadSdk();
+    SB.client = sdk.createClient(SB_URL, SB_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, storageKey: 'zx_sb_auth' }
+    });
+    try {
+      const r = await SB.client.auth.getSession();
+      SB.session = r && r.data ? r.data.session : null;
+    } catch(e){ SB.session = null; }
+    SB.ready = true;
+    if(SB.session) await sbResolveProfile();
+    SB.client.auth.onAuthStateChange((ev, s) => {
+      SB.session = s || null;
+      if(s) sbResolveProfile().then(sbRenderStatus); else { SB.profile = null; SB.uid = null; sbRenderStatus(); }
+    });
+  }catch(e){
+    SB.err = e.message || String(e);
+    SB.ready = false;
+  }
+  SB.loading = false;
+  sbRenderStatus();
+}
+
+// 登录成功后把旧账号的邮箱/密码绑到 Supabase Auth，静默进行，失败不影响原登录
+async function sbBindSession(uid, email, password){
+  if(!SB.client || !email || !password) return;
+  try{
+    const r = await SB.client.auth.signInWithPassword({ email, password });
+    if(r.error){
+      if(/invalid login credentials|email not confirmed/i.test(r.error.message) === false){
+        SB.err = r.error.message;
+      }
+      if(/invalid login credentials/i.test(r.error.message)){
+        const up = await SB.client.auth.signUp({
+          email, password,
+          options: { data: { uid: uid, username: (ACCOUNTS[uid] || {}).name || '' } }
+        });
+        if(up.error) SB.err = up.error.message;
+        else SB.session = up.data.session || null;
+      }
+    } else {
+      SB.session = r.data.session;
+    }
+    if(SB.session) await sbResolveProfile();
+  }catch(e){ SB.err = e.message || String(e); }
+  sbRenderStatus();
+}
+
+function sbRenderStatus(){
+  const el = document.getElementById('sbStatusText');
+  if(!el) return;
+  let txt = '未连接', color = '#6b7280';
+  if(SB.session){
+    txt = SB.uid ? ('已登录 · ' + SB.uid) : '已登录';
+    color = '#34d399';
+  } else if(SB.err){
+    txt = '连接异常'; color = '#f87171';
+  } else if(SB.ready){
+    txt = '已就绪'; color = '#34d399';
+  }
+  el.textContent = txt;
+  el.style.color = color;
+}
+
+function sbStatusTap(){
+  const lines = [
+    '地址：' + SB_URL.replace('https://', ''),
+    'SDK：' + (SB.ready ? '已加载' : '未加载'),
+    '登录：' + (SB.session ? (SB.session.user.email || '已登录') : '无'),
+    '业务账号：' + (SB.uid || '未绑定'),
+    '余额：' + (SB.profile ? SB.profile.balance : '—'),
+    '错误：' + (SB.err || '无')
+  ];
+  toastMsg(lines.join(' ｜ '));
+}
+
+setTimeout(() => { sbBoot(); }, 1200);
+
 </script>
 </body>
 </html>
