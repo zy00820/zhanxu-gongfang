@@ -484,7 +484,7 @@ option{background:#fff;color:#1f2937}
       <div class="drawer-item" onclick="openHot()"><span class="di-ico">🔥</span>社区热榜</div>
       <div class="drawer-item" onclick="openBoard()"><span class="di-ico">▦</span>全部板块</div>
       <div class="drawer-item" onclick="closeDrawer();openPostEditor()"><span class="di-ico">✎</span>发布帖子</div>
-      <div class="drawer-item" onclick="glassAlert('App 福利','功能开发中，敬请期待。')"><span class="di-ico">⬇</span>App 福利</div>
+      <div class="drawer-item" onclick="openAppWelfare()"><span class="di-ico">⬇</span>App 福利</div>
       <div class="drawer-item" onclick="openQqGroup()"><span class="di-ico">👥</span>官方 QQ 群</div>
       <div class="drawer-item" onclick="openFeedback()"><span class="di-ico">❗</span>意见反馈</div>
       <div class="drawer-item" onclick="closeDrawer();openDevCenter()"><span class="di-ico">‹›</span>开发者中心</div>
@@ -3395,6 +3395,18 @@ function glassOk(){
 function glassPrompt(title, placeholder, def){ return glassOpen({title, input:true, placeholder, default:def, cancel:true}); }
 function glassConfirm(title, msg){ return glassOpen({title, msg, cancel:true, okText:'确认'}); }
 function glassAlert(title, msg){ return glassOpen({title, msg, okText:'知道了'}); }
+
+// App 福利：WebView 套壳安卓包下载
+async function openAppWelfare(){
+  const apkUrl = 'zhanxu-cloud.apk';
+  const ok = await glassOpen({
+    title: 'App 福利',
+    msg: '栈序云 Android 套壳版 v1.1.9（约 17 KB）\nWebView 容器，登录态、数据与网页端互通。\n\n点击「下载安装」获取 APK；若浏览器提示风险，选择“仍要下载”，并在系统设置里允许本次安装未知应用。',
+    okText: '下载安装',
+    cancel: true
+  });
+  if(ok){ try{ window.location.href = apkUrl; }catch(e){ window.open(apkUrl, '_blank'); } }
+}
 
 // 启动
 // ===== 工单 =====
