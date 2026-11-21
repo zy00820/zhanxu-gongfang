@@ -2584,6 +2584,7 @@ function openFeedback(){
 }
 function closeFeedback(){ document.getElementById('fbMask').style.display = 'none'; }
 async function submitFeedback(){
+  if(!needBind('提交反馈')) return;
   const content = document.getElementById('fbContent').value.trim();
   const contact = document.getElementById('fbContact').value.trim();
   const category = document.getElementById('fbCategory').value;
@@ -2920,6 +2921,7 @@ function wdBack(){
   if (wdStep > 1){ wdStep--; wdShow(); }
 }
 async function wdNext(){
+  if(!needBind('申请提现')) return;
   if (wdStep === 1){
     const v = parseFloat(document.getElementById('wdAmount').value);
     if (isNaN(v) || v < 50){
@@ -3875,6 +3877,7 @@ async function checkLotteries(){
   }
 }
 async function submitPostV2(){
+  if(!needBind('发帖')) return;
   const title = document.getElementById('pePostTitle').value.trim();
   const content = document.getElementById('pePostContent').value.trim();
   if(!peState.topic){ toastMsg('请先选择话题'); return; }
@@ -3920,27 +3923,18 @@ async function submitPostV2(){
   };
   let sbOk = false;
   try { sbOk = await sbInsertPost(rec); } catch(e){ sbOk = false; }
-  try {
-    await ghAppendRecord(GH_POSTS_PATH, rec, 'zx_posts');
+  if(sbOk){
     localStorage.setItem(lastKey, String(now.getTime()));
     postsCache.push(rec); postsLoaded = true;
     closePostEditor(); renderPosts(postsCache);
     const st0 = document.getElementById('statPosts');
     if(st0) st0.textContent = postsCache.length;
-    logAct('post_create', '帖子', '「' + (rec.title||'无标题') + '」' + (sbOk ? '·后端' : '·云端'));
-    toastMsg(sbOk ? '帖子已发布，已写入后端' : '帖子已发布并云端同步');
-  } catch(e){
-    if(sbOk){ localStorage.setItem(lastKey, String(now.getTime()));
-      postsCache.push(rec); postsLoaded = true;
-      closePostEditor(); renderPosts(postsCache); toastMsg('帖子已发布，已写入后端'); return; }
-    let local = [];
-    try { local = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){}
-    local.push(rec);
-    localStorage.setItem('zx_posts', JSON.stringify(local));
-    localStorage.setItem(lastKey, String(now.getTime()));
-    closePostEditor(); renderPosts(local);
-    toastMsg('网络异常，已先存本地');
+    logAct('post_create', '帖子', '「' + (rec.title||'无标题') + '」·后端');
+    toastMsg('帖子已发布，已写入后端');
+    return;
   }
+  logAct('post_create', '帖子', '「' + (rec.title||'无标题') + '」·后端写入失败');
+  glassAlert('发布失败', '后端写入失败（' + (SB.err || '未知原因') + '），请稍后重试。旧仓库已改为只读，不再作为备份写入。');
 }
 // ===== 站内消息提醒：未读角标 / 提示音 / 浏览器通知 =====
 let _unread = { dm: {}, grp: {} };
@@ -4084,6 +4078,7 @@ function resolveTicket(i){
   renderTickets();
 }
 async function submitTicket(){
+  if(!needBind('提交工单')) return;
   const title = document.getElementById('tkTitle').value.trim();
   const content = document.getElementById('tkContent').value.trim();
   const contact = document.getElementById('tkContact').value.trim();
@@ -4884,6 +4879,7 @@ async function renderDmCenterPage(force){
   if(dbox) dbox.innerHTML = dmHtml || '<div style="text-align:center;color:#6b7280;font-size:13px;padding:18px">暂无私信，可在员工 / 用户管理点击头像发起</div>';
 }
 async function submitDm(){
+  if(!needBind('发送私信')) return;
   const me = myUid();
   if(!me || !dmPeer) return;
   const input = document.getElementById('dmInput');
@@ -5316,6 +5312,7 @@ function isManageable(uid){
   return sessionStorage.getItem('zx_user') !== uid;
 }
 async function setUserBan(uid, banned){
+  if(!needBind('封禁或解封账号')) return false;
   const list = banCache.slice();
   const i = list.indexOf(uid);
   if(banned && i < 0) list.push(uid);
@@ -5430,6 +5427,7 @@ async function createGroup(){
   const me = myUid();
   if(!me){ toastMsg('请先登录'); return; }
   const name = document.getElementById('gcName').value.trim();
+  if(!needBind('创建群聊')) return;
   const members = [...document.querySelectorAll('.gcMemberChk:checked')].map(x=>x.value);
   const err = document.getElementById('gcErr');
   if(!name){ err.textContent = '请填写群名称'; return; }
@@ -5534,6 +5532,7 @@ async function openDmSetting(uid){
 }
 function closeDmSetting(){ document.getElementById('dmSetMask').style.display = 'none'; }
 async function clearDmPeer(uid){
+  if(!needBind('清空聊天记录')) return;
   const me = myUid();
   const ok = await glassConfirm('清空聊天记录', '确认清空与「' + ((ACCOUNTS[uid]||{}).name||uid) + '」的全部私信？删除后不可恢复');
   if(!ok) return;
@@ -5546,6 +5545,7 @@ async function clearDmPeer(uid){
   renderDmCenterPage();
 }
 async function blockDmPeer(uid){
+  if(!needBind('拉黑账号')) return;
   const banned = isBanned(uid);
   const ok = await glassConfirm(banned ? '解除拉黑' : '拉黑账号', banned ? ('确定解除「' + ((ACCOUNTS[uid]||{}).name||uid) + '」的拉黑？') : ('拉黑后对方将无法登录，确定继续？'));
   if(!ok) return;
@@ -5649,6 +5649,7 @@ function grpShowAdminPicker(gid){
   el.style.display = (el.style.display === 'none') ? 'block' : 'none';
 }
 async function grpDissolve(gid){
+  if(!needBind('解散群聊')) return;
   const g = groupCache.find(x=>x.gid === gid);
   if(!g) return;
   const me = myUid();
@@ -5673,6 +5674,7 @@ async function grpDissolve(gid){
   toastMsg('群聊已解散');
 }
 async function grpAddMember(gid){
+  if(!needBind('添加群成员')) return;
   const g0 = groupCache.find(x=>x.gid === gid);
   const me = myUid();
   if(g0 && !(g0.owner === me || (g0.admins||[]).indexOf(me) >= 0)){ toastMsg('只有群主和管理员可以添加成员'); return; }
@@ -5687,6 +5689,7 @@ async function grpAddMember(gid){
   renderGrpSetting(); renderDmCenterPage();
 }
 async function grpRemoveMember(gid, uid){
+  if(!needBind('移出群成员')) return;
   const g = groupCache.find(x=>x.gid === gid);
   if(!g) return;
   const me = myUid();
@@ -5701,6 +5704,7 @@ async function grpRemoveMember(gid, uid){
   renderGrpSetting(); renderDmCenterPage();
 }
 async function grpPromote(gid, uid){
+  if(!needBind('设置群管理员')) return;
   const g = groupCache.find(x=>x.gid === gid);
   if(!g) return;
   if(g.owner !== myUid()){ toastMsg('只有群主可以设置管理员'); return; }
@@ -5712,6 +5716,7 @@ async function grpPromote(gid, uid){
   renderGrpSetting();
 }
 async function grpDemote(gid, uid){
+  if(!needBind('设置群管理员')) return;
   const g = groupCache.find(x=>x.gid === gid);
   if(!g) return;
   if(g.owner !== myUid()){ toastMsg('只有群主可以设置管理员'); return; }
@@ -5775,6 +5780,7 @@ function openPacketView(chat, ts){
 function closePacketView(){ document.getElementById('packetViewMask').style.display='none'; }
 
 async function claimFromView(){
+  if(!needBind('领取红包')) return;
   const m=_pv.msg, me=myUid();
   if(!m||!m.packet) return;
   const isGroup=m.packet.type==='group'||_pv.chat==='group';
@@ -5955,6 +5961,7 @@ async function finalizeRp(){
 }
 async function _finalizeRpInner(){
   if(!_rpDraft) return;
+  if(!needBind('发红包')){ closePay(); return; }
   const me=myUid();
   const type=_rpDraft.chat;
   if(type==='dm' && !dmPeer){ toastMsg('请先进入某个私信会话再发红包'); return; }
@@ -5997,6 +6004,7 @@ async function _finalizeRpInner(){
 }
 
 async function submitGroupMsg(){
+  if(!needBind('群聊发言')) return;
   const me = myUid();
   if(!me || !gchatGid) return;
   const input = document.getElementById('gchatInput');
@@ -6172,13 +6180,14 @@ async function sbResolveProfile(){
   if(!SB.client || !SB.session) return null;
   try{
     const r = await SB.client.from('profiles')
-      .select('uid,username,level,balance,coin,banned')
+      .select('uid,username,level,balance,coin,banned,role')
       .eq('auth_id', SB.session.user.id)
       .maybeSingle();
     if(r.error){ SB.err = r.error.message; return null; }
     SB.profile = r.data || null;
     SB.uid = r.data ? r.data.uid : null;
     SB.err = null;
+    try { syncRoleFromBackend(); } catch(e){}
     return SB.profile;
   }catch(e){ SB.err = e.message || String(e); return null; }
 }
@@ -6249,9 +6258,59 @@ function sbRenderStatus(){
   }
   el.textContent = txt;
   el.style.color = color;
+  try { syncRoleFromBackend(); } catch(e){}
   try { bindRender(); } catch(e){}
 }
 
+/* ===== 账号鉴权：管理员身份以后端为准 + 写操作必须持有后端会话 ===== */
+const ROLE_TO_LEVEL = { super: '超级管理员', admin: '管理员', user: '用户' };
+function syncRoleFromBackend(){
+  if(!SB.ready || !SB.client) return false;
+  const me = myUid();
+  if(!me) return false;
+  if(!SB.session || !SB.profile){
+    // 没有后端会话：不再信任本地等级，统一按普通用户处理（写操作同样会被拦截）
+    if(ACCOUNTS[me] && ACCOUNTS[me].level !== '用户'){
+      ACCOUNTS[me].level = '用户';
+      currentIsSuper = false;
+      try { renderStaff(ACCOUNTS[me]); } catch(e){}
+      const staffTabEl = document.querySelector('.tab[data-view="staffSvc"]');
+      if(staffTabEl) staffTabEl.style.display = 'none';
+      const logSub = document.getElementById('subtabLog');
+      if(logSub) logSub.style.display = 'none';
+    }
+    return false;
+  }
+  const role = String(SB.profile.role || '').trim();
+  const lv = ROLE_TO_LEVEL[role];
+  if(!lv) return false;
+  if(!ACCOUNTS[me]) ACCOUNTS[me] = { uid: me, name: SB.profile.username || me };
+  if(ACCOUNTS[me].level !== lv){
+    ACCOUNTS[me].level = lv;
+    currentIsSuper = (lv === '超级管理员');
+    try { renderStaff(ACCOUNTS[me]); } catch(e){}
+    const staffTabEl = document.querySelector('.tab[data-view="staffSvc"]');
+    if(staffTabEl) staffTabEl.style.display = (lv === '用户') ? 'none' : '';
+    const logSub = document.getElementById('subtabLog');
+    if(logSub) logSub.style.display = currentIsSuper ? '' : 'none';
+  }
+  return true;
+}
+function hasSession(){ return !!(SB.ready && SB.client && SB.session && SB.uid && SB.profile); }
+function needBind(action){
+  if(hasSession()) return true;
+  if(!SB.ready){
+    glassAlert('后端未连通', '云端连接失败，暂时无法' + (action||'写入') + '。请检查网络后刷新页面重试。');
+    return false;
+  }
+  if(SB.session && !SB.profile){
+    glassAlert('账号未关联', '你的登录身份还没关联到业务账号，请联系超管处理后再试。');
+    return false;
+  }
+  glassAlert('请先绑定后端账号',
+    '为保护数据安全，' + (action||'该操作') + '需要先绑定后端账号。\n\n路径：设置 → 绑定后端账号，输入注册邮箱、收取 6 位验证码、设置新密码即可。原账号的余额、资料、聊天记录全部保留。');
+  return false;
+}
 /* ===== 运行日志：全员行为上报（仅超管可查） ===== */
 const AUDIT_LABEL = {
   login:'登录', login_fail:'登录失败', logout:'退出登录', register:'注册账号',
