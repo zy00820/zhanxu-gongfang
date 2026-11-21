@@ -380,8 +380,8 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.4 更新</div>
-        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 活动中心支持布置与报名<br>· 新增私信（消息）云端互通<br>· 公单处理并入员工服务</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.5 更新</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 首次登录加载全部数据，带进度条<br>· 聊天红包消息只显示一次<br>· 设置页可查看云端后端状态</div>
       </div>
     </div>
 
@@ -522,7 +522,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.4</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.5</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -1126,7 +1126,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.4</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.5</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -1413,6 +1413,20 @@ option{background:#fff;color:#1f2937}
 </div>
 
 <!-- Toast -->
+<div id="bootMask" style="display:none;position:fixed;inset:0;z-index:400;background:radial-gradient(circle at 50% 0%,rgba(37,99,235,0.18),rgba(8,11,18,0.96) 60%);backdrop-filter:blur(22px) saturate(160%);align-items:center;justify-content:center;padding:0 24px;transition:opacity .28s ease">
+  <div style="width:min(340px,86vw);text-align:center">
+    <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#2563eb,#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;margin-bottom:18px;box-shadow:0 12px 30px rgba(37,99,235,0.35)">栈</div>
+    <div style="font-size:18px;font-weight:600;color:#e5e7eb;letter-spacing:1px">栈序云</div>
+    <div id="bootLabel" style="font-size:12px;color:#9ca3af;margin-top:6px">准备中…</div>
+    <div style="margin-top:22px;height:8px;border-radius:8px;background:rgba(255,255,255,0.1);overflow:hidden">
+      <div id="bootBar" style="height:100%;width:2%;border-radius:8px;background:linear-gradient(90deg,#2563eb,#a78bfa);transition:width .32s ease"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:#6b7280">
+      <span id="bootNote"></span>
+      <span id="bootPct">0%</span>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"><span class="icon">⚠</span><span id="toastText"></span></div>
 
 <!-- 通用液态玻璃弹窗 -->
@@ -1604,6 +1618,9 @@ function showLogin(){
   document.body.classList.remove('logged-in');
 }
 async function showApp(u){
+  let needBoot = false;
+  try { needBoot = !sessionStorage.getItem('zx_booted'); } catch(e){ needBoot = true; }
+  if(needBoot) bootShow();
   try { await loadNameOverrides(); } catch(e){}
   const acc = ACCOUNTS[u];
   // 顶部栏动态渲染用户
@@ -1668,6 +1685,7 @@ async function showApp(u){
   requestNotifyPermission();
   const myAvatar = document.getElementById('postMyAvatar');
   if(myAvatar) myAvatar.textContent = acc.name.charAt(0);
+  if(needBoot) await bootLoadAll();
 }
 function renderStaff(currentAcc){
   const isSuper = currentAcc.level === '超级管理员';
@@ -4046,6 +4064,11 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.1.5', date: '2026-11-21', items: [
+      '首次登录自动加载账号、钱包、私信、群聊、帖子、公告等全部数据，顶部进度条实时显示，加载完成后自动关闭',
+      '聊天中的红包消息只显示一次，重复写入的同一红包不再堆叠',
+      '设置页新增「云端后端」状态，可查看连接与账号绑定情况'
+    ]},
     { ver: 'v1.1.4', date: '2026-11-16', items: [
       '员工服务页隐藏顶部积分商城与活动横幅，社区发帖页保留顶部内容'
     ]},
@@ -4682,8 +4705,10 @@ async function openDm(uid){
   const box = document.getElementById('dmList');
   box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">加载中…</div>';
   await loadDmData();
-  const msgs = dmCache.filter(m => (m.from === me && m.to === uid) || (m.from === uid && m.to === me))
-                     .sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const msgs = dedupeChatMsgs(
+    dmCache.filter(m => (m.from === me && m.to === uid) || (m.from === uid && m.to === me)),
+    'dm:' + [me, uid].sort().join('-')
+  ).sort((a,b)=>(a.ts||0)-(b.ts||0));
   if(!msgs.length){
     box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:24px">还没有私信，说句话吧</div>';
     return;
@@ -5366,7 +5391,7 @@ async function openGroupChat(gid){
   const box = document.getElementById('gchatList');
   box.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:13px;padding:20px">加载中…</div>';
   const all = await loadGroupMsgs();
-  const msgs = all.filter(m=>m.gid === gid).sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const msgs = dedupeChatMsgs(all.filter(m=>m.gid === gid), 'grp:' + gid).sort((a,b)=>(a.ts||0)-(b.ts||0));
   if(!msgs.length){
     box.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:13px;padding:24px">还没有消息，说句话吧</div>';
     return;
@@ -6051,6 +6076,84 @@ function sbStatusTap(){
 }
 
 setTimeout(() => { sbBoot(); }, 1200);
+
+/* ===== 首次进入加载遮罩（进度条） ===== */
+const BOOT_TASKS = [
+  ['钱包余额', () => loadWallets(true)],
+  ['私信记录', () => loadDmData(true)],
+  ['群聊列表', () => loadGroups(true)],
+  ['群聊消息', () => loadGroupMsgs(true)],
+  ['社区帖子', () => loadAndRenderPosts(true)],
+  ['动态与签到', () => loadActivities()],
+  ['公告', () => loadNotices(true)],
+  ['关注关系', () => loadSocial(true)],
+  ['开发者作品', () => loadDevItems(true)],
+  ['工单记录', () => loadTickets(true)]
+];
+
+function bootSet(pct, label, note){
+  const bar = document.getElementById('bootBar');
+  const num = document.getElementById('bootPct');
+  const txt = document.getElementById('bootLabel');
+  const sub = document.getElementById('bootNote');
+  if(bar) bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+  if(num) num.textContent = Math.round(Math.max(0, Math.min(100, pct))) + '%';
+  if(txt && label) txt.textContent = label;
+  if(sub && note !== undefined) sub.textContent = note;
+}
+
+function bootShow(){
+  const m = document.getElementById('bootMask');
+  if(!m) return;
+  m.style.display = 'flex';
+  bootSet(2, '准备中…', '');
+}
+
+function bootHide(){
+  const m = document.getElementById('bootMask');
+  if(!m) return;
+  m.style.opacity = '0';
+  setTimeout(() => { m.style.display = 'none'; m.style.opacity = '1'; }, 280);
+}
+
+async function bootLoadAll(){
+  const started = Date.now();
+  bootSet(6, '账号数据', '正在同步云端账号');
+  try { await loadRemoteAccounts(true); } catch(e){}
+  bootSet(14, '昵称与封禁', '正在同步用户资料');
+  try { await Promise.all([loadNameOverrides(true), loadBans()]); } catch(e){}
+
+  let done = 0;
+  const total = BOOT_TASKS.length;
+  await Promise.all(BOOT_TASKS.map(([label, fn]) => (async () => {
+    try { await fn(); } catch(e){}
+    done++;
+    bootSet(14 + Math.round(done / total * 84), '加载中…', label + ' 已就绪');
+  })()));
+
+  const elapsed = Date.now() - started;
+  if(elapsed < 1200) await new Promise(r => setTimeout(r, 1200 - elapsed));
+  bootSet(100, '加载完成', '欢迎回来');
+  await new Promise(r => setTimeout(r, 320));
+  bootHide();
+  try { sessionStorage.setItem('zx_booted', '1'); } catch(e){}
+}
+
+// 同一红包在多处重复追加时只保留一条，避免聊天里重复出现
+function dedupeChatMsgs(list, scope){
+  const seen = new Set();
+  const out = [];
+  (list || []).forEach(m => {
+    const key = m.packet
+      ? scope + '|p|' + String(m.ts) + '|' + String(m.from) + '|' + String((m.packet && m.packet.name) || '')
+      : scope + '|m|' + String(m.ts) + '|' + String(m.from) + '|' + String(m.text || '');
+    if(seen.has(key)) return;
+    seen.add(key);
+    out.push(m);
+  });
+  return out;
+}
+
 
 </script>
 </body>
