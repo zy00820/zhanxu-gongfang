@@ -380,8 +380,8 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.5 更新</div>
-        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 首次登录加载全部数据，带进度条<br>· 聊天红包消息只显示一次<br>· 设置页可查看云端后端状态</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.6 更新</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 发帖已迁入后端数据库<br>· 存量帖子与账号已导入<br>· 首次登录加载带进度条</div>
       </div>
     </div>
 
@@ -522,7 +522,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.5</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.6</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -1126,7 +1126,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.5</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.6</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -3661,18 +3661,22 @@ async function loadAndRenderPosts(force){
     return;
   }
   let list = [];
+  let sbList = null;
+  try { sbList = await sbFetchPosts(); } catch(e){ sbList = null; }
+  if(sbList && sbList.length) list = sbList.slice();
   try {
     const r = await ghGetRecords(GH_POSTS_PATH);
     const raw = r.list || [];
-    list = dedupePosts(raw);
-    if(list.length !== raw.length){
-      try { await ghWriteRecords(GH_POSTS_PATH, list, 'zx_posts'); } catch(e){}
-    }
+    const postKey = p => String(p.uid || '') + '|' + Math.round((p.ts || 0) / 1000);
+    const seen = new Set(list.map(postKey));
+    raw.forEach(p => { const k = postKey(p); if(!seen.has(k)){ seen.add(k); list.push(p); } });
     localStorage.setItem('zx_posts', JSON.stringify(list));
   } catch(e){
-    try { list = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){ list = []; }
-    list = dedupePosts(list);
+    if(!list.length){
+      try { list = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){ list = []; }
+    }
   }
+  list = dedupePosts(list);
   postsCache = list;
   postsLoaded = true;
   await loadInteractOnce();
@@ -3860,6 +3864,8 @@ async function submitPostV2(){
     likes: 0, comments: 0, grad: 'linear-gradient(135deg,#60a5fa,#3b82f6)',
     time: timeStr, ts: now.getTime()
   };
+  let sbOk = false;
+  try { sbOk = await sbInsertPost(rec); } catch(e){ sbOk = false; }
   try {
     await ghAppendRecord(GH_POSTS_PATH, rec, 'zx_posts');
     localStorage.setItem(lastKey, String(now.getTime()));
@@ -3867,8 +3873,11 @@ async function submitPostV2(){
     closePostEditor(); renderPosts(postsCache);
     const st0 = document.getElementById('statPosts');
     if(st0) st0.textContent = postsCache.length;
-    toastMsg('帖子已发布并云端同步');
+    toastMsg(sbOk ? '帖子已发布，已写入后端' : '帖子已发布并云端同步');
   } catch(e){
+    if(sbOk){ localStorage.setItem(lastKey, String(now.getTime()));
+      postsCache.push(rec); postsLoaded = true;
+      closePostEditor(); renderPosts(postsCache); toastMsg('帖子已发布，已写入后端'); return; }
     let local = [];
     try { local = JSON.parse(localStorage.getItem('zx_posts')||'[]'); } catch(x){}
     local.push(rec);
@@ -4064,6 +4073,10 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.1.6', date: '2026-11-21', items: [
+      '发帖改为写入后端 PostgreSQL，读取时后端优先、旧仓库数据自动补齐；未绑定后端账号的用户仍按原链路发帖',
+      '存量 33 个账号与 11 篇帖子已导入后端'
+    ]},
     { ver: 'v1.1.5', date: '2026-11-21', items: [
       '首次登录自动加载账号、钱包、私信、群聊、帖子、公告等全部数据，顶部进度条实时显示，加载完成后自动关闭',
       '聊天中的红包消息只显示一次，重复写入的同一红包不再堆叠',
@@ -6073,6 +6086,41 @@ function sbStatusTap(){
     '错误：' + (SB.err || '无')
   ];
   toastMsg(lines.join(' ｜ '));
+}
+
+/* ===== 帖子读写走 Supabase（GitHub JSON 作为过渡备份） ===== */
+function sbRowToPost(r){
+  const ts = r.created_at ? new Date(r.created_at).getTime() : 0;
+  const d = ts ? new Date(ts) : new Date();
+  const p2 = n => String(n).padStart(2,'0');
+  return {
+    id: r.id, uid: r.uid, name: r.name, tag: r.tag, title: r.title, content: r.content,
+    mentions: r.mentions || [], hashTags: r.hashtags || [], lottery: r.lottery || null,
+    likes: r.likes || 0, comments: r.comments || 0,
+    grad: r.grad || 'linear-gradient(135deg,#60a5fa,#3b82f6)',
+    time: d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes()),
+    ts
+  };
+}
+async function sbFetchPosts(){
+  if(!SB.client) return null;
+  const r = await SB.client.from('posts')
+    .select('*').order('created_at',{ascending:false}).limit(300);
+  if(r.error) throw new Error(r.error.message);
+  return (r.data || []).map(sbRowToPost);
+}
+async function sbInsertPost(rec){
+  if(!SB.client || !SB.session || !SB.uid) return false;
+  const r = await SB.client.from('posts').insert({
+    id: String(rec.id || ('P' + rec.ts)),
+    uid: SB.uid,
+    name: rec.name, tag: rec.tag, title: rec.title, content: rec.content,
+    mentions: rec.mentions || [], hashtags: rec.hashTags || [],
+    lottery: rec.lottery || null, likes: 0, comments: 0, grad: rec.grad,
+    created_at: new Date(rec.ts).toISOString()
+  });
+  if(r.error){ SB.err = r.error.message; return false; }
+  return true;
 }
 
 setTimeout(() => { sbBoot(); }, 1200);
