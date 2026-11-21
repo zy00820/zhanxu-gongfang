@@ -380,8 +380,8 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.6 更新</div>
-        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 发帖已迁入后端数据库<br>· 存量帖子与账号已导入<br>· 首次登录加载带进度条</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.7 更新</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 修复私信列表不显示<br>· 发红包前校验会话对象<br>· 发帖已迁入后端</div>
       </div>
     </div>
 
@@ -522,7 +522,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.6</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.7</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -1126,7 +1126,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.6</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.7</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -4073,6 +4073,10 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.1.7', date: '2026-11-21', items: [
+      '修复私信列表一直显示「加载中」：历史数据里有一条缺少接收方的红包消息导致整页渲染报错，已做容错并跳过脏数据',
+      '发红包增加会话校验：未进入具体私信或群聊时禁止发送，避免产生无接收方的红包与错误扣费'
+    ]},
     { ver: 'v1.1.6', date: '2026-11-21', items: [
       '发帖改为写入后端 PostgreSQL，读取时后端优先、旧仓库数据自动补齐；未绑定后端账号的用户仍按原链路发帖',
       '存量 33 个账号与 11 篇帖子已导入后端'
@@ -4788,7 +4792,7 @@ async function renderDmCenterPage(force){
       '</div></div>').join('');
   }
   if(gbox) gbox.innerHTML = gHtml || '<div style="text-align:center;color:#6b7280;font-size:13px;padding:18px">暂无群聊，点右上角「创建群聊」拉人开始</div>';
-  const mine = dmCache.filter(m => m.from === me || m.to === me).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const mine = dmCache.filter(m => m && (m.from === me || m.to === me)).sort((a,b)=>(b.ts||0)-(a.ts||0));
   if(!mine.length){
     if(dbox) dbox.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:18px">暂无私信，可在员工 / 用户管理点击头像发起</div>';
     return;
@@ -4796,21 +4800,22 @@ async function renderDmCenterPage(force){
   const conv = {};
   mine.forEach(m=>{
     const peer = m.from === me ? m.to : m.from;
-    if(!conv[peer]) conv[peer] = { peer: peer, last: m, count: 0 };
+    if(!peer) return;                                  // 跳过缺收发方的脏数据
+    if(!conv[peer]) conv[peer] = { peer: String(peer), last: m, count: 0 };
     conv[peer].count++;
   });
   const dmHtml = Object.values(conv).map(cv=>{
     const acc = ACCOUNTS[cv.peer] || {};
     const isMine = cv.last.from === me;
     return '<div onclick="openDm(\''+cv.peer+'\')" class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:pointer">'+
-      '<div class="post-avatar">'+(acc.name||cv.peer).charAt(0)+'</div>'+
+      '<div class="post-avatar">'+String(acc.name||cv.peer||'?').charAt(0)+'</div>'+
       '<div style="flex:1;min-width:0">'+
         '<div style="font-size:14px;color:#1f2937">'+(acc.name||cv.peer)+' <span style="font-size:11px;color:#6b7280">'+cv.count+' 条</span></div>'+
         '<div style="font-size:12px;color:#6b7280;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(isMine?'我：':'对方：')+String(cv.last.text||'').replace(/</g,'&lt;')+'</div>'+
       '</div>'+
       '<div style="font-size:11px;color:#4a5c78">'+dmTime(cv.last.ts)+'</div></div>';
   }).join('');
-  if(dbox) dbox.innerHTML = dmHtml;
+  if(dbox) dbox.innerHTML = dmHtml || '<div style="text-align:center;color:#6b7280;font-size:13px;padding:18px">暂无私信，可在员工 / 用户管理点击头像发起</div>';
 }
 async function submitDm(){
   const me = myUid();
@@ -5793,6 +5798,8 @@ async function finalizeRp(){
   if(!_rpDraft) return;
   const me=myUid();
   const type=_rpDraft.chat;
+  if(type==='dm' && !dmPeer){ toastMsg('请先进入某个私信会话再发红包'); return; }
+  if(type!=='dm' && !gchatGid){ toastMsg('请先进入某个群聊再发红包'); return; }
   const label=type==='dm'?'普通红包':'拼手气红包';
   const text='['+label+'] '+_rpDraft.name;
   const packet={ name:_rpDraft.name, count:_rpDraft.count, total:_rpDraft.total, type:type };
