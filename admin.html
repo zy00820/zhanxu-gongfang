@@ -6239,21 +6239,36 @@ checkAuth();
 /* ===== Supabase 后端桥（M1 第一阶段：认证 + 资料读取） ===== */
 const SB_URL = 'https://dtqvmhknipzqbuflutob.supabase.co';
 const SB_KEY = 'sb_publishable_csJKpjMoN2IN4Vezf6wfTw_jtQiEUF9';
-const SB_ASSET = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+// SDK 多源回退：优先同源仓库自带副本（国内网络最稳），再退公共 CDN
+const SB_SOURCES = [
+  'supabase-sdk.js',
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
+  'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'
+];
+const SB_ASSET = SB_SOURCES[0];
 window.SB = { client: null, ready: false, session: null, uid: null, profile: null, err: null, loading: false };
 
-function sbLoadSdk(timeout){
+function sbLoadOne(src, timeout){
   return new Promise((resolve, reject) => {
-    if (window.supabase && window.supabase.createClient) return resolve(window.supabase);
     const done = (ok, err) => { clearTimeout(tm); ok ? resolve(window.supabase) : reject(err); };
-    const tm = setTimeout(() => done(false, new Error('SDK 加载超时')), timeout || 12000);
+    const tm = setTimeout(() => done(false, new Error('超时')), timeout);
     const s = document.createElement('script');
-    s.src = SB_ASSET;
+    s.src = src;
     s.onload = () => (window.supabase && window.supabase.createClient)
       ? done(true) : done(false, new Error('SDK 未初始化'));
-    s.onerror = () => done(false, new Error('SDK 加载失败'));
+    s.onerror = () => { try{ s.remove(); }catch(e){} done(false, new Error('加载失败')); };
     document.head.appendChild(s);
   });
+}
+async function sbLoadSdk(){
+  if (window.supabase && window.supabase.createClient) return window.supabase;
+  let lastErr = null;
+  for (const src of SB_SOURCES) {
+    try {
+      return await sbLoadOne(src, src.indexOf('http') === 0 ? 9000 : 6000);
+    } catch(e){ lastErr = e; }
+  }
+  throw (lastErr || new Error('SDK 全部源加载失败'));
 }
 
 async function sbResolveProfile(){
@@ -6332,9 +6347,11 @@ function sbRenderStatus(){
     txt = SB.uid ? ('已登录 · ' + SB.uid) : '已登录';
     color = '#34d399';
   } else if(SB.err){
-    txt = '连接异常'; color = '#f87171';
+    txt = '连接异常 · 点我重试'; color = '#f87171';
   } else if(SB.ready){
-    txt = '已就绪'; color = '#34d399';
+    txt = '已就绪（待登录）'; color = '#34d399';
+  } else if(SB.loading){
+    txt = '连接中…'; color = '#fbbf24';
   }
   el.textContent = txt;
   el.style.color = color;
@@ -6499,6 +6516,12 @@ async function renderAudit(force){
 
 /* ===== 自助绑定后端账号：旧体系账号 → 云端登录身份 ===== */
 function bindCodeKey(){ return 'zx_bind_code_' + myUid(); }
+function sbRetry(){
+  if(SB.loading) return;
+  SB.err = null; SB.loading = false;
+  try { sbBoot(); } catch(e){}
+  setTimeout(()=>{ try{ sbRenderStatus(); } catch(e){} }, 800);
+}
 function sbBound(){
   return !!(SB.profile && SB.uid && String(SB.uid) === String(myUid()));
 }
@@ -6647,6 +6670,7 @@ async function bindSubmit(){
 }
 
 function sbStatusTap(){
+  if(!SB.ready){ sbRetry(); }
   const lines = [
     '地址：' + SB_URL.replace('https://', ''),
     'SDK：' + (SB.ready ? '已加载' : '未加载'),
