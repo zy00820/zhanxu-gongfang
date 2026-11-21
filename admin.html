@@ -5360,27 +5360,102 @@ let gchatGid = null;
 let groupsLoaded = false;
 let gmsgsLoaded = false;
 let gmsgCache = [];
+/* ===== 群聊走后端：chat_groups / group_messages（旧 GitHub JSON 仅作历史只读） ===== */
+function sbGroupRowToG(r){
+  const ts = r.created_at ? new Date(r.created_at).getTime() : 0;
+  const mem = Array.isArray(r.members) ? r.members.map(String) : [];
+  return {
+    gid: r.gid, name: r.name, owner: r.owner_uid, members: mem,
+    admins: (Array.isArray(r.admins) ? r.admins.map(String) : []),
+    creator: ((ACCOUNTS[r.owner_uid]||{}).name || r.owner_uid),
+    time: ts ? dmTime(ts) : '', ts: ts, backend: true
+  };
+}
+async function sbLoadGroups(){
+  if(!SB.client || !SB.session || !SB.uid) return null;
+  try {
+    const r = await SB.client.from('chat_groups').select('gid,name,owner_uid,members,admins,created_at');
+    if(r.error){ SB.err = r.error.message; return null; }
+    return (r.data || []).map(sbGroupRowToG);
+  } catch(e){ SB.err = e.message || String(e); return null; }
+}
+async function sbUpsertGroup(g){
+  if(!SB.client || !SB.session || !SB.uid) return false;
+  try {
+    const r = await SB.client.from('chat_groups').upsert({
+      gid: String(g.gid), name: String(g.name||'群聊'), owner_uid: String(g.owner),
+      members: (g.members||[]).map(String), admins: (g.admins||[]).map(String)
+    });
+    if(r.error){ SB.err = r.error.message; return false; }
+    return true;
+  } catch(e){ SB.err = e.message || String(e); return false; }
+}
+async function sbDeleteGroup(gid){
+  if(!SB.client || !SB.session || !SB.uid) return false;
+  try {
+    const r = await SB.client.from('chat_groups').delete().eq('gid', String(gid));
+    if(r.error){ SB.err = r.error.message; return false; }
+    return true;
+  } catch(e){ SB.err = e.message || String(e); return false; }
+}
+async function sbInsertGroupMsg(gid, text){
+  if(!SB.client || !SB.session || !SB.uid) return false;
+  try {
+    const r = await SB.client.from('group_messages').insert({ gid: String(gid), from_uid: SB.uid, text: String(text||'') });
+    if(r.error){ SB.err = r.error.message; return false; }
+    return true;
+  } catch(e){ SB.err = e.message || String(e); return false; }
+}
+async function sbLoadGroupMsgs(){
+  if(!SB.client || !SB.session || !SB.uid) return null;
+  try {
+    const r = await SB.client.from('group_messages')
+      .select('id,gid,from_uid,text,created_at')
+      .order('created_at', { ascending: true }).limit(2000);
+    if(r.error){ SB.err = r.error.message; return null; }
+    return (r.data||[]).map(x=>{
+      const ts = x.created_at ? new Date(x.created_at).getTime() : 0;
+      return { gid: x.gid, from: x.from_uid, fromName: ((ACCOUNTS[x.from_uid]||{}).name || x.from_uid),
+               text: x.text || '', time: ts ? dmTime(ts) : '', ts: ts, backend: true };
+    });
+  } catch(e){ SB.err = e.message || String(e); return null; }
+}
 async function loadGroups(force){
   if(groupsLoaded && !force) return groupCache;
+  let db = null;
+  try { db = await sbLoadGroups(); } catch(e){ db = null; }
+  let legacy = [];
   try {
     const r = await ghGetRecords(GH_GROUP_PATH);
-    groupCache = r.list || [];
-    localStorage.setItem('zx_groups', JSON.stringify(groupCache));
-  } catch(e){
-    try { groupCache = JSON.parse(localStorage.getItem('zx_groups')||'[]'); } catch(x){ groupCache = []; }
-  }
+    legacy = (r.list || []).filter(g=>g && g.gid);
+  } catch(e){ legacy = []; }
+  const map = new Map();
+  legacy.forEach(g=>{
+    map.set(g.gid, { gid:g.gid, name:g.name, owner:g.owner, members:(g.members||[]).map(String),
+                     admins:(g.admins||[]).map(String), creator:g.creator, time:g.time, ts:g.ts||0, backend:false });
+  });
+  (db || []).forEach(g=>map.set(g.gid, g));
+  groupCache = [...map.values()];
+  try { localStorage.setItem('zx_groups', JSON.stringify(groupCache)); } catch(e){}
   groupsLoaded = true;
   return groupCache;
 }
 async function loadGroupMsgs(force){
   if(gmsgsLoaded && !force) return gmsgCache;
+  let db = null;
+  try { db = await sbLoadGroupMsgs(); } catch(e){ db = null; }
+  let legacy = [];
   try {
     const r = await ghGetRecords(GH_GMSG_PATH);
-    gmsgCache = r.list || [];
-    localStorage.setItem('zx_gmsgs', JSON.stringify(gmsgCache));
-  } catch(e){
-    try { gmsgCache = JSON.parse(localStorage.getItem('zx_gmsgs')||'[]'); } catch(x){ gmsgCache = []; }
-  }
+    legacy = (r.list || []).filter(m=>m && m.gid);
+  } catch(e){ legacy = []; }
+  // 旧记录里的红包消息（含 packet 载荷）仍保留，文本消息以后端为准
+  const keyOf = m => String(m.gid) + '|' + String(m.from) + '|' + String(Math.round((m.ts||0)/1000)) + '|' + String((m.text||'').slice(0,40));
+  const map = new Map();
+  legacy.forEach(m=>map.set(keyOf(m), m));
+  (db || []).forEach(m=>{ if(!map.has(keyOf(m))) map.set(keyOf(m), m); });
+  gmsgCache = [...map.values()];
+  try { localStorage.setItem('zx_gmsgs', JSON.stringify(gmsgCache)); } catch(e){}
   gmsgsLoaded = true;
   return gmsgCache;
 }
@@ -5439,13 +5514,12 @@ async function createGroup(){
     creator: (ACCOUNTS[me]||{}).name || me,
     time: dmTime(Date.now()), ts: Date.now()
   };
-  try {
-    await ghAppendRecord(GH_GROUP_PATH, rec, 'zx_groups');
-    logAct('group_create', '群 ' + rec.gid, '「' + name + '」成员 ' + rec.members.length + ' 人');
-  } catch(e){
-    let local = []; try { local = JSON.parse(localStorage.getItem('zx_groups')||'[]'); } catch(x){}
-    local.push(rec); localStorage.setItem('zx_groups', JSON.stringify(local));
+  const okCreate = await sbUpsertGroup(rec);
+  if(!okCreate){
+    err.textContent = '创建失败：' + (SB.err || '后端写入失败');
+    return;
   }
+  logAct('group_create', '群 ' + rec.gid, '「' + name + '」成员 ' + rec.members.length + ' 人');
   closeCreateGroup();
   groupCache.push(rec);
   groupsLoaded = true;
@@ -5555,8 +5629,14 @@ async function blockDmPeer(uid){
 }
 
 async function persistGroups(){
-  await ghWriteRecords(GH_GROUP_PATH, groupCache, 'zx_groups');
+  // 只写后端，不再写 GitHub JSON（旧仓库已降级为只读历史）
+  let okCount = 0, lastErr = '';
+  for(const g of groupCache){
+    const ok = await sbUpsertGroup(g);
+    if(ok) okCount++; else lastErr = SB.err || '写入失败';
+  }
   groupsLoaded = true;
+  if(!okCount) throw new Error(lastErr || '后端写入失败');
 }
 let _grpSetGid = null;
 async function openGrpSetting(gid){
@@ -5657,11 +5737,12 @@ async function grpDissolve(gid){
   const ok = await glassConfirm('解散群聊', '确定解散「' + (g.name||'群聊') + '」？该群所有成员将被移出，聊天记录一并清除，不可恢复。');
   if(!ok) return;
   groupCache = groupCache.filter(x=>x.gid !== gid);
-  try { await persistGroups(); } catch(e){ toastMsg('保存失败，请检查网络'); return; }
+  const okDel = await sbDeleteGroup(gid);
+  if(!okDel){ toastMsg('解散失败：' + (SB.err || '后端删除失败')); return; }
+  groupsLoaded = true;
   logAct('group_dissolve', '群 ' + gid, '「' + (g.name||'') + '」已解散');
   try {
     gmsgCache = (gmsgCache||[]).filter(m=>m && m.gid !== gid);
-    await ghWriteRecords(GH_GMSG_PATH, gmsgCache, 'zx_gmsgs');
     gmsgsLoaded = true;
   } catch(e){}
   closeGrpSetting();
@@ -6013,15 +6094,14 @@ async function submitGroupMsg(){
   const rec = { gid: gchatGid, from: me, fromName: (ACCOUNTS[me]||{}).name || me,
                 text: text, time: dmTime(Date.now()), ts: Date.now() };
   input.value = '';
-  try {
-    await ghAppendRecord(GH_GMSG_PATH, rec, 'zx_gmsgs');
-    gmsgCache.push(rec); gmsgsLoaded = true;
-    logAct('group_msg', '群 ' + gchatGid, text.slice(0,60));
-  } catch(e){
-    gmsgCache.push(rec); gmsgsLoaded = true;
-    localStorage.setItem('zx_gmsgs', JSON.stringify(gmsgCache));
-    toastMsg('网络异常，已先存本地');
+  const okSend = await sbInsertGroupMsg(gchatGid, text);
+  if(!okSend){
+    input.value = text;
+    toastMsg('发送失败：' + (SB.err || '后端未写入'));
+    return;
   }
+  gmsgCache.push(rec); gmsgsLoaded = true;
+  logAct('group_msg', '群 ' + gchatGid, text.slice(0,60));
   openGroupChat(gchatGid);
 }
 
