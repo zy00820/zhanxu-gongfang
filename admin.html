@@ -1949,7 +1949,7 @@ async function doLogin(){
   err.textContent = '';
   try { localStorage.setItem('zx_saved_login', JSON.stringify({ uid: u, ts: Date.now() })); } catch(e){}
   logAct('login', u, '账号密码登录成功');
-  try { sbBindSession(u, (ACCOUNTS[u] || {}).email, p); } catch(e){}
+  try { sbWaitAndBind(u, (ACCOUNTS[u] || {}).email, p); } catch(e){}
   showApp(u);
 }
 async function autoLogin(){
@@ -6314,6 +6314,15 @@ async function sbBoot(){
   sbRenderStatus();
 }
 
+// 等后端 SDK 就绪后再绑定会话（避免登录太快、SDK 还没下完导致绑定被跳过）
+async function sbWaitAndBind(uid, email, password){
+  const t0 = Date.now();
+  while(!SB.ready && !SB.err && Date.now() - t0 < 15000){
+    await new Promise(r=>setTimeout(r, 400));
+  }
+  if(!SB.client){ try { await sbBoot(); } catch(e){} }
+  if(SB.client && email && password){ await sbBindSession(uid, email, password); }
+}
 // 登录成功后把旧账号的邮箱/密码绑到 Supabase Auth，静默进行，失败不影响原登录
 async function sbBindSession(uid, email, password){
   if(!SB.client || !email || !password) return;
@@ -6361,12 +6370,24 @@ function sbRenderStatus(){
 
 /* ===== 账号鉴权：管理员身份以后端为准 + 写操作必须持有后端会话 ===== */
 const ROLE_TO_LEVEL = { super: '超级管理员', admin: '管理员', user: '用户' };
-function syncRoleFromBackend(){
+let _roleProbeDone = null;
+async function syncRoleFromBackend(){
   if(!SB.ready || !SB.client) return false;
   const me = myUid();
   if(!me) return false;
   if(!SB.session || !SB.profile){
-    // 没有后端会话：不再信任本地等级，统一按普通用户处理（写操作同样会被拦截）
+    // 没有后端会话：查一下库里这条资料是否已绑定身份
+    // 已绑定（只是这次没拿到会话）不清等级，避免超管被误降；确实没绑定的才降为普通用户
+    if(!_roleProbeDone){
+      _roleProbeDone = { uid: me, bound: null };
+      try {
+        const r = await SB.client.from('profiles').select('uid,auth_id').eq('uid', String(me)).maybeSingle();
+        _roleProbeDone.bound = !!(r && r.data && r.data.auth_id);
+      } catch(e){ _roleProbeDone.bound = null; }
+      try { bindRender(); } catch(e){}
+    }
+    const boundInDb = _roleProbeDone && _roleProbeDone.uid === me ? _roleProbeDone.bound : null;
+    if(boundInDb === true) return false;   // 已绑定，保留原等级，提示去重新登录
     if(ACCOUNTS[me] && ACCOUNTS[me].level !== '用户'){
       ACCOUNTS[me].level = '用户';
       currentIsSuper = false;
@@ -6531,6 +6552,9 @@ function bindRender(){
   if(sbBound()){
     el.textContent = '已绑定';
     el.style.color = '#34d399';
+  } else if(_roleProbeDone && _roleProbeDone.uid === myUid() && _roleProbeDone.bound === true){
+    el.textContent = '已绑定 · 需重新登录';
+    el.style.color = '#fbbf24';
   } else {
     el.textContent = '未绑定 · 点击绑定';
     el.style.color = '#2563eb';
