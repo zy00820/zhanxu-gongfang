@@ -380,8 +380,8 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.7 更新</div>
-        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 修复私信列表不显示<br>· 发红包前校验会话对象<br>· 发帖已迁入后端</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.8 更新</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 设置页新增「绑定后端账号」，用户与管理员可自助绑定<br>· 绑定后余额、资料、聊天自动云端同步</div>
       </div>
     </div>
 
@@ -514,6 +514,10 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">消息通知</span>
         <span style="font-size:12px;color:#34d399">已开启</span>
       </div>
+      <div onclick="openBind()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
+        <span style="font-size:14px;color:#1f2937">绑定后端账号</span>
+        <span id="bindStatusText" style="font-size:12px;color:#6b7280">检测中…</span>
+      </div>
       <div onclick="sbStatusTap()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer">
         <span style="font-size:14px;color:#1f2937">云端后端</span>
         <span id="sbStatusText" style="font-size:12px;color:#6b7280">检测中…</span>
@@ -522,7 +526,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.7</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.8</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -814,6 +818,26 @@ option{background:#fff;color:#1f2937}
       </div>
       <div id="payErr" style="font-size:12px;color:#f87171;margin-top:10px;min-height:14px"></div>
       <div style="margin-top:12px"><button onclick="closePay()" style="width:100%;padding:11px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">取消</button></div>
+    </div>
+  </div>
+
+  <!-- 绑定后端账号 -->
+  <div id="bindMask" onclick="if(event.target===this)closeBind()" style="display:none;position:fixed;inset:0;z-index:380;background:rgba(15,23,42,0.42);backdrop-filter:blur(4px)">
+    <div style="position:absolute;bottom:0;left:0;right:0;max-height:92vh;overflow-y:auto;background:#fff;border-top:1px solid #eef1f5;border-radius:20px 20px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom))">
+      <div style="text-align:center;font-size:16px;font-weight:600;color:#111827;margin-bottom:6px">绑定后端账号</div>
+      <div style="text-align:center;font-size:12px;color:#6b7280;line-height:1.7;margin-bottom:16px">旧体系注册的账号在后端没有登录身份。绑定后可云端同步数据、跨设备登录，原账号余额与资料全部保留。</div>
+      <div style="font-size:13px;color:#4b5563;margin-bottom:8px">邮箱（用于收验证码，绑定后作为登录邮箱）</div>
+      <input id="bindEmail" type="email" placeholder="example@mail.com" autocomplete="off" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px">
+      <div style="display:flex;gap:10px;margin-bottom:10px">
+        <input id="bindCode" maxlength="6" inputmode="numeric" placeholder="6 位邮箱验证码" style="flex:1;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box">
+        <button id="bindCodeBtn" onclick="bindSendCode()" style="flex-shrink:0;padding:12px 14px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.4);color:#2563eb;font-size:13px;cursor:pointer;border-radius:10px">发送验证码</button>
+      </div>
+      <div style="font-size:13px;color:#4b5563;margin-bottom:8px">设置新密码（后端登录用，至少 8 位）</div>
+      <input id="bindPwd1" type="password" placeholder="新密码（至少 8 位）" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px">
+      <input id="bindPwd2" type="password" placeholder="再次输入新密码" style="width:100%;padding:12px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:10px;color:#1f2937;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:12px">
+      <button id="bindBtn" onclick="bindSubmit()" style="width:100%;padding:13px;background:linear-gradient(135deg,#60a5fa,#2563eb);border:none;color:#fff;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer">完成绑定</button>
+      <div id="bindErr" style="font-size:12px;color:#f87171;margin-top:10px;min-height:14px"></div>
+      <div style="margin-top:12px"><button onclick="closeBind()" style="width:100%;padding:11px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:10px;font-size:14px;cursor:pointer">取消</button></div>
     </div>
   </div>
 
@@ -1126,7 +1150,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.7</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.8</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -4073,6 +4097,11 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.1.8', date: '2026-11-21', items: [
+      '设置页新增「绑定后端账号」：旧体系注册的账号（含管理员）输入邮箱、收验证码、设置新密码即可建好云端登录身份，原账号余额与资料全部保留',
+      '绑定成功后同一账号可在任意设备用邮箱+密码登录，数据自动云端同步；未绑定的账号仍按原方式登录',
+      '绑定状态在设置页实时显示（已绑定 / 未绑定 · 点击绑定）'
+    ]},
     { ver: 'v1.1.7', date: '2026-11-21', items: [
       '修复私信列表一直显示「加载中」：历史数据里有一条缺少接收方的红包消息导致整页渲染报错，已做容错并跳过脏数据',
       '发红包增加会话校验：未进入具体私信或群聊时禁止发送，避免产生无接收方的红包与错误扣费'
@@ -6081,6 +6110,155 @@ function sbRenderStatus(){
   }
   el.textContent = txt;
   el.style.color = color;
+  try { bindRender(); } catch(e){}
+}
+
+/* ===== 自助绑定后端账号：旧体系账号 → 云端登录身份 ===== */
+function bindCodeKey(){ return 'zx_bind_code_' + myUid(); }
+function sbBound(){
+  return !!(SB.profile && SB.uid && String(SB.uid) === String(myUid()));
+}
+function bindRender(){
+  const el = document.getElementById('bindStatusText');
+  if(!el) return;
+  if(sbBound()){
+    el.textContent = '已绑定';
+    el.style.color = '#34d399';
+  } else {
+    el.textContent = '未绑定 · 点击绑定';
+    el.style.color = '#2563eb';
+  }
+}
+function openBind(){
+  const me = myUid();
+  const acc = ACCOUNTS[me] || {};
+  if(sbBound()){
+    const mail2 = (SB.session && SB.session.user) ? (SB.session.user.email || '') : '';
+    glassAlert('已绑定后端', '账号 ' + me + ' 已绑定后端登录' + (mail2 ? '：' + mail2 : '') + '。\n余额、资料与聊天数据会自动云端同步，无需再次绑定。');
+    return;
+  }
+  const e = document.getElementById('bindErr');
+  e.textContent = '';
+  document.getElementById('bindEmail').value = acc.email || '';
+  document.getElementById('bindCode').value = '';
+  document.getElementById('bindPwd1').value = '';
+  document.getElementById('bindPwd2').value = '';
+  document.getElementById('bindMask').style.display = 'block';
+}
+function closeBind(){ document.getElementById('bindMask').style.display = 'none'; }
+
+async function bindSendCode(){
+  const email = document.getElementById('bindEmail').value.trim();
+  const err = document.getElementById('bindErr');
+  const btn = document.getElementById('bindCodeBtn');
+  const me = myUid();
+  if(!email){ err.textContent = '请先填写邮箱'; return; }
+  if(!isValidEmail(email)){ err.textContent = '邮箱格式不正确'; return; }
+  const accMail = (ACCOUNTS[me] || {}).email || '';
+  if(accMail && email.toLowerCase() !== accMail.toLowerCase()){ err.textContent = '请使用本账号的注册邮箱：' + accMail; return; }
+  const cdKey = 'zx_bind_cd_' + email.toLowerCase();
+  const left = Math.ceil((parseInt(localStorage.getItem(cdKey)||'0',10) - Date.now())/1000);
+  if(left > 0){ err.textContent = '请 ' + left + ' 秒后再发送'; return; }
+  if(!mailReady()){ err.textContent = '邮件服务暂未配置，无法发送验证码'; return; }
+  btn.disabled = true;
+  const oldTxt = btn.textContent;
+  btn.textContent = '校验邮箱…';
+  const mail = await checkEmailDomain(email);
+  if(mail && mail.ok === false){ err.textContent = mail.reason; btn.disabled = false; btn.textContent = oldTxt; return; }
+  const code = String(Math.floor(100000 + Math.random()*900000));
+  btn.textContent = '发送中…';
+  const r = await dispatchMail(email, code, (ACCOUNTS[me] || {}).name || '栈序云用户');
+  if(!r.ok){ err.textContent = '验证码发送失败：' + r.reason; btn.disabled = false; btn.textContent = oldTxt; return; }
+  localStorage.setItem(bindCodeKey(), JSON.stringify({ email: email.toLowerCase(), code: code, exp: Date.now() + 10*60*1000 }));
+  localStorage.setItem(cdKey, String(Date.now() + 60*1000));
+  err.textContent = '';
+  toastMsg('验证码已发送，约 1 分钟内到达，请查收邮箱（含垃圾箱）');
+  let cd = 60;
+  btn.disabled = true; btn.textContent = cd + ' 秒';
+  const t = setInterval(()=>{
+    cd--;
+    if(cd <= 0){ clearInterval(t); btn.disabled = false; btn.textContent = '重新发送'; }
+    else btn.textContent = cd + ' 秒';
+  }, 1000);
+}
+
+async function bindSubmit(){
+  const me = myUid();
+  const acc = ACCOUNTS[me] || {};
+  const email = document.getElementById('bindEmail').value.trim();
+  const code = document.getElementById('bindCode').value.trim();
+  const p1 = document.getElementById('bindPwd1').value;
+  const p2 = document.getElementById('bindPwd2').value;
+  const err = document.getElementById('bindErr');
+  const btn = document.getElementById('bindBtn');
+  if(!email || !isValidEmail(email)){ err.textContent = '邮箱格式不正确'; return; }
+  if(!/^\d{6}$/.test(code)){ err.textContent = '请填写 6 位邮箱验证码'; return; }
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(bindCodeKey()) || 'null'); } catch(e){}
+  if(!saved || saved.email !== email.toLowerCase()){ err.textContent = '请先点击「发送验证码」'; return; }
+  if(Date.now() > saved.exp){ err.textContent = '验证码已过期，请重新获取'; return; }
+  if(code !== saved.code){ err.textContent = '验证码不正确，请核对邮件中的 6 位数字'; return; }
+  if(!p1 || p1.length < 8){ err.textContent = '新密码至少 8 位'; return; }
+  if(p1 !== p2){ err.textContent = '两次输入的密码不一致'; return; }
+  btn.disabled = true; btn.textContent = '绑定中…';
+  try {
+    if(!SB.client){ await sbBoot(); }
+    if(!SB.client){ err.textContent = '后端连接失败，请检查网络后重试'; return; }
+    let session = null, msg = '';
+    const up = await SB.client.auth.signUp({
+      email, password: p1,
+      options: { data: { uid: String(me), username: acc.name || '' } }
+    });
+    if(up.error){
+      msg = up.error.message || '';
+      if(/already registered|already been registered|User already registered/i.test(msg)){
+        const si = await SB.client.auth.signInWithPassword({ email, password: p1 });
+        if(si.error){
+          err.textContent = '该邮箱在后端已存在（可能你以前注册过）。请把「新密码」改成当时的后端密码再点一次完成绑定，或联系超管合并身份。';
+          return;
+        }
+        session = si.data.session;
+      } else {
+        err.textContent = '绑定失败：' + msg;
+        return;
+      }
+    } else {
+      session = up.data.session || null;
+      if(!session){
+        const si = await SB.client.auth.signInWithPassword({ email, password: p1 });
+        if(si.error){ err.textContent = '绑定未完成：' + si.error.message; return; }
+        session = si.data.session;
+      }
+    }
+    SB.session = session || null;
+    const prof = await sbResolveProfile();
+    if(!SB.profile){
+      // 触发器未回填时，前端兜底提示（不会覆盖已有账号）
+      err.textContent = '登录身份已建立，但业务资料未关联，请把这条提示发给超管处理';
+      return;
+    }
+    try { ACCOUNTS[me].email = email; } catch(e){}
+    try {
+      const r = await ghGetRecords(GH_USERS_PATH);
+      const list = r.list || [];
+      let found = false;
+      list.forEach(a => {
+        if(String(a.uid) === String(me)){ a.email = email; found = true; }
+      });
+      if(!found) list.push({ uid: String(me), name: acc.name || me, level: acc.level || '用户', email: email, balance: acc.balance || 0 });
+      await ghWriteRecords(GH_USERS_PATH, list, 'zx_user_accounts');
+    } catch(e){}
+    localStorage.removeItem(bindCodeKey());
+    bindRender();
+    sbRenderStatus();
+    toastMsg('绑定成功，云端同步已启用');
+    closeBind();
+  } catch(e){
+    err.textContent = '绑定异常：' + (e.message || String(e));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '完成绑定';
+  }
 }
 
 function sbStatusTap(){
