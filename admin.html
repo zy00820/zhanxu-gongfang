@@ -967,6 +967,7 @@ option{background:#fff;color:#1f2937}
       <div class="subtab" data-view="staffSvc" data-sub="staff">员工管理</div>
       <div class="subtab" data-view="staffSvc" data-sub="ticket">公单处理</div>
       <div class="subtab" data-view="staffSvc" data-sub="dev">开发者管理</div>
+      <div class="subtab" data-view="staffSvc" data-sub="log" id="subtabLog" style="display:none">运行日志</div>
       <div class="subtab" data-view="users" data-sub="userList">用户列表</div>
       <div class="subtab" data-view="users" data-sub="staffList">管理员</div>
       <div class="subtab" data-view="users" data-sub="userAnn">用户公告</div>
@@ -1067,6 +1068,26 @@ option{background:#fff;color:#1f2937}
       <div id="devManageList"></div>
     </div>
 
+    <!-- 运行日志（仅超管） -->
+    <div id="sub-log" style="display:none">
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#111827">运行日志</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:3px">全员行为上报，仅超级管理员可见 · 最近 300 条</div>
+          </div>
+          <button onclick="renderAudit(true)" style="padding:8px 13px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.35);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button data-audf="all" onclick="auditFilterTap('all')" style="padding:7px 12px;border-radius:8px;background:rgba(115,184,255,0.18);border:1px solid rgba(115,184,255,0.35);color:#2563eb;font-size:12px;cursor:pointer">全部</button>
+          <button data-audf="auth" onclick="auditFilterTap('auth')" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#6b7280;font-size:12px;cursor:pointer">登录注册</button>
+          <button data-audf="content" onclick="auditFilterTap('content')" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#6b7280;font-size:12px;cursor:pointer">内容互动</button>
+          <button data-audf="money" onclick="auditFilterTap('money')" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#6b7280;font-size:12px;cursor:pointer">资金</button>
+          <button data-audf="manage" onclick="auditFilterTap('manage')" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#6b7280;font-size:12px;cursor:pointer">管理与群聊</button>
+        </div>
+      </div>
+      <div class="card"><div id="auditList"></div></div>
+    </div>
     </div><!-- /view-staffSvc -->
 
     <!-- 发帖 -->
@@ -1674,6 +1695,8 @@ async function showApp(u){
   const staffTabEl = document.querySelector('.tab[data-view="staffSvc"]');
   const isStaff = acc.level !== '用户';
   if(staffTabEl) staffTabEl.style.display = isStaff ? '' : 'none';
+  const logSub = document.getElementById('subtabLog');
+  if(logSub) logSub.style.display = currentIsSuper ? '' : 'none';
   if(!isStaff){
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
@@ -1919,12 +1942,13 @@ async function doLogin(){
   if(!acc){ await loadRemoteAccounts(); acc = ACCOUNTS[u]; }
   if(!acc){ err.textContent = '账号或密码错误'; return; }
   const h = await sha256(p);
-  if(h !== acc.hash){ err.textContent = '账号或密码错误'; return; }
+  if(h !== acc.hash){ logAct('login_fail', u, '密码错误'); err.textContent = '账号或密码错误'; return; }
   await loadBans();
   if(isBanned(u)){ err.textContent = '该账号已被封禁，无法登录'; return; }
   sessionStorage.setItem('zx_user', u);
   err.textContent = '';
   try { localStorage.setItem('zx_saved_login', JSON.stringify({ uid: u, ts: Date.now() })); } catch(e){}
+  logAct('login', u, '账号密码登录成功');
   try { sbBindSession(u, (ACCOUNTS[u] || {}).email, p); } catch(e){}
   showApp(u);
 }
@@ -1946,6 +1970,7 @@ async function autoLogin(){
 setTimeout(autoLogin, 900);
 setTimeout(()=>{ loadWallets().then(()=>{ try { renderStaff(ACCOUNTS[myUid()] || {level:''}); } catch(e){} }); }, 600);
 function doLogout(){
+  logAct('logout', myUid(), '主动退出登录');
   sessionStorage.removeItem('zx_user');
   try { localStorage.removeItem('zx_saved_login'); } catch(e){}
   document.getElementById('inpPwd').value = '';
@@ -2073,10 +2098,11 @@ document.querySelectorAll('.subtab').forEach(s=>{
     s.classList.add('active');
     const v = s.dataset.view;
     if(v==='staffSvc'){
-      ['ann','staff','ticket','dev'].forEach(k=>{
+      ['ann','staff','ticket','dev','log'].forEach(k=>{
         const el = document.getElementById('sub-'+k);
         if(el) el.style.display = k===s.dataset.sub ? 'block' : 'none';
       });
+      if(s.dataset.sub === 'log') renderAudit();
       if(s.dataset.sub === 'ann') renderActivities();
       if(s.dataset.sub === 'dev') renderDevManage();
       if(s.dataset.sub === 'ticketSubmit') renderMyTickets();
@@ -2571,6 +2597,7 @@ async function submitFeedback(){
   };
   try { await ghAppendRecord(GH_FEEDBACK_PATH, rec, 'zx_feedback_records'); }
   catch(e){ const l = JSON.parse(localStorage.getItem('zx_feedback_records')||'[]'); l.push(rec); localStorage.setItem('zx_feedback_records', JSON.stringify(l)); }
+  logAct('feedback_submit', '反馈', String((rec&&rec.content)||'').slice(0,60));
   closeFeedback(); toastMsg('反馈已提交，感谢你的建议');
 }
 async function renderFeedbackPanel(force){
@@ -2932,6 +2959,7 @@ async function wdNext(){
     };
     try {
       await ghAppendRecord(GH_RECORD_PATH, rec, 'zx_wd_records');
+      logAct('withdraw_apply', '提现 ¥' + Number(rec.amount).toFixed(2), wdData.channel + ' · ' + rec.payAccount);
       closeWithdraw();
       toastMsg('提现申请已云端同步，换设备也可解析');
     } catch(e){
@@ -3303,6 +3331,7 @@ async function doRegister(){
     ACCOUNTS[uid] = { hash: hash, name: name, level: '用户', keyHash: keyHash, balance: 0 };
     initNormalUsers();
     renderUsers('');
+    logAct('register', uid, '昵称 ' + name + ' · 邮箱 ' + email);
     localStorage.removeItem('zx_email_code');
     document.getElementById('regName').value = '';
     document.getElementById('regEmail').value = '';
@@ -3898,6 +3927,7 @@ async function submitPostV2(){
     closePostEditor(); renderPosts(postsCache);
     const st0 = document.getElementById('statPosts');
     if(st0) st0.textContent = postsCache.length;
+    logAct('post_create', '帖子', '「' + (rec.title||'无标题') + '」' + (sbOk ? '·后端' : '·云端'));
     toastMsg(sbOk ? '帖子已发布，已写入后端' : '帖子已发布并云端同步');
   } catch(e){
     if(sbOk){ localStorage.setItem(lastKey, String(now.getTime()));
@@ -4074,6 +4104,7 @@ async function submitTicket(){
   document.getElementById('tkContent').value = '';
   document.getElementById('tkContact').value = '';
   err.textContent = '';
+  logAct('ticket_submit', '工单 ' + rec.id, category + ' · ' + title);
   toastMsg('工单已提交，工作人员会尽快处理');
   renderMyTickets();
 }
@@ -4869,6 +4900,7 @@ async function submitDm(){
     await ghAppendRecord(GH_DM_PATH, rec, 'zx_dms');
     dmCache.push(rec);
     dmLoaded = true;
+    logAct('dm_send', '私信给 ' + dmPeer, text.slice(0,60));
     toastMsg('私信已发送并云端同步');
   } catch(e){
     dmCache.push(rec);
@@ -5298,6 +5330,7 @@ async function setUserBan(uid, banned){
   applyBans();
   initNormalUsers();
   renderUsers(window._userSearchKw || '');
+  logAct(banned ? 'user_ban' : 'user_unban', uid, banned ? '封禁账号' : '解除封禁');
   return true;
 }
 async function profileBanAction(){
@@ -5410,6 +5443,7 @@ async function createGroup(){
   };
   try {
     await ghAppendRecord(GH_GROUP_PATH, rec, 'zx_groups');
+    logAct('group_create', '群 ' + rec.gid, '「' + name + '」成员 ' + rec.members.length + ' 人');
   } catch(e){
     let local = []; try { local = JSON.parse(localStorage.getItem('zx_groups')||'[]'); } catch(x){}
     local.push(rec); localStorage.setItem('zx_groups', JSON.stringify(local));
@@ -5623,6 +5657,7 @@ async function grpDissolve(gid){
   if(!ok) return;
   groupCache = groupCache.filter(x=>x.gid !== gid);
   try { await persistGroups(); } catch(e){ toastMsg('保存失败，请检查网络'); return; }
+  logAct('group_dissolve', '群 ' + gid, '「' + (g.name||'') + '」已解散');
   try {
     gmsgCache = (gmsgCache||[]).filter(m=>m && m.gid !== gid);
     await ghWriteRecords(GH_GMSG_PATH, gmsgCache, 'zx_gmsgs');
@@ -5648,6 +5683,7 @@ async function grpAddMember(gid){
   if((g.members||[]).length >= GROUP_LIMIT){ toastMsg('群成员已达上限 30 人'); return; }
   g.members.push(uid);
   try { await persistGroups(); toastMsg('已加入群聊'); } catch(e){ toastMsg('保存失败，请检查网络'); return; }
+  logAct('group_member_add', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 加入群聊');
   renderGrpSetting(); renderDmCenterPage();
 }
 async function grpRemoveMember(gid, uid){
@@ -5661,6 +5697,7 @@ async function grpRemoveMember(gid, uid){
   g.members = (g.members||[]).filter(x=>x!==uid);
   g.admins = (g.admins||[]).filter(x=>x!==uid);
   try { await persistGroups(); toastMsg('已移出群聊'); } catch(e){ toastMsg('保存失败'); return; }
+  logAct('group_member_del', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 被移出群聊');
   renderGrpSetting(); renderDmCenterPage();
 }
 async function grpPromote(gid, uid){
@@ -5671,6 +5708,7 @@ async function grpPromote(gid, uid){
   if(!g.admins) g.admins = [];
   if(g.admins.indexOf(uid) < 0) g.admins.push(uid);
   try { await persistGroups(); toastMsg('已设为群管理员'); } catch(e){ toastMsg('保存失败'); return; }
+  logAct('group_admin_add', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 设为管理员');
   renderGrpSetting();
 }
 async function grpDemote(gid, uid){
@@ -5679,6 +5717,7 @@ async function grpDemote(gid, uid){
   if(g.owner !== myUid()){ toastMsg('只有群主可以设置管理员'); return; }
   g.admins = (g.admins||[]).filter(x=>x!==uid);
   try { await persistGroups(); toastMsg('已取消管理员'); } catch(e){ toastMsg('保存失败'); return; }
+  logAct('group_admin_del', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 取消管理员');
   renderGrpSetting();
 }
 
@@ -5754,6 +5793,7 @@ async function claimFromView(){
   const key=_pv.chat==='dm'?'zx_dms':'zx_gmsgs';
   try{ await ghWriteRecords(path,arr,key); }catch(e){ localStorage.setItem(key,JSON.stringify(arr)); }
   if(acc) acc.balance=cur+amount;
+  logAct('packet_claim', '红包 ' + ((m.packet&&m.packet.name)||''), '领取 ¥' + Number(amount).toFixed(2));
   const myBal=document.getElementById('myBalance');
   if(myBal) myBal.textContent='¥'+(cur+amount).toFixed(2);
   document.getElementById('pvResSender').textContent=m.fromName||m.from||'—';
@@ -5952,6 +5992,7 @@ async function _finalizeRpInner(){
     catch(e){ gmsgCache.push(rec); gmsgsLoaded=true; localStorage.setItem('zx_gmsgs', JSON.stringify(gmsgCache)); }
     closePay(); openGroupChat(gchatGid);
   }
+  logAct('packet_send', (type==='dm'?('私信给 '+dmPeer):('群 '+gchatGid)), label + '「' + _rpDraft.name + '」' + amount.toFixed(2));
   toastMsg('红包已发送');
 }
 
@@ -5967,6 +6008,7 @@ async function submitGroupMsg(){
   try {
     await ghAppendRecord(GH_GMSG_PATH, rec, 'zx_gmsgs');
     gmsgCache.push(rec); gmsgsLoaded = true;
+    logAct('group_msg', '群 ' + gchatGid, text.slice(0,60));
   } catch(e){
     gmsgCache.push(rec); gmsgsLoaded = true;
     localStorage.setItem('zx_gmsgs', JSON.stringify(gmsgCache));
@@ -6164,6 +6206,7 @@ async function sbBoot(){
     SB.ready = false;
   }
   SB.loading = false;
+  try { auditFlush(); } catch(e){}
   sbRenderStatus();
 }
 
@@ -6207,6 +6250,112 @@ function sbRenderStatus(){
   el.textContent = txt;
   el.style.color = color;
   try { bindRender(); } catch(e){}
+}
+
+/* ===== 运行日志：全员行为上报（仅超管可查） ===== */
+const AUDIT_LABEL = {
+  login:'登录', login_fail:'登录失败', logout:'退出登录', register:'注册账号',
+  post_create:'发布帖子', post_delete:'删除帖子',
+  dm_send:'发送私信', group_msg:'群聊发言',
+  packet_send:'发红包', packet_claim:'领红包',
+  group_create:'创建群聊', group_dissolve:'解散群聊',
+  group_admin_add:'设置管理员', group_admin_del:'取消管理员',
+  group_member_add:'加入群成员', group_member_del:'移出群成员',
+  user_ban:'封禁账号', user_unban:'解除封禁',
+  ticket_submit:'提交工单', feedback_submit:'提交反馈',
+  withdraw_apply:'申请提现', backend_bind:'绑定后端账号',
+  balance_adjust:'调整余额', recover_login:'安全密钥登录'
+};
+const _auditQueue = [];
+function auditFlush(){
+  if(!SB.client || !_auditQueue.length) return;
+  const q = _auditQueue.splice(0, _auditQueue.length);
+  q.forEach(row=>{ try{ SB.client.from('audit_logs').insert(row).then(()=>{}).catch(()=>{}); }catch(e){} });
+}
+function logAct(action, target, detail){
+  try{
+    const me = myUid() || 'anon';
+    const row = {
+      uid: String(me),
+      username: String(((ACCOUNTS[me]||{}).name) || me),
+      action: String(action||'').slice(0,40),
+      target: String(target==null?'':target).slice(0,120),
+      detail: String(detail==null?'':detail).slice(0,300),
+      page: String(((document.querySelector('.view.active')||{}).id) || ''),
+      ua: String(navigator.userAgent||'').slice(0,120)
+    };
+    if(!SB.client){ _auditQueue.push(row); if(_auditQueue.length > 30) _auditQueue.shift(); return; }
+    SB.client.from('audit_logs').insert(row).then(()=>{}).catch(()=>{});
+  }catch(e){}
+}
+/* ===== 运行日志查看（仅超管） ===== */
+let _auditCache = [], _auditFilter = 'all', _auditLoaded = false;
+async function loadAudit(force){
+  if(_auditLoaded && !force) return _auditCache;
+  if(!SB.client) return [];
+  const r = await SB.client.from('audit_logs')
+    .select('id,uid,username,action,target,detail,page,created_at')
+    .order('created_at', { ascending: false }).limit(300);
+  if(r.error){ _auditCache = []; return []; }
+  _auditCache = r.data || [];
+  _auditLoaded = true;
+  return _auditCache;
+}
+function auditFilterTap(k){
+  _auditFilter = k;
+  document.querySelectorAll('[data-audf]').forEach(x=>{
+    const on = x.dataset.audf === k;
+    x.style.background = on ? 'rgba(115,184,255,0.18)' : 'rgba(255,255,255,0.06)';
+    x.style.color = on ? '#2563eb' : '#6b7280';
+  });
+  renderAudit();
+}
+function auditTime(t){
+  try{
+    const d = new Date(t);
+    const p2 = n => String(n).padStart(2,'0');
+    return p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds());
+  }catch(e){ return String(t||''); }
+}
+async function renderAudit(force){
+  const box = document.getElementById('auditList');
+  if(!box) return;
+  if(!currentIsSuper){
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:22px">仅超级管理员可查看运行日志</div>';
+    return;
+  }
+  if(!SB.session){
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:22px">需要先绑定后端账号并登录，才能读取云端日志</div>';
+    return;
+  }
+  box.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:13px;padding:18px">加载中…</div>';
+  let list = [];
+  try { list = await loadAudit(force); } catch(e){ list = []; }
+  if(_auditFilter !== 'all'){
+    list = list.filter(r=>{
+      if(_auditFilter === 'auth') return /^login|logout|register|backend_bind|recover/.test(r.action||'');
+      if(_auditFilter === 'content') return /^post_|dm_send|group_msg/.test(r.action||'');
+      if(_auditFilter === 'money') return /^packet_|withdraw|balance_adjust/.test(r.action||'');
+      if(_auditFilter === 'manage') return /^group_|user_ban|user_unban|ticket_submit|feedback_submit/.test(r.action||'');
+      return true;
+    });
+  }
+  if(!list.length){ box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:22px">暂无日志记录</div>'; return; }
+  box.innerHTML = list.map(r=>{
+    const lb = AUDIT_LABEL[r.action] || r.action || '操作';
+    const nm = String(r.username||r.uid||'未知').replace(/</g,'&lt;');
+    const tg = String(r.target||'').replace(/</g,'&lt;');
+    const dt = String(r.detail||'').replace(/</g,'&lt;');
+    const color = /fail|ban|dissolve|delete/.test(r.action||'') ? '#f87171' : (/claim|add|create|bind|login$/.test(r.action||'') ? '#34d399' : '#2563eb');
+    return '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)">'+
+      '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">'+
+        '<span style="font-size:13px;color:'+color+';font-weight:600">'+lb+'</span>'+
+        '<span style="font-size:11px;color:#6b7280;flex-shrink:0">'+auditTime(r.created_at)+'</span>'+
+      '</div>'+
+      '<div style="font-size:12px;color:#4b5563;margin-top:3px;overflow:hidden;text-overflow:ellipsis">'+nm+' · '+(r.uid||'')+(tg?(' · '+tg):'')+'</div>'+
+      (dt?('<div style="font-size:11px;color:#9ca3af;margin-top:2px;line-height:1.6">'+dt+'</div>'):'')+
+    '</div>';
+  }).join('');
 }
 
 /* ===== 自助绑定后端账号：旧体系账号 → 云端登录身份 ===== */
@@ -6347,6 +6496,7 @@ async function bindSubmit(){
     localStorage.removeItem(bindCodeKey());
     bindRender();
     sbRenderStatus();
+    logAct('backend_bind', '账号 ' + me, '绑定邮箱 ' + email);
     toastMsg('绑定成功，云端同步已启用');
     closeBind();
   } catch(e){
