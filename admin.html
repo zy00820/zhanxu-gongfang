@@ -380,8 +380,8 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.8 更新</div>
-        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 设置页新增「绑定后端账号」，用户与管理员可自助绑定<br>· 绑定后余额、资料、聊天自动云端同步</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.9 更新</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 发红包防连点，只扣一次费、只留一条消息<br>· 历史连发红包自动合并显示</div>
       </div>
     </div>
 
@@ -526,7 +526,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.8</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.9</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -1150,7 +1150,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.8</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.9</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -4097,6 +4097,11 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.1.9', date: '2026-11-21', items: [
+      '发红包增加防连点：点确认后按钮立即锁定，发送未完成前的重复点击一律忽略，只扣一次费',
+      '每个红包带唯一编号，同一红包重复提交会被识别并拦截，不会再生成多条消息',
+      '历史遗留的连发红包（无名、同额、同一发送人 10 秒内）在聊天中自动合并为一条，并标注「连发 N 次」'
+    ]},
     { ver: 'v1.1.8', date: '2026-11-21', items: [
       '设置页新增「绑定后端账号」：旧体系注册的账号（含管理员）输入邮箱、收验证码、设置新密码即可建好云端登录身份，原账号余额与资料全部保留',
       '绑定成功后同一账号可在任意设备用邮箱+密码登录，数据自动云端同步；未绑定的账号仍按原方式登录',
@@ -5688,9 +5693,10 @@ function bubbleInner(m){
     const cl=m.packet.claimed&&m.packet.claimed[me];
     const kind=(m.packet.type==='group')?'拼手气红包':'普通红包';
     const sub=cl?('已领取 ¥'+Number(cl.amount||0).toFixed(2)):kind;
+    const dup = (m.dupCount && m.dupCount > 1) ? (' · 连发'+m.dupCount+'次') : '';
     return '<div style="font-size:20px;margin-bottom:4px">🧧</div>'+
       '<div style="font-weight:600;margin-bottom:2px">'+rpEsc(m.packet.name)+'</div>'+
-      '<div style="font-size:11px;opacity:.75">'+sub+'</div>';
+      '<div style="font-size:11px;opacity:.75">'+sub+dup+'</div>';
   }
   return '<div>'+String(m.text||'').replace(/</g,'&lt;')+'</div>';
 }
@@ -5728,6 +5734,7 @@ function submitRpDraft(){
   if(!isDm && (!count || count<1)){ err.textContent='红包个数至少为 1'; return; }
   if(!total || total<=0){ err.textContent='请填写有效的金额'; return; }
   _rpDraft.name=name; _rpDraft.count=count; _rpDraft.total=total.toFixed(2);
+  _rpDraft.rid='pk'+Date.now()+Math.random().toString(36).slice(2,7);
   closeRp(); openPay();
 }
 
@@ -5823,7 +5830,15 @@ async function rpConfirmPay(){
   await finalizeRp();
 }
 
+let _rpSending=false;
 async function finalizeRp(){
+  if(!_rpDraft) return;
+  if(_rpSending) return;                 // 连点保护：发送中直接忽略后续点击
+  _rpSending=true;
+  try { await _finalizeRpInner(); }
+  finally { _rpSending=false; }
+}
+async function _finalizeRpInner(){
   if(!_rpDraft) return;
   const me=myUid();
   const type=_rpDraft.chat;
@@ -5832,6 +5847,12 @@ async function finalizeRp(){
   const label=type==='dm'?'普通红包':'拼手气红包';
   const text='['+label+'] '+_rpDraft.name;
   const packet={ name:_rpDraft.name, count:_rpDraft.count, total:_rpDraft.total, type:type };
+  const rid=_rpDraft.rid||'';
+  const dupList=type==='dm'?dmCache:gmsgCache;
+  if(rid && Array.isArray(dupList) && dupList.some(m=>m && m.rid===rid)){
+    closePay(); toastMsg('这个红包已经发出去了，不会重复扣费');
+    return;
+  }
   const amount=Number(_rpDraft.total)||0;
   const cur=Number((ACCOUNTS[me]||{}).balance||0);
   if(amount<=0){ toastMsg('红包金额无效'); return; }
@@ -5846,12 +5867,12 @@ async function finalizeRp(){
   if(uaBal) uaBal.textContent='¥'+newBal.toFixed(2);
   if(_rpDraft.chat==='dm'){
     const acc=ACCOUNTS[dmPeer]||{};
-    const rec={ from:me, fromName:myName(), to:dmPeer, toName:acc.name||dmPeer, text:text, packet:packet, time:dmTime(Date.now()), ts:Date.now() };
+    const rec={ from:me, fromName:myName(), to:dmPeer, toName:acc.name||dmPeer, text:text, packet:packet, time:dmTime(Date.now()), ts:Date.now(), rid:rid };
     try{ await ghAppendRecord(GH_DM_PATH, rec, 'zx_dms'); dmCache.push(rec); dmLoaded=true; }
     catch(e){ dmCache.push(rec); dmLoaded=true; localStorage.setItem('zx_dms', JSON.stringify(dmCache)); }
     closePay(); openDm(dmPeer);
   } else {
-    const rec={ gid:gchatGid, from:me, fromName:(ACCOUNTS[me]||{}).name||me, text:text, packet:packet, time:dmTime(Date.now()), ts:Date.now() };
+    const rec={ gid:gchatGid, from:me, fromName:(ACCOUNTS[me]||{}).name||me, text:text, packet:packet, time:dmTime(Date.now()), ts:Date.now(), rid:rid };
     try{ await ghAppendRecord(GH_GMSG_PATH, rec, 'zx_gmsgs'); gmsgCache.push(rec); gmsgsLoaded=true; }
     catch(e){ gmsgCache.push(rec); gmsgsLoaded=true; localStorage.setItem('zx_gmsgs', JSON.stringify(gmsgCache)); }
     closePay(); openGroupChat(gchatGid);
@@ -6376,10 +6397,25 @@ async function bootLoadAll(){
 function dedupeChatMsgs(list, scope){
   const seen = new Set();
   const out = [];
+  const bucket = new Map();   // 旧数据没有 rid：同一发送人、同名同额、10 秒内的连点合并为一条并标 xN
   (list || []).forEach(m => {
-    const key = m.packet
-      ? scope + '|p|' + String(m.ts) + '|' + String(m.from) + '|' + String((m.packet && m.packet.name) || '')
-      : scope + '|m|' + String(m.ts) + '|' + String(m.from) + '|' + String(m.text || '');
+    if(m && m.packet){
+      const pk = m.packet || {};
+      const key = m.rid
+        ? scope + '|r|' + String(m.rid)
+        : scope + '|p|' + String(m.ts) + '|' + String(m.from) + '|' + String(pk.name || '');
+      if(seen.has(key)) return;
+      seen.add(key);
+      if(m.rid){
+        const cp = Object.assign({}, m); cp.dupCount = 1; out.push(cp); return;
+      }
+      const gk = scope + '|g|' + String(m.from) + '|' + String(pk.name || '') + '|' + String(pk.total || '') + '|' + String(m.to || m.gid || '') + '|' + String(Math.floor((m.ts || 0) / 10000));
+      const prev = bucket.get(gk);
+      if(prev){ prev.dupCount = (prev.dupCount || 1) + 1; return; }
+      const cp = Object.assign({}, m); cp.dupCount = 1; bucket.set(gk, cp); out.push(cp);
+      return;
+    }
+    const key = scope + '|m|' + String(m && m.ts) + '|' + String(m && m.from) + '|' + String((m && m.text) || '');
     if(seen.has(key)) return;
     seen.add(key);
     out.push(m);
