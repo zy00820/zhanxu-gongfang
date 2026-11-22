@@ -4741,7 +4741,7 @@ async function openProfileFor(uid){
   document.getElementById('profileMask').style.display = 'block';
 }
 
-// ===== 私信（云端 dm-records.json，与社区发帖同一套读写） =====
+// ===== 私信：后端 dm_messages 优先，旧 GitHub JSON 仅作历史只读 =====
 const GH_DM_PATH = 'dm-records.json';
 let dmPeer = null;      // null = 私信中心
 let dmCache = [];
@@ -4754,19 +4754,64 @@ function dmTime(ts){
   return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes());
 }
 let dmLoaded = false;
+
+function sbDmRowToM(r){
+  const ts = r.created_at ? new Date(r.created_at).getTime() : 0;
+  const from = String(r.from_uid), to = String(r.to_uid);
+  return {
+    from: from, fromName: ((ACCOUNTS[from]||{}).name || from),
+    to: to, toName: ((ACCOUNTS[to]||{}).name || to),
+    text: r.text || '', time: ts ? dmTime(ts) : '', ts: ts,
+    packet_id: r.packet_id || null, backend: true
+  };
+}
+async function sbLoadDms(){
+  if(!SB.client || !SB.session || !SB.uid) return null;
+  try {
+    const r = await SB.client.from('dm_messages')
+      .select('id,from_uid,to_uid,text,packet_id,created_at')
+      .or('from_uid.eq.' + SB.uid + ',to_uid.eq.' + SB.uid)
+      .order('created_at', { ascending: true }).limit(2000);
+    if(r.error){ SB.err = r.error.message; return null; }
+    return (r.data||[]).map(sbDmRowToM);
+  } catch(e){ SB.err = e.message || String(e); return null; }
+}
+async function sbInsertDm(toUid, text){
+  if(!SB.client || !SB.session || !SB.uid) return false;
+  try {
+    const r = await SB.client.from('dm_messages')
+      .insert({ from_uid: SB.uid, to_uid: String(toUid), text: String(text||'') });
+    if(r.error){ SB.err = r.error.message; return false; }
+    return true;
+  } catch(e){ SB.err = e.message || String(e); return false; }
+}
+async function sbClearDmPeer(peerUid){
+  if(!SB.client || !SB.session || !SB.uid) return false;
+  try {
+    const r = await SB.client.from('dm_messages').delete()
+      .or('and(from_uid.eq.' + SB.uid + ',to_uid.eq.' + peerUid + '),and(from_uid.eq.' + peerUid + ',to_uid.eq.' + SB.uid + ')');
+    if(r.error){ SB.err = r.error.message; return false; }
+    return true;
+  } catch(e){ SB.err = e.message || String(e); return false; }
+}
 async function loadDmData(force){
   if(dmLoaded && !force) return dmCache;
-  let list = [];
+  let db = null;
+  try { db = await sbLoadDms(); } catch(e){ db = null; }
+  let legacy = [];
   try {
     const r = await ghGetRecords(GH_DM_PATH);
-    list = r.list || [];
-    localStorage.setItem('zx_dms', JSON.stringify(list));
-  } catch(e){
-    try { list = JSON.parse(localStorage.getItem('zx_dms')||'[]'); } catch(x){ list = []; }
-  }
-  dmCache = list;
+    legacy = (r.list || []).filter(m => m && (m.from || m.to));
+  } catch(e){ legacy = []; }
+  // 旧记录里的红包消息（含 packet 载荷）仍保留；文本消息以后端为准
+  const keyOf = m => String(m.from)+'|'+String(m.to)+'|'+String(Math.round((m.ts||0)/1000))+'|'+String((m.text||'').slice(0,40));
+  const map = new Map();
+  legacy.forEach(m => map.set(keyOf(m), m));
+  (db || []).forEach(m => { if(!map.has(keyOf(m))) map.set(keyOf(m), m); });
+  dmCache = [...map.values()];
+  try { localStorage.setItem('zx_dms', JSON.stringify(dmCache)); } catch(e){}
   dmLoaded = true;
-  return list;
+  return dmCache;
 }
 function profileDmAction(){
   const uid = window._pfUid || '';
@@ -4898,23 +4943,34 @@ async function submitDm(){
   const text = input.value.trim();
   if(!text){ toastMsg('请输入私信内容'); return; }
   const acc = ACCOUNTS[dmPeer] || {};
+  const ts = Date.now();
   const rec = {
     from: me, fromName: myName(),
     to: dmPeer, toName: acc.name || dmPeer,
-    text: text, time: dmTime(Date.now()), ts: Date.now()
+    text: text, time: dmTime(ts), ts: ts, backend: false
   };
   input.value = '';
-  try {
-    await ghAppendRecord(GH_DM_PATH, rec, 'zx_dms');
+  let dbOk = false;
+  try { dbOk = await sbInsertDm(dmPeer, text); } catch(e){ dbOk = false; }
+  if(dbOk){
+    rec.backend = true;
     dmCache.push(rec);
     dmLoaded = true;
     logAct('dm_send', '私信给 ' + dmPeer, text.slice(0,60));
     toastMsg('私信已发送并云端同步');
-  } catch(e){
-    dmCache.push(rec);
-    dmLoaded = true;
-    localStorage.setItem('zx_dms', JSON.stringify(dmCache));
-    toastMsg('网络异常，已先存本地');
+  } else {
+    try {
+      await ghAppendRecord(GH_DM_PATH, rec, 'zx_dms');
+      dmCache.push(rec);
+      dmLoaded = true;
+      logAct('dm_send', '私信给 ' + dmPeer, text.slice(0,60));
+      toastMsg('已发送，本地兜底保存');
+    } catch(e){
+      dmCache.push(rec);
+      dmLoaded = true;
+      localStorage.setItem('zx_dms', JSON.stringify(dmCache));
+      toastMsg('网络异常，已先存本地');
+    }
   }
   openDm(dmPeer);
 }
@@ -5623,9 +5679,11 @@ async function clearDmPeer(uid){
   const ok = await glassConfirm('清空聊天记录', '确认清空与「' + ((ACCOUNTS[uid]||{}).name||uid) + '」的全部私信？删除后不可恢复');
   if(!ok) return;
   dmCache = dmCache.filter(m=>!((m.from===me&&m.to===uid)||(m.from===uid&&m.to===me)));
+  let dbOk = false;
+  try { dbOk = await sbClearDmPeer(uid); } catch(e){ dbOk = false; }
   try {
     await ghWriteRecords(GH_DM_PATH, dmCache, 'zx_dms');
-    toastMsg('聊天记录已清空');
+    toastMsg(dbOk ? '聊天记录已清空' : '云端清理失败，已清本地缓存');
   } catch(e){ toastMsg('保存失败，请检查网络'); }
   openDmSetting(uid);
   renderDmCenterPage();
