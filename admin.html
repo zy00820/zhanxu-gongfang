@@ -4408,7 +4408,8 @@ function renderChangelog(){
       '超管新增审核中心：分「开发者申请」和「应用 / 表盘」两个二级菜单',
       '超管新增应用中心管理，可控制上架应用的公开与隐藏',
       '邮箱验证后可重置密码；登录云端连接提速，会话自动重试恢复',
-      '修复超管登录后因临时网络波动被误降为普通用户的问题，角色以后端资料为准校正'
+      '修复超管登录后因临时网络波动被误降为普通用户的问题，角色以后端资料为准校正',
+      '登录绑定前清除旧会话，网络抖动自动重试一次；云端状态弹窗可查看完整错误原因'
     ]},
     { ver: 'v1.1.9', date: '2026-11-21', items: [
       '发红包增加防连点：点确认后按钮立即锁定，发送未完成前的重复点击一律忽略，只扣一次费',
@@ -6803,11 +6804,26 @@ async function sbWaitAndBind(uid, email, password){
 // 登录成功后把旧账号的邮箱/密码绑到 Supabase Auth，静默进行，失败不影响原登录
 async function sbBindSession(uid, email, password){
   if(!SB.client || !email || !password) return;
-  try{
-    const r = await SB.client.auth.signInWithPassword({ email, password });
-    if(r.error){
-      const msg = r.error.message || '';
-      if(/invalid login credentials|email not confirmed/i.test(msg)){
+  try { try{ await SB.client.auth.signOut(); }catch(e){} } catch(e){}
+  let r;
+  try {
+    r = await SB.client.auth.signInWithPassword({ email, password });
+    // 网络抖动 / 超时：重试一次再判定失败
+    if(r.error && /network|timeout|timed out|fetch|Load failed|Failed to fetch/i.test(r.error.message || '')){
+      await new Promise(x=>setTimeout(x, 800));
+      r = await SB.client.auth.signInWithPassword({ email, password });
+    }
+  } catch(e){
+    SB.err = e.message || String(e);
+    sbRenderStatus();
+    return;
+  }
+  if(!r.error){
+    SB.session = r.data.session;
+  } else {
+    const msg = r.error.message || '';
+    if(/invalid login credentials|email not confirmed/i.test(msg)){
+      try {
         const up = await SB.client.auth.signUp({
           email, password,
           options: { data: { uid: uid, username: (ACCOUNTS[uid] || {}).name || '' } }
@@ -6819,20 +6835,18 @@ async function sbBindSession(uid, email, password){
         } else {
           SB.session = up.data.session || null;
         }
-      } else {
-        SB.err = msg;
-      }
+      } catch(e2){ SB.err = e2.message || String(e2); }
     } else {
-      SB.session = r.data.session;
+      SB.err = msg;
     }
-    if(SB.session){
+  }
+  if(SB.session){
+    await sbResolveProfile();
+    if(!SB.profile){
+      await new Promise(r=>setTimeout(r, 600));
       await sbResolveProfile();
-      if(!SB.profile){
-        await new Promise(r=>setTimeout(r, 600));
-        await sbResolveProfile();
-      }
     }
-  }catch(e){ SB.err = e.message || String(e); }
+  }
   sbRenderStatus();
 }
 
@@ -7205,7 +7219,7 @@ function sbStatusTap(){
     '余额：' + (SB.profile ? SB.profile.balance : '—'),
     '错误：' + (SB.err || '无')
   ];
-  toastMsg(lines.join(' ｜ '));
+  try { glassAlert('云端后端状态', lines.join('\n')); } catch(e){ toastMsg(lines.join(' ｜ ')); }
 }
 
 /* ===== 帖子读写走 Supabase（GitHub JSON 作为过渡备份） ===== */
