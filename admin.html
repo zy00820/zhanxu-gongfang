@@ -1331,16 +1331,27 @@ option{background:#fff;color:#1f2937}
             <a onclick="goDevPage('home')" style="font-size:12px;color:#2563eb;cursor:pointer">返回首页</a>
           </div>
           <div style="display:flex;gap:8px;margin-bottom:10px">
-            <select id="devType" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
+            <select id="devType" onchange="const t=this.value;const c=document.getElementById('devCategory');if(t==='表盘')c.value='表盘';else if(c.value==='表盘')c.value='应用'" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
               <option value="应用">应用</option>
               <option value="表盘">表盘</option>
             </select>
             <input id="devName" placeholder="名称" style="flex:1.4;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
           </div>
-          <div style="display:flex;gap:8px;margin-bottom:10px">
-            <input id="devVersion" placeholder="版本，如 1.0.0" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
-            <input id="devDesc" placeholder="一句话说明" style="flex:1.6;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
+          <div style="margin-bottom:10px">
+            <input id="devVersion" placeholder="版本，如 1.0.0" style="width:100%;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
           </div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:6px">应用简介</div>
+          <textarea id="devDesc" rows="3" maxlength="600" placeholder="介绍应用功能、使用场景等，最多 600 字" oninput="document.getElementById('devDescCount').textContent=this.value.length" style="width:100%;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+          <div style="font-size:11px;color:#6b7280;margin:4px 0 10px;text-align:right"><span id="devDescCount">0</span>/600</div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:6px">应用分类</div>
+          <select id="devCategory" style="width:100%;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none;margin-bottom:10px">
+            <option value="应用">应用</option>
+            <option value="表盘">表盘</option>
+            <option value="工具">工具</option>
+            <option value="娱乐">娱乐</option>
+            <option value="游戏">游戏</option>
+            <option value="运动健康">运动健康</option>
+          </select>
           <input id="devFile" type="file" accept=".rpk" style="width:100%;margin-bottom:10px;font-size:12px;color:#6b7280">
           <div style="font-size:11px;color:#6b7280;margin-bottom:10px">仅支持 .rpk 文件（栈序 OS 应用/表盘包），单个文件不超过 2MB；文件会存进仓库 dev-uploads/</div>
           <button onclick="submitDevItem()" style="width:100%;padding:11px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:9px;font-size:14px;cursor:pointer">提交审核</button>
@@ -2450,6 +2461,7 @@ function discoverItemHtml(x){
   if(x.rating) meta.push('<span>★ ' + x.rating + '</span>');
   if(x.dl != null && x.dl !== '') meta.push('<span>↓ ' + x.dl + '</span>');
   meta.push('<span class="app-tag">' + type + '</span>');
+  if(x.category && x.category !== type) meta.push('<span class="app-tag">' + escS(x.category) + '</span>');
   const action = x.url
     ? '<button class="app-action" onclick="downloadDevItem(\'' + escS(x.id) + '\')">获取</button>'
     : '<span class="app-action disabled">未上架</span>';
@@ -2616,7 +2628,7 @@ function renderMyApps(){
   mbox.innerHTML = mine.length ? mine.map(x=>
     '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-        '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + '</span></div>' +
+        '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + (x.category && x.category !== x.type ? ' · ' + String(x.category).replace(/</g,'&lt;') : '') + '</span></div>' +
         '<div style="font-size:11px;color:' + devStatusColor(x.status) + '">' + String(x.status||'') + '</div>' +
       '</div>' +
       '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.6">' + String(x.version||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '<br>' + String(x.time||'') + '</div>' +
@@ -2631,7 +2643,7 @@ function renderPendingApps(){
   pbox.innerHTML = pending.length ? pending.map(x=>
     '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-        '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + ' · ' + String(x.version||'') + '</span></div>' +
+        '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + (x.category && x.category !== x.type ? ' · ' + String(x.category).replace(/</g,'&lt;') : '') + ' · ' + String(x.version||'') + '</span></div>' +
         '<div style="font-size:11px;color:#6b7280">' + String(x.byName||x.by||'') + '</div>' +
       '</div>' +
       '<div style="font-size:11px;color:#6b7280;margin-top:4px">' + String(x.desc||'').replace(/</g,'&lt;') + ' · ' + String(x.time||'') + '</div>' +
@@ -2651,7 +2663,7 @@ function renderDevAdminApps(){
     const hidden = !!x.hidden;
     return '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-        '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + ' · ' + String(x.version||'') + '</span></div>' +
+        '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + (x.category && x.category !== x.type ? ' · ' + String(x.category).replace(/</g,'&lt;') : '') + ' · ' + String(x.version||'') + '</span></div>' +
         '<div style="font-size:11px;color:' + (hidden?'#f87171':'#34d399') + '">' + (hidden?'已隐藏':'公开') + '</div>' +
       '</div>' +
       '<div style="font-size:11px;color:#6b7280;margin-top:4px">' + String(x.byName||x.by||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '</div>' +
@@ -2719,7 +2731,8 @@ async function submitDevItem(){
   const type = document.getElementById('devType').value;
   const name = document.getElementById('devName').value.trim();
   const version = document.getElementById('devVersion').value.trim();
-  const desc = document.getElementById('devDesc').value.trim();
+  const desc = document.getElementById('devDesc').value.trim().slice(0, 600);
+  const category = document.getElementById('devCategory').value;
   const fileInput = document.getElementById('devFile');
   const file = fileInput.files && fileInput.files[0];
   if(!name){ toastMsg('请填写作品名称'); return; }
@@ -2729,6 +2742,7 @@ async function submitDevItem(){
   await loadApply();
   const approvedApply = applyCache.filter(a=>a.status === '已通过').map(a=>String(a.uid));
   const manuallyAdded = approvedApply.indexOf(String(me)) < 0;
+  const hiddenByType = (type === '表盘' || category === '表盘');
   toastMsg('正在上传，请稍候…');
   try {
     const b64 = await readFileAsBase64(file);
@@ -2737,9 +2751,9 @@ async function submitDevItem(){
     if(!r.resp || !r.resp.ok) throw new Error('上传失败 ' + ((r.resp && r.resp.status) || r.error));
     const url = GH_RAW + path.split('/').map(encodeURIComponent).join('/');
     const acc = ACCOUNTS[me] || {};
-    const rec = { id: 'DEV' + Date.now(), type: type, name: name, version: version, desc: desc,
+    const rec = { id: 'DEV' + Date.now(), type: type, category: category, name: name, version: version, desc: desc,
                   path: path, url: url, size: file.size, by: String(me), byName: acc.name || '',
-                  hidden: manuallyAdded,
+                  hidden: manuallyAdded || hiddenByType,
                   status: '待审核', time: dmTime(Date.now()), ts: Date.now() };
     devCache.push(rec);
     devLoaded = true;
@@ -2748,6 +2762,8 @@ async function submitDevItem(){
     document.getElementById('devName').value = '';
     document.getElementById('devVersion').value = '';
     document.getElementById('devDesc').value = '';
+    document.getElementById('devCategory').value = '应用';
+    const dc = document.getElementById('devDescCount'); if(dc) dc.textContent = '0';
     fileInput.value = '';
     toastMsg('已提交，等待超管审核');
     renderDevCenter();
