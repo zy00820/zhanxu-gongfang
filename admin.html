@@ -1703,6 +1703,11 @@ const ACCOUNTS = {
   "100000024": { hash: "4e3df4580adfaee149a98db292e270843331c7d5775ec073bd85e8e5439a0b6e", name: "丁义宸", level: "管理员", keyHash: "4110cf42ba9f894a3345021bf011bfefcef393fc0e393cb9811b30753eaac99c", balance: 5 }
 };
 
+// 昵称覆盖态：上移到 ACCOUNTS 之后，避免首屏渲染先访问到 TDZ 变量
+let nameOverrides = {};
+let profileExtra = {};   // uid -> { gender, email }
+let nameLoaded = false;
+
 // 登录态
 function checkAuth(){
   if(!window._staffInit){ initStaffData(); window._staffInit = true; }
@@ -1823,7 +1828,7 @@ function renderStaff(currentAcc){
   lock.style.display = isSuper ? 'none' : 'block';
   const render = ()=>{
     const kw = (window.staffSearchKw||'').trim().toLowerCase();
-    const filtered = staffData.map((s,i)=>({...s,idx:i})).filter(s=>!kw || s.name.toLowerCase().includes(kw) || s.uid.includes(kw));
+    const filtered = staffData.map((s,i)=>({...s,idx:i,name:displayName(s.uid,s.name)})).filter(s=>!kw || s.name.toLowerCase().includes(kw) || s.uid.includes(kw));
     if(filtered.length===0){ list.innerHTML='<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:24px">未找到匹配员工</div>'; return; }
     list.innerHTML = filtered.map((s)=>{
       const idx = s.idx;
@@ -2409,6 +2414,7 @@ async function renderAppCenter(force){
   const box = document.getElementById('appCenterList');
   if(!box) return;
   discoverRenderChips();
+  await loadNameOverrides();
   await loadDevItems(force);
   let list = (devCache||[]).filter(x=>x.status === '已通过' && !x.hidden);
   if(discoverKw){
@@ -2454,7 +2460,7 @@ async function downloadDevItem(id){
   }
 }
 function discoverItemHtml(x){
-  const name = escS(x.name), author = escS(x.byName || x.by), type = escS(x.type || '应用');
+  const name = escS(x.name), author = escS(displayName(x.by, x.byName)), type = escS(x.type || '应用');
   const grads = ['linear-gradient(135deg,#60a5fa,#3b82f6)','linear-gradient(135deg,#a78bfa,#7c3aed)','linear-gradient(135deg,#34d399,#10b981)'];
   const grad = grads[Math.abs(String(x.id || name).length) % 3];
   const meta = [];
@@ -4640,7 +4646,7 @@ function renderUsers(kw){
   kw = (kw||'').trim().toLowerCase();
   const list = document.getElementById('userList');
   const filtered = normalUsers
-    .map((u,i)=>({...u, idx:i}))
+    .map((u,i)=>({...u, idx:i, name:displayName(u.uid,u.name)}))
     .filter(u=>!kw || u.name.toLowerCase().includes(kw) || u.uid.includes(kw));
   if(filtered.length === 0){
     list.innerHTML = '<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:30px 16px">'+(kw?'未找到匹配用户':'暂无用户')+'</div>';
@@ -4671,7 +4677,7 @@ function renderStaffList(kw){
   if(!box) return;
   const staff = Object.entries(ACCOUNTS)
     .filter(([uid,a]) => a && a.level !== '用户')
-    .map(([uid,a]) => ({ uid, name:a.name||uid, level:a.level||'管理员' }))
+    .map(([uid,a]) => ({ uid, name:displayName(uid, a.name||uid), level:a.level||'管理员' }))
     .filter(u => !kw || u.name.toLowerCase().includes(kw) || u.uid.includes(kw));
   if(staff.length === 0){
     box.innerHTML = '<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:30px 16px">暂无管理员</div>';
@@ -6589,9 +6595,14 @@ async function submitGroupMsg(){
 
 // ===== 「我的」页面 =====
 const GH_NAME_PATH = 'profile-overrides.json';
-let nameOverrides = {};
-let profileExtra = {};   // uid -> { gender, email }
-let nameLoaded = false;
+// 昵称优先取个人修改后的覆盖名，其次账号资料，最后回退传入的旧名 / uid
+function displayName(uid, fallback){
+  const k = String(uid || '');
+  if(nameOverrides[k]) return nameOverrides[k];
+  const a = ACCOUNTS[k];
+  if(a && a.name) return a.name;
+  return fallback || k;
+}
 async function loadNameOverrides(force){
   if(nameLoaded && !force) return nameOverrides;
   try {
@@ -6754,14 +6765,28 @@ async function sbLoadSdk(){
 
 async function sbResolveProfile(){
   if(!SB.client || !SB.session) return null;
+  const cols = 'uid,auth_id,email,username,level,balance,coin,banned,role';
   try{
-    const r = await SB.client.from('profiles')
-      .select('uid,username,level,balance,coin,banned,role')
-      .eq('auth_id', SB.session.user.id)
-      .maybeSingle();
+    let r = await SB.client.from('profiles').select(cols).eq('auth_id', SB.session.user.id).maybeSingle();
     if(r.error){ SB.err = r.error.message; return null; }
-    SB.profile = r.data || null;
-    SB.uid = r.data ? r.data.uid : null;
+    let data = r.data;
+    // 兜底：auth_id 没对上（旧数据 / 身份刚绑定）时，按邮箱、再按当前业务账号查找
+    if(!data){
+      const email = SB.session.user && SB.session.user.email;
+      if(email){
+        const re = await SB.client.from('profiles').select(cols).eq('email', email).maybeSingle();
+        if(!re.error) data = re.data;
+      }
+    }
+    if(!data){
+      const uid = myUid();
+      if(uid){
+        const ru = await SB.client.from('profiles').select(cols).eq('uid', String(uid)).maybeSingle();
+        if(!ru.error) data = ru.data;
+      }
+    }
+    SB.profile = data || null;
+    SB.uid = data ? data.uid : null;
     SB.err = null;
     _roleProbeDone = null;
     try { syncRoleFromBackend(); } catch(e){}
@@ -7086,6 +7111,9 @@ function bindRender(){
     el.style.color = '#34d399';
   } else if(_roleProbeDone && _roleProbeDone.uid === myUid() && _roleProbeDone.bound === true){
     el.textContent = '已绑定 · 需重新登录';
+    el.style.color = '#fbbf24';
+  } else if(_roleProbeDone && _roleProbeDone.uid === myUid() && _roleProbeDone.bound === null){
+    el.textContent = '校验中…';
     el.style.color = '#fbbf24';
   } else {
     el.textContent = '未绑定 · 点击绑定';
