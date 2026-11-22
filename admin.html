@@ -1968,12 +1968,13 @@ async function doLogin(){
   let u = raw;
   if(loginMode === 'mail'){
     if(!isValidEmail(raw)){ err.textContent = '邮箱格式不正确'; return; }
+    await loadRemoteAccounts();
     const found = await findUidByEmail(raw);
     if(!found){ err.textContent = '该邮箱未绑定账号，请改用账号登录'; return; }
     u = found;
   }
+  await loadRemoteAccounts();
   let acc = ACCOUNTS[u];
-  if(!acc){ await loadRemoteAccounts(); acc = ACCOUNTS[u]; }
   if(!acc){ err.textContent = '账号或密码错误'; return; }
   const h = await sha256(p);
   if(h !== acc.hash){ logAct('login_fail', u, '密码错误'); err.textContent = '账号或密码错误'; return; }
@@ -1983,7 +1984,7 @@ async function doLogin(){
   err.textContent = '';
   try { localStorage.setItem('zx_saved_login', JSON.stringify({ uid: u, ts: Date.now() })); } catch(e){}
   logAct('login', u, '账号密码登录成功');
-  try { sbWaitAndBind(u, (ACCOUNTS[u] || {}).email, p); } catch(e){}
+  try { await sbWaitAndBind(u, (ACCOUNTS[u] || {}).email, p); } catch(e){}
   showApp(u);
 }
 async function autoLogin(){
@@ -3276,23 +3277,29 @@ function nextUid(){
 }
 async function loadRemoteAccounts(){
   let ok = false;
-  try {
-    const r = await ghGetRecords(GH_USERS_PATH);
-    const list = r.list || [];
+  const mergeList = (list) => {
     list.forEach(a=>{
-      if(a && a.uid && !ACCOUNTS[a.uid]){
+      if(!a || !a.uid) return;
+      if(!ACCOUNTS[a.uid]){
         ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', keyHash:a.keyHash, key:a.key, balance:a.balance||0, email:a.email||'', payHash:a.payHash||'' };
+      } else {
+        const ex = ACCOUNTS[a.uid];
+        if(a.email) ex.email = a.email;
+        if(a.name) ex.name = a.name;
+        if(a.level) ex.level = a.level;
+        if(a.keyHash) ex.keyHash = a.keyHash;
+        if(a.payHash) ex.payHash = a.payHash;
       }
     });
-    localStorage.setItem('zx_user_accounts', JSON.stringify(list));
+  };
+  try {
+    const r = await ghGetRecords(GH_USERS_PATH);
+    mergeList(r.list || []);
+    localStorage.setItem('zx_user_accounts', JSON.stringify(r.list || []));
     ok = true;
   } catch(e){
     try {
-      JSON.parse(localStorage.getItem('zx_user_accounts')||'[]').forEach(a=>{
-        if(a && a.uid && !ACCOUNTS[a.uid]){
-          ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', keyHash:a.keyHash, key:a.key, balance:a.balance||0, email:a.email||'', payHash:a.payHash||'' };
-        }
-      });
+      mergeList(JSON.parse(localStorage.getItem('zx_user_accounts')||'[]'));
     } catch(x){}
   }
   initNormalUsers();
@@ -6633,7 +6640,13 @@ async function sbBoot(){
       SB.session = r && r.data ? r.data.session : null;
     } catch(e){ SB.session = null; }
     SB.ready = true;
-    if(SB.session) await sbResolveProfile();
+    if(SB.session){
+      await sbResolveProfile();
+      if(!SB.profile){
+        await new Promise(r=>setTimeout(r, 500));
+        await sbResolveProfile();
+      }
+    }
     SB.client.auth.onAuthStateChange((ev, s) => {
       SB.session = s || null;
       if(s) sbResolveProfile().then(sbRenderStatus); else { SB.profile = null; SB.uid = null; sbRenderStatus(); }
@@ -6654,6 +6667,12 @@ async function sbWaitAndBind(uid, email, password){
     await new Promise(r=>setTimeout(r, 400));
   }
   if(!SB.client){ try { await sbBoot(); } catch(e){} }
+  if(SB.client && !email){
+    try {
+      const r = await SB.client.from('profiles').select('email').eq('uid', String(uid)).maybeSingle();
+      if(r && r.data && r.data.email) email = r.data.email;
+    } catch(e){}
+  }
   if(SB.client && email && password){ await sbBindSession(uid, email, password); }
 }
 // 登录成功后把旧账号的邮箱/密码绑到 Supabase Auth，静默进行，失败不影响原登录
@@ -6662,21 +6681,32 @@ async function sbBindSession(uid, email, password){
   try{
     const r = await SB.client.auth.signInWithPassword({ email, password });
     if(r.error){
-      if(/invalid login credentials|email not confirmed/i.test(r.error.message) === false){
-        SB.err = r.error.message;
-      }
-      if(/invalid login credentials/i.test(r.error.message)){
+      const msg = r.error.message || '';
+      if(/invalid login credentials|email not confirmed/i.test(msg)){
         const up = await SB.client.auth.signUp({
           email, password,
           options: { data: { uid: uid, username: (ACCOUNTS[uid] || {}).name || '' } }
         });
-        if(up.error) SB.err = up.error.message;
-        else SB.session = up.data.session || null;
+        if(up.error){
+          SB.err = /already registered|already been registered/i.test(up.error.message || '')
+            ? '后端密码与本地不一致，请用邮箱重置密码'
+            : (up.error.message || msg);
+        } else {
+          SB.session = up.data.session || null;
+        }
+      } else {
+        SB.err = msg;
       }
     } else {
       SB.session = r.data.session;
     }
-    if(SB.session) await sbResolveProfile();
+    if(SB.session){
+      await sbResolveProfile();
+      if(!SB.profile){
+        await new Promise(r=>setTimeout(r, 600));
+        await sbResolveProfile();
+      }
+    }
   }catch(e){ SB.err = e.message || String(e); }
   sbRenderStatus();
 }
@@ -7074,7 +7104,7 @@ async function sbInsertPost(rec){
   return true;
 }
 
-setTimeout(() => { sbBoot(); }, 1200);
+sbBoot();
 
 /* ===== 首次进入加载遮罩（进度条） ===== */
 const BOOT_TASKS = [
