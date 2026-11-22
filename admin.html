@@ -2173,15 +2173,27 @@ async function superEditBalance(uid){
   if(v === null || v === undefined) return;
   const n = parseFloat(v);
   if(isNaN(n) || n < 0){ toastMsg('请输入不小于 0 的数字'); return; }
-  const ok = await writeWallet(uid, n);
+  let newBal = n;
+  let cloudOk = false;
+  // 后端：admin_set_balance RPC 校验超管身份、置值并写差额台账
+  const res = await sbAdminSetBalance(uid, n, 'admin_adjust');
+  if(res){
+    newBal = Number(res.balance != null ? res.balance : n);
+    cloudOk = true;
+  } else {
+    // 后端不可用时旧 JSON 兜底
+    await writeWallet(uid, n);
+  }
+  if(ACCOUNTS[uid]) ACCOUNTS[uid].balance = newBal;
   const st = staffData.find(x=>String(x.uid)===String(uid));
-  if(st) st.balance = n;
+  if(st) st.balance = newBal;
   const nu = normalUsers.find(x=>String(x.uid)===String(uid));
-  if(nu) nu.balance = n;
+  if(nu) nu.balance = newBal;
   try { renderStaff(ACCOUNTS[myUid()]); } catch(e){}
   try { renderUsers(window._userSearchKw || ''); } catch(e){}
-  if(String(uid) === String(myUid())){ const el = document.getElementById('myBalance'); if(el) el.textContent = '¥' + n.toFixed(2); }
-  toastMsg(ok ? '金额已更新并云端同步' : '网络异常，金额已先存本地');
+  if(String(uid) === String(myUid())){ const el = document.getElementById('myBalance'); if(el) el.textContent = '¥' + newBal.toFixed(2); }
+  logAct('admin_balance', (acc.name||uid) + ' 余额调整为 ¥' + newBal.toFixed(2), cloudOk ? '云端' : '本地兜底');
+  toastMsg(cloudOk ? '金额已更新并云端同步' : '网络异常，金额已先存本地');
 }
 async function superEditCoin(uid){
   if(!currentIsSuper){ toastMsg('仅超级管理员可操作'); return; }
@@ -4848,6 +4860,16 @@ async function sbClaimPacket(pid){
   if(!SB.client || !SB.session || !SB.uid) return null;
   try {
     const r = await SB.client.rpc('claim_packet', { p_packet_id: String(pid) });
+    if(r.error){ SB.err = r.error.message; return null; }
+    return r.data || null;
+  } catch(e){ SB.err = e.message || String(e); return null; }
+}
+async function sbAdminSetBalance(uid, balance, reason){
+  if(!SB.client || !SB.session || !SB.uid) return null;
+  try {
+    const r = await SB.client.rpc('admin_set_balance', {
+      p_uid: String(uid), p_new_balance: Number(balance), p_reason: reason || 'admin_adjust'
+    });
     if(r.error){ SB.err = r.error.message; return null; }
     return r.data || null;
   } catch(e){ SB.err = e.message || String(e); return null; }
