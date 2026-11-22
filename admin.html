@@ -2041,6 +2041,7 @@ setTimeout(()=>{ loadWallets().then(()=>{ try { renderStaff(ACCOUNTS[myUid()] ||
 function doLogout(){
   logAct('logout', myUid(), '主动退出登录');
   sessionStorage.removeItem('zx_user');
+  _roleProbeDone = null;
   try { localStorage.removeItem('zx_saved_login'); } catch(e){}
   document.getElementById('inpPwd').value = '';
   showLogin();
@@ -4406,7 +4407,8 @@ function renderChangelog(){
       '开发者中心改版：创建应用、管理应用、应用数、待审核正方形入口，每列两个',
       '超管新增审核中心：分「开发者申请」和「应用 / 表盘」两个二级菜单',
       '超管新增应用中心管理，可控制上架应用的公开与隐藏',
-      '邮箱验证后可重置密码；登录云端连接提速，会话自动重试恢复'
+      '邮箱验证后可重置密码；登录云端连接提速，会话自动重试恢复',
+      '修复超管登录后因临时网络波动被误降为普通用户的问题，角色以后端资料为准校正'
     ]},
     { ver: 'v1.1.9', date: '2026-11-21', items: [
       '发红包增加防连点：点确认后按钮立即锁定，发送未完成前的重复点击一律忽略，只扣一次费',
@@ -6744,6 +6746,7 @@ async function sbResolveProfile(){
     SB.profile = r.data || null;
     SB.uid = r.data ? r.data.uid : null;
     SB.err = null;
+    _roleProbeDone = null;
     try { syncRoleFromBackend(); } catch(e){}
     return SB.profile;
   }catch(e){ SB.err = e.message || String(e); return null; }
@@ -6860,35 +6863,16 @@ async function syncRoleFromBackend(){
   if(!SB.ready || !SB.client) return false;
   const me = myUid();
   if(!me) return false;
-  if(!SB.session || !SB.profile){
-    // 没有后端会话：查一下库里这条资料是否已绑定身份
-    // 已绑定（只是这次没拿到会话）不清等级，避免超管被误降；确实没绑定的才降为普通用户
-    if(!_roleProbeDone){
-      _roleProbeDone = { uid: me, bound: null };
-      try {
-        const r = await SB.client.from('profiles').select('uid,auth_id').eq('uid', String(me)).maybeSingle();
-        _roleProbeDone.bound = !!(r && r.data && r.data.auth_id);
-      } catch(e){ _roleProbeDone.bound = null; }
-      try { bindRender(); } catch(e){}
+
+  // 已拿到会话和资料：以后端 role/level 为准，强制校正本地等级与超管标记
+  if(SB.session && SB.profile){
+    const role = String(SB.profile.role || '').trim();
+    let lv = ROLE_TO_LEVEL[role];
+    if(!lv){
+      // role 缺失时用库里的 level 兜底
+      lv = SB.profile.level || '用户';
     }
-    const boundInDb = _roleProbeDone && _roleProbeDone.uid === me ? _roleProbeDone.bound : null;
-    if(boundInDb === true) return false;   // 已绑定，保留原等级，提示去重新登录
-    if(ACCOUNTS[me] && ACCOUNTS[me].level !== '用户'){
-      ACCOUNTS[me].level = '用户';
-      currentIsSuper = false;
-      try { renderStaff(ACCOUNTS[me]); } catch(e){}
-      const staffTabEl = document.querySelector('.tab[data-view="staffSvc"]');
-      if(staffTabEl) staffTabEl.style.display = 'none';
-      const logSub = document.getElementById('subtabLog');
-      if(logSub) logSub.style.display = 'none';
-    }
-    return false;
-  }
-  const role = String(SB.profile.role || '').trim();
-  const lv = ROLE_TO_LEVEL[role];
-  if(!lv) return false;
-  if(!ACCOUNTS[me]) ACCOUNTS[me] = { uid: me, name: SB.profile.username || me };
-  if(ACCOUNTS[me].level !== lv){
+    if(!ACCOUNTS[me]) ACCOUNTS[me] = { uid: me, name: SB.profile.username || me };
     ACCOUNTS[me].level = lv;
     currentIsSuper = (lv === '超级管理员');
     try { renderStaff(ACCOUNTS[me]); } catch(e){}
@@ -6896,8 +6880,41 @@ async function syncRoleFromBackend(){
     if(staffTabEl) staffTabEl.style.display = (lv === '用户') ? 'none' : '';
     const logSub = document.getElementById('subtabLog');
     if(logSub) logSub.style.display = currentIsSuper ? '' : 'none';
+    return true;
   }
-  return true;
+
+  // 没有后端会话：先查库里这条资料是否已绑定身份。
+  // bound=true 已绑定（本次没拿到会话），保留原等级；
+  // bound=null 查询失败 / 网络异常，结论不确定，保留原等级，避免超管被误降；
+  // bound=false 明确无记录，才按未绑定降为普通用户。
+  if(!_roleProbeDone || _roleProbeDone.uid !== me){
+    _roleProbeDone = { uid: me, bound: null };
+    try {
+      const r = await SB.client.from('profiles').select('uid,auth_id,level,role').eq('uid', String(me)).maybeSingle();
+      if(r.error){
+        _roleProbeDone.bound = null;
+      } else if(!r.data){
+        _roleProbeDone.bound = false;
+      } else {
+        _roleProbeDone.bound = !!r.data.auth_id;
+        // 无会话但库里有资料：以后端 level 暂存，不主动降级
+        if(r.data.level && ACCOUNTS[me]) ACCOUNTS[me].level = r.data.level;
+      }
+    } catch(e){ _roleProbeDone.bound = null; }
+    try { bindRender(); } catch(e){}
+  }
+  const boundInDb = _roleProbeDone && _roleProbeDone.uid === me ? _roleProbeDone.bound : null;
+  if(boundInDb !== false) return false;
+  if(ACCOUNTS[me] && ACCOUNTS[me].level !== '用户'){
+    ACCOUNTS[me].level = '用户';
+    currentIsSuper = false;
+    try { renderStaff(ACCOUNTS[me]); } catch(e){}
+    const staffTabEl = document.querySelector('.tab[data-view="staffSvc"]');
+    if(staffTabEl) staffTabEl.style.display = 'none';
+    const logSub = document.getElementById('subtabLog');
+    if(logSub) logSub.style.display = 'none';
+  }
+  return false;
 }
 function hasSession(){ return !!(SB.ready && SB.client && SB.session && SB.uid && SB.profile); }
 function needBind(action){
