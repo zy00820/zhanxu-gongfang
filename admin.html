@@ -2133,17 +2133,28 @@ let walletCache = [];
 let walletLoaded = false;
 async function loadWallets(force){
   if(walletLoaded && !force) return walletCache;
+  let dbBal = {};
+  try {
+    if(SB.client && SB.session){
+      const r = await SB.client.from('profiles').select('uid,balance');
+      if(!r.error){ (r.data||[]).forEach(p=>{ dbBal[String(p.uid)] = Number(p.balance||0); }); }
+    }
+  } catch(e){}
+  let legacy = [];
   try {
     const r = await ghGetRecords(GH_WALLET_PATH);
-    walletCache = r.list || [];
-    localStorage.setItem('zx_wallets', JSON.stringify(walletCache));
+    legacy = r.list || [];
+    localStorage.setItem('zx_wallets', JSON.stringify(legacy));
   } catch(e){
-    try { walletCache = JSON.parse(localStorage.getItem('zx_wallets')||'[]'); } catch(x){ walletCache = []; }
+    try { legacy = JSON.parse(localStorage.getItem('zx_wallets')||'[]'); } catch(x){ legacy = []; }
   }
-  walletCache.forEach(w=>{
+  walletCache = legacy;
+  legacy.forEach(w=>{
     const acc = ACCOUNTS[w.uid];
     if(acc && w.balance !== undefined && w.balance !== null && !isNaN(Number(w.balance))) acc.balance = Number(w.balance);
   });
+  // 后端 profiles.balance 为准（旧快照仅作未同步账号的兜底）
+  Object.entries(dbBal).forEach(([uid,bal])=>{ if(ACCOUNTS[uid]) ACCOUNTS[uid].balance = bal; });
   walletLoaded = true;
   return walletCache;
 }
@@ -4776,11 +4787,12 @@ async function sbLoadDms(){
     return (r.data||[]).map(sbDmRowToM);
   } catch(e){ SB.err = e.message || String(e); return null; }
 }
-async function sbInsertDm(toUid, text){
+async function sbInsertDm(toUid, text, packetId){
   if(!SB.client || !SB.session || !SB.uid) return false;
   try {
-    const r = await SB.client.from('dm_messages')
-      .insert({ from_uid: SB.uid, to_uid: String(toUid), text: String(text||'') });
+    const payload = { from_uid: SB.uid, to_uid: String(toUid), text: String(text||'') };
+    if(packetId) payload.packet_id = String(packetId);
+    const r = await SB.client.from('dm_messages').insert(payload);
     if(r.error){ SB.err = r.error.message; return false; }
     return true;
   } catch(e){ SB.err = e.message || String(e); return false; }
@@ -4794,8 +4806,55 @@ async function sbClearDmPeer(peerUid){
     return true;
   } catch(e){ SB.err = e.message || String(e); return false; }
 }
+
+/* ===== 红包：packets 表 + send_packet / claim_packet RPC（旧 JSON 红包仅历史只读） ===== */
+let packetCache = {};
+async function sbLoadPackets(){
+  if(!SB.client || !SB.session || !SB.uid){ packetCache = {}; return; }
+  try {
+    const r = await SB.client.from('packets')
+      .select('id,room_type,room_id,from_uid,name,count,total,claimed,status,created_at,expire_at');
+    if(r.error){ SB.err = r.error.message; return; }
+    packetCache = {};
+    (r.data||[]).forEach(p=>{
+      const ts = p.created_at ? new Date(p.created_at).getTime() : 0;
+      packetCache[p.id] = {
+        packet_id: p.id, name: p.name, count: p.count, total: Number(p.total||0),
+        type: p.room_type, claimed: p.claimed || {}, status: p.status,
+        ts: ts, from_uid: p.from_uid, expire_at: p.expire_at || null
+      };
+    });
+  } catch(e){ SB.err = e.message || String(e); }
+}
+function hydratePackets(list){
+  (list||[]).forEach(m=>{
+    if(m.packet_id && !m.packet && packetCache[m.packet_id]){
+      m.packet = Object.assign({}, packetCache[m.packet_id]);
+    }
+  });
+}
+async function sbSendPacket(roomType, roomId, name, count, total){
+  if(!SB.client || !SB.session || !SB.uid) return null;
+  try {
+    const r = await SB.client.rpc('send_packet', {
+      p_room_type: roomType, p_room_id: String(roomId), p_name: String(name),
+      p_count: Number(count), p_total: Number(total)
+    });
+    if(r.error){ SB.err = r.error.message; return null; }
+    return r.data || null;
+  } catch(e){ SB.err = e.message || String(e); return null; }
+}
+async function sbClaimPacket(pid){
+  if(!SB.client || !SB.session || !SB.uid) return null;
+  try {
+    const r = await SB.client.rpc('claim_packet', { p_packet_id: String(pid) });
+    if(r.error){ SB.err = r.error.message; return null; }
+    return r.data || null;
+  } catch(e){ SB.err = e.message || String(e); return null; }
+}
 async function loadDmData(force){
   if(dmLoaded && !force) return dmCache;
+  try { await sbLoadPackets(); } catch(e){}
   let db = null;
   try { db = await sbLoadDms(); } catch(e){ db = null; }
   let legacy = [];
@@ -4809,6 +4868,7 @@ async function loadDmData(force){
   legacy.forEach(m => map.set(keyOf(m), m));
   (db || []).forEach(m => { if(!map.has(keyOf(m))) map.set(keyOf(m), m); });
   dmCache = [...map.values()];
+  hydratePackets(dmCache);
   try { localStorage.setItem('zx_dms', JSON.stringify(dmCache)); } catch(e){}
   dmLoaded = true;
   return dmCache;
@@ -5466,10 +5526,12 @@ async function sbDeleteGroup(gid){
     return true;
   } catch(e){ SB.err = e.message || String(e); return false; }
 }
-async function sbInsertGroupMsg(gid, text){
+async function sbInsertGroupMsg(gid, text, packetId){
   if(!SB.client || !SB.session || !SB.uid) return false;
   try {
-    const r = await SB.client.from('group_messages').insert({ gid: String(gid), from_uid: SB.uid, text: String(text||'') });
+    const payload = { gid: String(gid), from_uid: SB.uid, text: String(text||'') };
+    if(packetId) payload.packet_id = String(packetId);
+    const r = await SB.client.from('group_messages').insert(payload);
     if(r.error){ SB.err = r.error.message; return false; }
     return true;
   } catch(e){ SB.err = e.message || String(e); return false; }
@@ -5478,13 +5540,14 @@ async function sbLoadGroupMsgs(){
   if(!SB.client || !SB.session || !SB.uid) return null;
   try {
     const r = await SB.client.from('group_messages')
-      .select('id,gid,from_uid,text,created_at')
+      .select('id,gid,from_uid,text,packet_id,created_at')
       .order('created_at', { ascending: true }).limit(2000);
     if(r.error){ SB.err = r.error.message; return null; }
     return (r.data||[]).map(x=>{
       const ts = x.created_at ? new Date(x.created_at).getTime() : 0;
       return { gid: x.gid, from: x.from_uid, fromName: ((ACCOUNTS[x.from_uid]||{}).name || x.from_uid),
-               text: x.text || '', time: ts ? dmTime(ts) : '', ts: ts, backend: true };
+               text: x.text || '', packet_id: x.packet_id || null,
+               time: ts ? dmTime(ts) : '', ts: ts, backend: true };
     });
   } catch(e){ SB.err = e.message || String(e); return null; }
 }
@@ -5510,6 +5573,7 @@ async function loadGroups(force){
 }
 async function loadGroupMsgs(force){
   if(gmsgsLoaded && !force) return gmsgCache;
+  try { await sbLoadPackets(); } catch(e){}
   let db = null;
   try { db = await sbLoadGroupMsgs(); } catch(e){ db = null; }
   let legacy = [];
@@ -5523,6 +5587,7 @@ async function loadGroupMsgs(force){
   legacy.forEach(m=>map.set(keyOf(m), m));
   (db || []).forEach(m=>{ if(!map.has(keyOf(m))) map.set(keyOf(m), m); });
   gmsgCache = [...map.values()];
+  hydratePackets(gmsgCache);
   try { localStorage.setItem('zx_gmsgs', JSON.stringify(gmsgCache)); } catch(e){}
   gmsgsLoaded = true;
   return gmsgCache;
@@ -5882,7 +5947,10 @@ function rpEsc(s){ return String(s==null?'':s).replace(/</g,'&lt;').replace(/"/g
 // ===== 红包领取（24 小时内，领取后自动存入钱包） =====
 let _pv = { chat:'dm', ts:null, msg:null };
 const PACKET_TTL = 24*3600*1000;
-function packetExpired(m){ return (Date.now()-(m.ts||0)) > PACKET_TTL; }
+function packetExpired(m){
+  if(m.packet && m.packet.expire_at){ return Date.now() > new Date(m.packet.expire_at).getTime(); }
+  return (Date.now()-(m.ts||0)) > PACKET_TTL;
+}
 function packetClaimed(m,uid){ return m.packet && m.packet.claimed && m.packet.claimed[String(uid)]; }
 function packetShare(m){
   const total=Number(m.packet.total)||0;
@@ -5938,6 +6006,28 @@ async function claimFromView(){
   if(String(m.from)===String(me) && !isGroup){ toastMsg('私信不能领取自己发出的红包'); return; }
   if(packetExpired(m)){ toastMsg('红包已过期，无法领取'); return; }
   if(packetClaimed(m,me)){ toastMsg('你已领取该红包'); return; }
+
+  // 后端红包：claim_packet RPC 完成校验、拆份、入账、写台账
+  if(m.packet_id){
+    const res=await sbClaimPacket(m.packet_id);
+    if(!res){ toastMsg('领取失败：'+(SB.err||'后端未响应')); return; }
+    const amount=Number(res.amount||0);
+    const newBal=res.balance!=null?Number(res.balance):Number((ACCOUNTS[me]||{}).balance||0)+amount;
+    m.packet.claimed=m.packet.claimed||{};
+    m.packet.claimed[String(me)]={at:Date.now(), amount:amount};
+    if(packetCache[m.packet_id]) packetCache[m.packet_id].claimed=m.packet.claimed;
+    if(ACCOUNTS[me]) ACCOUNTS[me].balance=newBal;
+    logAct('packet_claim', '红包 ' + ((m.packet&&m.packet.name)||''), '领取 ¥' + amount.toFixed(2));
+    const myBal=document.getElementById('myBalance');
+    if(myBal) myBal.textContent='¥'+newBal.toFixed(2);
+    document.getElementById('pvResSender').textContent=m.fromName||m.from||'—';
+    document.getElementById('pvResAmount').textContent='+¥'+amount.toFixed(2);
+    closePacketView();
+    document.getElementById('packetClaimMask').style.display='block';
+    return;
+  }
+
+  // 旧 JSON 红包：本地领取兜底
   const amount=packetShare(m);
   await loadWallets();
   const acc=ACCOUNTS[me];
@@ -6119,17 +6209,48 @@ async function _finalizeRpInner(){
   if(type!=='dm' && !gchatGid){ toastMsg('请先进入某个群聊再发红包'); return; }
   const label=type==='dm'?'普通红包':'拼手气红包';
   const text='['+label+'] '+_rpDraft.name;
-  const packet={ name:_rpDraft.name, count:_rpDraft.count, total:_rpDraft.total, type:type };
   const rid=_rpDraft.rid||'';
   const dupList=type==='dm'?dmCache:gmsgCache;
   if(rid && Array.isArray(dupList) && dupList.some(m=>m && m.rid===rid)){
-    closePay(); toastMsg('这个红包已经发出去了，不会重复扣费');
-    return;
+    closePay(); toastMsg('这个红包已经发出去了，不会重复扣费'); return;
   }
   const amount=Number(_rpDraft.total)||0;
   const cur=Number((ACCOUNTS[me]||{}).balance||0);
   if(amount<=0){ toastMsg('红包金额无效'); return; }
   if(cur<amount){ toastMsg('余额不足，无法发送红包'); return; }
+
+  // 后端：send_packet RPC 完成余额校验、扣费、写红包与台账，再回写消息记录
+  const roomId = type==='dm' ? dmPeer : gchatGid;
+  const sent = await sbSendPacket(type, roomId, _rpDraft.name, _rpDraft.count, amount);
+  if(sent && sent.id){
+    const newBal = sent.balance!=null ? Number(sent.balance) : Math.round((cur-amount)*100)/100;
+    if(ACCOUNTS[me]) ACCOUNTS[me].balance=newBal;
+    const myBalEl=document.getElementById('myBalance');
+    if(myBalEl) myBalEl.textContent='¥'+newBal.toFixed(2);
+    const uaBal=document.getElementById('userAnnBalance');
+    if(uaBal) uaBal.textContent='¥'+newBal.toFixed(2);
+    const packet={ packet_id:sent.id, name:_rpDraft.name, count:_rpDraft.count, total:amount, type, claimed:{}, ts:Date.now() };
+    packetCache[sent.id]=packet;
+    let rec, dbOk=false;
+    if(type==='dm'){
+      const acc=ACCOUNTS[dmPeer]||{};
+      rec={ from:me, fromName:myName(), to:dmPeer, toName:acc.name||dmPeer, text, packet, time:dmTime(Date.now()), ts:Date.now(), rid, packet_id:sent.id, backend:true };
+      dbOk=await sbInsertDm(dmPeer, text, sent.id);
+      dmCache.push(rec); dmLoaded=true;
+    } else {
+      rec={ gid:gchatGid, from:me, fromName:(ACCOUNTS[me]||{}).name||me, text, packet, time:dmTime(Date.now()), ts:Date.now(), rid, packet_id:sent.id, backend:true };
+      dbOk=await sbInsertGroupMsg(gchatGid, text, sent.id);
+      gmsgCache.push(rec); gmsgsLoaded=true;
+    }
+    logAct('packet_send', (type==='dm'?('私信给 '+dmPeer):('群 '+gchatGid)), label + '「' + _rpDraft.name + '」' + amount.toFixed(2));
+    closePay();
+    if(type==='dm') openDm(dmPeer); else openGroupChat(gchatGid);
+    toastMsg(dbOk ? '红包已发送并云端同步' : '红包已发送，消息记录本地兜底');
+    return;
+  }
+
+  // 后端不可用：旧 JSON 兜底（RPC 未成功才走到这里，不会重复扣费）
+  const packet={ name:_rpDraft.name, count:_rpDraft.count, total:_rpDraft.total, type:type };
   const newBal=Math.round((cur-amount)*100)/100;
   await loadWallets();
   await writeWallet(me,newBal);
@@ -6138,7 +6259,7 @@ async function _finalizeRpInner(){
   if(myBalEl) myBalEl.textContent='¥'+newBal.toFixed(2);
   const uaBal=document.getElementById('userAnnBalance');
   if(uaBal) uaBal.textContent='¥'+newBal.toFixed(2);
-  if(_rpDraft.chat==='dm'){
+  if(type==='dm'){
     const acc=ACCOUNTS[dmPeer]||{};
     const rec={ from:me, fromName:myName(), to:dmPeer, toName:acc.name||dmPeer, text:text, packet:packet, time:dmTime(Date.now()), ts:Date.now(), rid:rid };
     try{ await ghAppendRecord(GH_DM_PATH, rec, 'zx_dms'); dmCache.push(rec); dmLoaded=true; }
@@ -6151,7 +6272,7 @@ async function _finalizeRpInner(){
     closePay(); openGroupChat(gchatGid);
   }
   logAct('packet_send', (type==='dm'?('私信给 '+dmPeer):('群 '+gchatGid)), label + '「' + _rpDraft.name + '」' + amount.toFixed(2));
-  toastMsg('红包已发送');
+  toastMsg('云端不可用，红包已本地兜底保存');
 }
 
 async function submitGroupMsg(){
