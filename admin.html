@@ -382,7 +382,7 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.1.9 更新</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.2.0 更新</div>
         <div style="font-size:11px;color:#6b7280;line-height:1.7">· 发红包防连点，只扣一次费、只留一条消息<br>· 历史连发红包自动合并显示</div>
       </div>
     </div>
@@ -561,7 +561,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.1.9</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.2.0</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -1206,7 +1206,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.1.9</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.2.0</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -1307,7 +1307,7 @@ option{background:#fff;color:#1f2937}
       <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div>
           <div style="font-size:15px;font-weight:600;color:#111827">开发者中心</div>
-          <div style="font-size:12px;color:#6b7280;margin-top:3px" id="devRoleHint">上传应用 / 表盘，超管审核后上架</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:3px" id="devRoleHint">创建应用 · 管理作品 · 审核上架</div>
         </div>
         <button onclick="closeDevCenter()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
       </div>
@@ -1318,43 +1318,77 @@ option{background:#fff;color:#1f2937}
         <button onclick="openDevApply()" style="margin-top:18px;padding:11px 24px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:10px;font-size:14px;cursor:pointer">立即申请</button>
       </div>
 
-      <div class="card" id="devUploadCard" style="margin-bottom:12px">
-        <div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:10px">上传新作品</div>
-        <div style="display:flex;gap:8px;margin-bottom:10px">
-          <select id="devType" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
-            <option value="应用">应用</option>
-            <option value="表盘">表盘</option>
-          </select>
-          <input id="devName" placeholder="名称" style="flex:1.4;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:10px">
-          <input id="devVersion" placeholder="版本，如 1.0.0" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
-          <input id="devDesc" placeholder="一句话说明" style="flex:1.6;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
-        </div>
-        <input id="devFile" type="file" accept=".rpk" style="width:100%;margin-bottom:10px;font-size:12px;color:#6b7280">
-        <div style="font-size:11px;color:#6b7280;margin-bottom:10px">仅支持 .rpk 文件（栈序 OS 应用/表盘包），单个文件不超过 2MB；文件会存进仓库 dev-uploads/</div>
-        <button onclick="submitDevItem()" style="width:100%;padding:11px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:9px;font-size:14px;cursor:pointer">提交审核</button>
+      <!-- 首页模块入口：正方形，每列两个 -->
+      <div id="devPage-home">
+        <div id="devHomeGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
       </div>
 
-      <div class="card" id="devReviewCard" style="display:none;margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:14px;font-weight:600;color:#111827">待审核作品</div>
-          <button onclick="renderDevCenter(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+      <!-- 创建应用 -->
+      <div id="devPage-create" style="display:none">
+        <div class="card" id="devUploadCard" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:600;color:#111827">上传新作品</div>
+            <a onclick="goDevPage('home')" style="font-size:12px;color:#2563eb;cursor:pointer">返回首页</a>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <select id="devType" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
+              <option value="应用">应用</option>
+              <option value="表盘">表盘</option>
+            </select>
+            <input id="devName" placeholder="名称" style="flex:1.4;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <input id="devVersion" placeholder="版本，如 1.0.0" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
+            <input id="devDesc" placeholder="一句话说明" style="flex:1.6;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
+          </div>
+          <input id="devFile" type="file" accept=".rpk" style="width:100%;margin-bottom:10px;font-size:12px;color:#6b7280">
+          <div style="font-size:11px;color:#6b7280;margin-bottom:10px">仅支持 .rpk 文件（栈序 OS 应用/表盘包），单个文件不超过 2MB；文件会存进仓库 dev-uploads/</div>
+          <button onclick="submitDevItem()" style="width:100%;padding:11px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:9px;font-size:14px;cursor:pointer">提交审核</button>
         </div>
-        <div id="devPendingList"></div>
       </div>
 
-      <div class="card" id="devApplyCard" style="display:none;margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:14px;font-weight:600;color:#111827">开发者申请审核</div>
-          <button onclick="renderDevApply(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+      <!-- 管理应用：我的提交 -->
+      <div id="devPage-manage" style="display:none">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:600;color:#111827">我的应用 / 表盘</div>
+            <a onclick="goDevPage('home')" style="font-size:12px;color:#2563eb;cursor:pointer">返回首页</a>
+          </div>
+          <div id="devMyList"></div>
         </div>
-        <div id="devApplyList"></div>
       </div>
 
-      <div class="card">
-        <div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:10px">我的提交</div>
-        <div id="devMyList"></div>
+      <!-- 审核中心（超管）：开发者申请 / 应用·表盘 二级菜单 -->
+      <div id="devPage-review" style="display:none">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <div id="rvTabDev" onclick="reviewTab('dev')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb">开发者申请</div>
+          <div id="rvTabApp" onclick="reviewTab('app')" style="flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#6b7280">应用 / 表盘</div>
+        </div>
+        <div class="card" id="rvPane-dev" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:600;color:#111827">待审核开发者</div>
+            <button onclick="renderDevApply(true)" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+          </div>
+          <div id="devApplyList"></div>
+        </div>
+        <div class="card" id="rvPane-app" style="display:none;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:600;color:#111827">待审核作品</div>
+            <button onclick="renderPendingApps()" style="padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+          </div>
+          <div id="devPendingList"></div>
+        </div>
+      </div>
+
+      <!-- 应用中心管理（超管） -->
+      <div id="devPage-appadmin" style="display:none">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:600;color:#111827">上架应用管理</div>
+            <a onclick="goDevPage('home')" style="font-size:12px;color:#2563eb;cursor:pointer">返回首页</a>
+          </div>
+          <div id="devAdminAppList"></div>
+        </div>
       </div>
     </div>
 
@@ -2364,7 +2398,7 @@ async function renderAppCenter(force){
   if(!box) return;
   discoverRenderChips();
   await loadDevItems(force);
-  let list = (devCache||[]).filter(x=>x.status === '已通过');
+  let list = (devCache||[]).filter(x=>x.status === '已通过' && !x.hidden);
   if(discoverKw){
     const k = discoverKw.toLowerCase();
     list = list.filter(x=>[x.name,x.desc,x.byName].some(s=>String(s||'').toLowerCase().includes(k)));
@@ -2480,6 +2514,8 @@ async function openDevCenter(){
   const st = document.getElementById('subtabs');
   if(st) st.style.display = 'none';
   currentDevView = true;
+  devPage = 'home';
+  goDevPage('home');
   window.scrollTo(0,0);
   renderDevCenter();
 }
@@ -2505,59 +2541,134 @@ function devStatusColor(s){
   if(s === '已拒绝') return '#f87171';
   return '#fbbf24';
 }
+let devPage = 'home';
+let rvTabSel = 'dev';
+
+function goDevPage(p){
+  devPage = p;
+  ['home','create','manage','review','appadmin'].forEach(k=>{
+    const el = document.getElementById('devPage-' + k);
+    if(el) el.style.display = (k === p) ? 'block' : 'none';
+  });
+  if(p === 'manage') renderMyApps();
+  if(p === 'review'){ renderDevApply(); renderPendingApps(); }
+  if(p === 'appadmin') renderDevAdminApps();
+  window.scrollTo(0, 0);
+}
+function reviewTab(t){
+  rvTabSel = t;
+  const d = document.getElementById('rvTabDev'), a = document.getElementById('rvTabApp');
+  const pd = document.getElementById('rvPane-dev'), pa = document.getElementById('rvPane-app');
+  const on = 'background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.35);color:#2563eb';
+  const off = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#6b7280';
+  if(d){ d.style.cssText = 'flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;' + (t==='dev'?on:off); }
+  if(a){ a.style.cssText = 'flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;cursor:pointer;' + (t==='app'?on:off); }
+  if(pd) pd.style.display = t==='dev' ? 'block' : 'none';
+  if(pa) pa.style.display = t==='app' ? 'block' : 'none';
+}
+function devTileHtml(t){
+  return '<div onclick="' + t.tap + '" style="aspect-ratio:1;border-radius:16px;background:' + t.bg + ';border:1px solid ' + t.bd + ';display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:12px">' +
+    '<div style="font-size:26px;color:' + t.fc + '">' + t.icon + '</div>' +
+    '<div style="font-size:14px;font-weight:600;color:#111827">' + t.label + '</div>' +
+    '<div style="font-size:11px;color:#6b7280;text-align:center;line-height:1.5">' + t.desc + '</div>' +
+    (t.count != null ? '<div style="font-size:12px;font-weight:600;color:' + t.fc + '">' + t.count + '</div>' : '') +
+  '</div>';
+}
 async function renderDevCenter(force){
   const me = myUid();
   await loadDevItems(force);
   await loadDevAuth();
+  await loadApply(force);
   const allowed = isDevAllowed(me);
   const gate = document.getElementById('devGateCard');
   if(gate) gate.style.display = allowed ? 'none' : 'block';
-  const upload = document.getElementById('devUploadCard');
-  if(upload) upload.style.display = allowed ? 'block' : 'none';
-  const review = document.getElementById('devReviewCard');
-  if(review) review.style.display = (currentIsSuper && allowed) ? 'block' : 'none';
-  const applyCard = document.getElementById('devApplyCard');
-  if(applyCard) applyCard.style.display = currentIsSuper ? 'block' : 'none';
+
+  const mine = devCache.filter(x=>String(x.by) === String(me)).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const pendingMine = mine.filter(x=>x.status === '待审核');
+  const pendingAll = devCache.filter(x=>x.status === '待审核');
+  const pendingApply = applyCache.filter(x=>x.status === '待审核');
+
+  const tiles = [];
+  if(allowed){
+    tiles.push({ key:'create', icon:'✦', label:'创建应用', desc:'上传应用 / 表盘', bg:'rgba(167,139,250,0.10)', bd:'rgba(167,139,250,0.28)', fc:'#a78bfa', tap:"goDevPage('create')" });
+    tiles.push({ key:'manage', icon:'▤', label:'管理应用', desc:'我的全部作品', bg:'rgba(37,99,235,0.08)', bd:'rgba(37,99,235,0.25)', fc:'#2563eb', tap:"goDevPage('manage')" });
+    tiles.push({ key:'count', icon:'◈', label:'应用数', desc:'已提交作品', count:mine.length, bg:'rgba(52,211,153,0.08)', bd:'rgba(52,211,153,0.25)', fc:'#34d399', tap:"goDevPage('manage')" });
+    tiles.push({ key:'pending', icon:'◔', label:'待审核', desc:'我的待审', count:pendingMine.length, bg:'rgba(251,191,36,0.10)', bd:'rgba(251,191,36,0.28)', fc:'#fbbf24', tap:"goDevPage('manage')" });
+  }
+  if(currentIsSuper){
+    tiles.push({ key:'review', icon:'✓', label:'审核中心', desc:'开发者 / 作品', count:pendingAll.length + pendingApply.length, bg:'rgba(248,113,113,0.08)', bd:'rgba(248,113,113,0.25)', fc:'#f87171', tap:"goDevPage('review')" });
+    tiles.push({ key:'appadmin', icon:'⚙', label:'应用中心管理', desc:'上架与隐藏', bg:'rgba(107,114,128,0.10)', bd:'rgba(107,114,128,0.25)', fc:'#6b7280', tap:"goDevPage('appadmin')" });
+  }
+  const grid = document.getElementById('devHomeGrid');
+  if(grid) grid.innerHTML = tiles.map(devTileHtml).join('');
+
+  renderMyApps();
+  renderPendingApps();
   renderDevApply();
-  const myCard = document.querySelector('#view-dev .card:last-child');
-
-  // 待审核
-  const pbox = document.getElementById('devPendingList');
-  if(pbox){
-    const pending = devCache.filter(x=>x.status === '待审核').sort((a,b)=>(b.ts||0)-(a.ts||0));
-    pbox.innerHTML = pending.length ? pending.map(x=>
-      '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center">' +
-          '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + ' · ' + String(x.version||'') + '</span></div>' +
-          '<div style="font-size:11px;color:#6b7280">' + String(x.byName||x.by||'') + '</div>' +
-        '</div>' +
-        '<div style="font-size:11px;color:#6b7280;margin-top:4px">' + String(x.desc||'').replace(/</g,'&lt;') + ' · ' + String(x.time||'') + '</div>' +
-        '<div style="display:flex;gap:8px;margin-top:8px">' +
-          '<button onclick="setDevStatus(\'' + x.id + '\',\'已通过\')" style="flex:1;padding:7px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;border-radius:7px;font-size:12px;cursor:pointer">通过</button>' +
-          '<button onclick="setDevStatus(\'' + x.id + '\',\'已拒绝\')" style="flex:1;padding:7px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:12px;cursor:pointer">拒绝</button>' +
-          '<button onclick="downloadDevItem(\''+String(x.id||'')+'\')" style="padding:7px 12px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;border-radius:7px;font-size:12px;cursor:pointer">下载</button>' +
-        '</div>' +
-      '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">暂无待审核作品</div>';
-  }
-
-  // 我的提交
-  const myCardWrap = document.getElementById('devMyList').closest('.card');
-  if(myCardWrap) myCardWrap.style.display = allowed ? 'block' : 'none';
+  renderDevAdminApps();
+}
+function renderMyApps(){
+  const me = myUid();
   const mbox = document.getElementById('devMyList');
-  if(mbox){
-    const mine = devCache.filter(x=>String(x.by) === String(me)).sort((a,b)=>(b.ts||0)-(a.ts||0));
-    mbox.innerHTML = mine.length ? mine.map(x=>
-      '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center">' +
-          '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + '</span></div>' +
-          '<div style="font-size:11px;color:' + devStatusColor(x.status) + '">' + String(x.status||'') + '</div>' +
-        '</div>' +
-        '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.6">' + String(x.version||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '<br>' + String(x.time||'') + '</div>' +
-        (x.status === '已通过' && x.url ? '<div style="margin-top:6px"><button onclick="downloadDevItem(\''+String(x.id||'')+'\')" style="font-size:11px;color:#2563eb;background:none;border:none;cursor:pointer;padding:0">下载已上架文件</button></div>' : '') +
-        (x.status === '已拒绝' && x.reason ? '<div style="margin-top:5px;font-size:11px;color:#f87171">原因：' + String(x.reason).replace(/</g,'&lt;') + '</div>' : '') +
-      '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">还没有提交过作品</div>';
-  }
-
+  if(!mbox) return;
+  const mine = devCache.filter(x=>String(x.by) === String(me)).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  mbox.innerHTML = mine.length ? mine.map(x=>
+    '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center">' +
+        '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + '</span></div>' +
+        '<div style="font-size:11px;color:' + devStatusColor(x.status) + '">' + String(x.status||'') + '</div>' +
+      '</div>' +
+      '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.6">' + String(x.version||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '<br>' + String(x.time||'') + '</div>' +
+      (x.status === '已通过' && x.url ? '<div style="margin-top:6px"><button onclick="downloadDevItem(\''+String(x.id||'')+'\')" style="font-size:11px;color:#2563eb;background:none;border:none;cursor:pointer;padding:0">下载已上架文件</button></div>' : '') +
+      (x.status === '已拒绝' && x.reason ? '<div style="margin-top:5px;font-size:11px;color:#f87171">原因：' + String(x.reason).replace(/</g,'&lt;') + '</div>' : '') +
+    '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">还没有提交过作品</div>';
+}
+function renderPendingApps(){
+  const pbox = document.getElementById('devPendingList');
+  if(!pbox) return;
+  const pending = devCache.filter(x=>x.status === '待审核').sort((a,b)=>(b.ts||0)-(a.ts||0));
+  pbox.innerHTML = pending.length ? pending.map(x=>
+    '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center">' +
+        '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + ' · ' + String(x.version||'') + '</span></div>' +
+        '<div style="font-size:11px;color:#6b7280">' + String(x.byName||x.by||'') + '</div>' +
+      '</div>' +
+      '<div style="font-size:11px;color:#6b7280;margin-top:4px">' + String(x.desc||'').replace(/</g,'&lt;') + ' · ' + String(x.time||'') + '</div>' +
+      '<div style="display:flex;gap:8px;margin-top:8px">' +
+        '<button onclick="setDevStatus(\'' + x.id + '\',\'已通过\')" style="flex:1;padding:7px;background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.32);color:#34d399;border-radius:7px;font-size:12px;cursor:pointer">通过</button>' +
+        '<button onclick="setDevStatus(\'' + x.id + '\',\'已拒绝\')" style="flex:1;padding:7px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:7px;font-size:12px;cursor:pointer">拒绝</button>' +
+        '<button onclick="downloadDevItem(\''+String(x.id||'')+'\')" style="padding:7px 12px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;border-radius:7px;font-size:12px;cursor:pointer">下载</button>' +
+      '</div>' +
+    '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">暂无待审核作品</div>';
+}
+function renderDevAdminApps(){
+  const box = document.getElementById('devAdminAppList');
+  if(!box) return;
+  if(!currentIsSuper){ box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">仅超级管理员可管理</div>'; return; }
+  const listed = devCache.filter(x=>x.status === '已通过').sort((a,b)=>(b.ts||0)-(a.ts||0));
+  box.innerHTML = listed.length ? listed.map(x=>{
+    const hidden = !!x.hidden;
+    return '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center">' +
+        '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + ' · ' + String(x.version||'') + '</span></div>' +
+        '<div style="font-size:11px;color:' + (hidden?'#f87171':'#34d399') + '">' + (hidden?'已隐藏':'公开') + '</div>' +
+      '</div>' +
+      '<div style="font-size:11px;color:#6b7280;margin-top:4px">' + String(x.byName||x.by||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '</div>' +
+      '<div style="display:flex;gap:8px;margin-top:8px">' +
+        '<button onclick="toggleAppHidden(\'' + String(x.id||'') + '\',' + (!hidden) + ')" style="flex:1;padding:7px;background:' + (hidden?'rgba(52,211,153,0.12)':'rgba(248,113,113,0.10)') + ';border:1px solid ' + (hidden?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)') + ';color:' + (hidden?'#34d399':'#f87171') + ';border-radius:7px;font-size:12px;cursor:pointer">' + (hidden?'设为公开':'设为隐藏') + '</button>' +
+        '<button onclick="downloadDevItem(\''+String(x.id||'')+'\')" style="padding:7px 12px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;border-radius:7px;font-size:12px;cursor:pointer">下载</button>' +
+      '</div>' +
+    '</div>';
+  }).join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">暂无已上架应用</div>';
+}
+async function toggleAppHidden(id, hidden){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可操作'); return; }
+  const item = devCache.find(x=>String(x.id)===String(id));
+  if(!item) return;
+  item.hidden = !!hidden;
+  try { await ghWriteRecords(GH_DEV_PATH, devCache, 'zx_dev_records'); toastMsg(hidden ? '已在应用中心隐藏' : '已设为公开'); }
+  catch(e){ toastMsg('保存失败，请检查网络'); }
+  renderDevAdminApps(); renderAppCenter();
 }
 async function renderDevManage(force){
   const list = document.getElementById('devManageList'); if(!list) return;
@@ -2614,6 +2725,9 @@ async function submitDevItem(){
   if(!file){ toastMsg('请选择要上传的文件'); return; }
   if(!/\.rpk$/i.test(file.name)){ toastMsg('开发者中心仅支持上传 .rpk 文件'); return; }
   if(file.size > 2 * 1024 * 1024){ toastMsg('文件超过 2MB，请压缩后再上传'); return; }
+  await loadApply();
+  const approvedApply = applyCache.filter(a=>a.status === '已通过').map(a=>String(a.uid));
+  const manuallyAdded = approvedApply.indexOf(String(me)) < 0;
   toastMsg('正在上传，请稍候…');
   try {
     const b64 = await readFileAsBase64(file);
@@ -2624,6 +2738,7 @@ async function submitDevItem(){
     const acc = ACCOUNTS[me] || {};
     const rec = { id: 'DEV' + Date.now(), type: type, name: name, version: version, desc: desc,
                   path: path, url: url, size: file.size, by: String(me), byName: acc.name || '',
+                  hidden: manuallyAdded,
                   status: '待审核', time: dmTime(Date.now()), ts: Date.now() };
     devCache.push(rec);
     devLoaded = true;
@@ -2635,6 +2750,7 @@ async function submitDevItem(){
     fileInput.value = '';
     toastMsg('已提交，等待超管审核');
     renderDevCenter();
+    goDevPage('manage');
   } catch(e){
     toastMsg('上传失败：' + (e && e.message ? e.message : '请检查网络或文件大小'));
   }
@@ -3551,7 +3667,7 @@ async function openAppWelfare(){
   const apkUrl = 'zhanxu-cloud.apk';
   const ok = await glassOpen({
     title: 'App 福利',
-    msg: '栈序云 Android 套壳版 v1.1.9（约 17 KB）\nWebView 容器，登录态、数据与网页端互通。\n\n点击「下载安装」获取 APK；若浏览器提示风险，选择“仍要下载”，并在系统设置里允许本次安装未知应用。',
+    msg: '栈序云 Android 套壳版 v1.2.0（约 17 KB）\nWebView 容器，登录态、数据与网页端互通。\n\n点击「下载安装」获取 APK；若浏览器提示风险，选择“仍要下载”，并在系统设置里允许本次安装未知应用。',
     okText: '下载安装',
     cancel: true
   });
@@ -4286,6 +4402,12 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.2.0', date: '2026-11-22', items: [
+      '开发者中心改版：创建应用、管理应用、应用数、待审核正方形入口，每列两个',
+      '超管新增审核中心：分「开发者申请」和「应用 / 表盘」两个二级菜单',
+      '超管新增应用中心管理，可控制上架应用的公开与隐藏',
+      '邮箱验证后可重置密码；登录云端连接提速，会话自动重试恢复'
+    ]},
     { ver: 'v1.1.9', date: '2026-11-21', items: [
       '发红包增加防连点：点确认后按钮立即锁定，发送未完成前的重复点击一律忽略，只扣一次费',
       '每个红包带唯一编号，同一红包重复提交会被识别并拦截，不会再生成多条消息',
