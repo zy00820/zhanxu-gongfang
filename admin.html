@@ -382,8 +382,8 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.2.0 更新</div>
-        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 发红包防连点，只扣一次费、只留一条消息<br>· 历史连发红包自动合并显示</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.2.1 更新</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 我的帖子改为与社区一致的卡片样式<br>· 支付密码、工单、帖子互动已迁入后端</div>
       </div>
     </div>
 
@@ -561,7 +561,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.2.0</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.2.1</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -1206,7 +1206,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.2.0</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.2.1</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -3722,7 +3722,7 @@ async function openAppWelfare(){
   const apkUrl = 'zhanxu-cloud.apk';
   const ok = await glassOpen({
     title: 'App 福利',
-    msg: '栈序云 Android 套壳版 v1.2.0（约 17 KB）\nWebView 容器，登录态、数据与网页端互通。\n\n点击「下载安装」获取 APK；若浏览器提示风险，选择“仍要下载”，并在系统设置里允许本次安装未知应用。',
+    msg: '栈序云 Android 套壳版 v1.2.1（约 17 KB）\nWebView 容器，登录态、数据与网页端互通。\n\n点击「下载安装」获取 APK；若浏览器提示风险，选择“仍要下载”，并在系统设置里允许本次安装未知应用。',
     okText: '下载安装',
     cancel: true
   });
@@ -3847,6 +3847,28 @@ async function postFilterTab(k){
   if(k === 'follow'){ try { await loadSocial(); } catch(e){} }
   renderPosts(postsCache || []);
 }
+function postCardHtml(p){
+  const grad = p.grad || 'linear-gradient(135deg,#60a5fa,#3b82f6)';
+  const pid = pidOf(p);
+  const likes = postLikes(pid);
+  const cms = postComments(pid);
+  const liked = iLiked(pid);
+  const name = displayName(p.uid, p.name || '?');
+  return `<div class="card post-card" onclick="openPostDetail('${pid}')" onpointerdown="ppStart(event,'${pid}')" onpointerup="ppEnd()" onpointercancel="ppEnd()" onpointermove="ppMove(event)" onpointerleave="ppEnd()">
+    <div class="post-head">
+      <div class="post-avatar" onclick="event.stopPropagation();postAvatarClick('${String(p.uid||'')}')" style="background:${grad};cursor:pointer">${name.charAt(0)}</div>
+      <div class="post-info"><div class="post-name">${name}</div><div class="post-time">${p.time||''}</div></div>
+      <div class="post-tag">${p.tag||'综合'}</div>
+    </div>
+    ${p.title ? '<div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : ''}
+    <div class="post-content">${peRenderText(p.content)}</div>
+    ${p.lottery && p.lottery.on ? '<div style="font-size:11px;color:#34d399;margin-bottom:8px">'+lotteryCard(p)+'</div>' : ''}
+    <div class="post-actions">
+      <span style="color:${liked?'#f472b6':'inherit'}">${liked?'♥':'♡'} ${likes}</span>
+      <span style="color:#6b7280">${cms.length} 评论</span>
+    </div>
+  </div>`;
+}
 function renderPosts(list){
   if(postFilter === 'follow'){
     list = list.filter(p=>postIsFollowing(p.uid));
@@ -3859,25 +3881,7 @@ function renderPosts(list){
   }
   let html = '';
   sorted.forEach(p=>{
-    const grad = p.grad || 'linear-gradient(135deg,#60a5fa,#3b82f6)';
-    const pid = pidOf(p);
-    const likes = postLikes(pid);
-    const cms = postComments(pid);
-    const liked = iLiked(pid);
-    html += `<div class="card post-card" onclick="openPostDetail('${pid}')" onpointerdown="ppStart(event,'${pid}')" onpointerup="ppEnd()" onpointercancel="ppEnd()" onpointermove="ppMove(event)" onpointerleave="ppEnd()">
-      <div class="post-head">
-        <div class="post-avatar" onclick="event.stopPropagation();postAvatarClick('${String(p.uid||'')}')" style="background:${grad};cursor:pointer">${(p.name||'?').charAt(0)}</div>
-        <div class="post-info"><div class="post-name">${p.name}</div><div class="post-time">${p.time}</div></div>
-        <div class="post-tag">${p.tag||'综合'}</div>
-      </div>
-      ${p.title ? '<div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:6px">'+String(p.title).replace(/</g,'&lt;')+'</div>' : ''}
-      <div class="post-content">${peRenderText(p.content)}</div>
-      ${p.lottery && p.lottery.on ? '<div style="font-size:11px;color:#34d399;margin-bottom:8px">'+lotteryCard(p)+'</div>' : ''}
-      <div class="post-actions">
-        <span style="color:${liked?'#f472b6':'inherit'}">${liked?'♥':'♡'} ${likes}</span>
-        <span style="color:#6b7280">${cms.length} 评论</span>
-      </div>
-    </div>`;
+    html += postCardHtml(p);
   });
   const box = document.getElementById('extraPosts');
   if(box) box.innerHTML = sorted.length ? '<div class="post-grid">'+html+'</div>' : '<div class="card" style="text-align:center;color:#6b7280;font-size:13px;padding:24px">还没有帖子，来发第一条吧</div>';
@@ -4498,6 +4502,11 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.2.1', date: '2026-11-23', items: [
+      '我的帖子改为与社区发帖一致的卡片样式，头像、昵称、话题、点赞评论同屏展示',
+      '支付密码、工单、帖子点赞评论与抽奖记录迁入后端',
+      '超管删帖走后端管理员 RPC，未登录旧仓库不再作为写入兜底'
+    ]},
     { ver: 'v1.2.0', date: '2026-11-22', items: [
       '开发者中心改版：创建应用、管理应用、应用数、待审核正方形入口，每列两个',
       '超管新增审核中心：分「开发者申请」和「应用 / 表盘」两个二级菜单',
@@ -6769,13 +6778,10 @@ async function renderMePage(){
   if(hint) hint.textContent = mine.length ? ('共 ' + mine.length + ' 条') : '';
   const box = document.getElementById('myPosts');
   if(box){
-    box.innerHTML = mine.length ? mine.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).map(p=>{
-      const pid = pidOf(p);
-      return '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
-        '<div style="font-size:13px;color:#1f2937;line-height:1.6">' + String(p.content||'').replace(/</g,'&lt;') + '</div>' +
-        '<div style="font-size:11px;color:#6b7280;margin-top:5px">' + (p.time||'') + ' · ' + postLikes(pid) + ' 赞 · ' + postComments(pid).length + ' 评论</div>' +
-      '</div>';
-    }).join('') : '<div style="text-align:center;color:#6b7280;font-size:13px;padding:18px">还没有发过帖子</div>';
+    const mineList = mine.slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
+    box.innerHTML = mineList.length
+      ? '<div class="post-grid">'+mineList.map(postCardHtml).join('')+'</div>'
+      : '<div style="text-align:center;color:#6b7280;font-size:13px;padding:18px">还没有发过帖子</div>';
   }
 }
 async function renameMe(){
