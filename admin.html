@@ -3443,7 +3443,7 @@ async function loadRemoteAccounts(force){
   try {
     if(SB.client){
       const r = await SB.client.from('profiles')
-        .select('uid,email,username,level,balance,coin,banned,role,auth_id');
+        .select('uid,email,username,level,balance,coin,banned,role,auth_id,pay_hash');
       if(!r.error){
         (r.data || []).forEach(p=>{
           if(!p || !p.uid) return;
@@ -3458,6 +3458,7 @@ async function loadRemoteAccounts(force){
           ex.banned = !!p.banned;
           ex.role = p.role || ex.role || '';
           ex.auth_id = p.auth_id || null;
+          if(p.pay_hash) ex.payHash = p.pay_hash;
         });
       }
     }
@@ -3735,8 +3736,15 @@ let ticketData = [];
 let ticketCloudCache = [], ticketCloudLoaded = false;
 async function loadTickets(force){
   if(ticketCloudLoaded && !force) return ticketCloudCache;
-  try { const r = await ghGetRecords(GH_TICKET_PATH); ticketCloudCache = r.list || []; }
-  catch(e){ try { ticketCloudCache = JSON.parse(localStorage.getItem('zx_ticket_records')||'[]'); } catch(x){ ticketCloudCache = []; } }
+  let db = [];
+  try { db = await sbFetchTickets() || []; } catch(e){ db = []; }
+  let legacy = [];
+  try { const r = await ghGetRecords(GH_TICKET_PATH); legacy = r.list || []; }
+  catch(e){ try { legacy = JSON.parse(localStorage.getItem('zx_ticket_records')||'[]'); } catch(x){ legacy = []; } }
+  const map = new Map();
+  legacy.forEach(t => map.set(String(t.id), t));
+  db.forEach(t => map.set(String(t.id), t));
+  ticketCloudCache = [...map.values()];
   if(!Array.isArray(ticketCloudCache)) ticketCloudCache = [];
   ticketCloudLoaded = true; return ticketCloudCache;
 }
@@ -3754,13 +3762,21 @@ let postsExpanded = {};
 
 async function loadInteractOnce(force){
   if(interactLoaded && !force) return interactCache;
+  let db = [];
+  try { db = await sbFetchInteractions() || []; } catch(e){ db = []; }
+  let legacy = [];
   try {
     const r = await ghGetRecords(GH_INTERACT_PATH);
-    interactCache = r.list || [];
-    localStorage.setItem('zx_interact', JSON.stringify(interactCache));
+    legacy = r.list || [];
+    localStorage.setItem('zx_interact', JSON.stringify(legacy));
   } catch(e){
-    try { interactCache = JSON.parse(localStorage.getItem('zx_interact')||'[]'); } catch(x){ interactCache = []; }
+    try { legacy = JSON.parse(localStorage.getItem('zx_interact')||'[]'); } catch(x){ legacy = []; }
   }
+  const key = x => [String(x.pid), String(x.uid), x.type, String(x.text||'')].join('|');
+  const seen = new Set(db.map(key));
+  const merged = db.slice();
+  legacy.forEach(x => { if(!seen.has(key(x))){ seen.add(key(x)); merged.push(x); } });
+  interactCache = merged;
   interactLoaded = true;
   return interactCache;
 }
@@ -3777,14 +3793,19 @@ async function toggleLike(pid){
   if(!me){ toastMsg('请先登录'); return; }
   await loadInteractOnce();
   const idx = interactCache.findIndex(x => x.pid === pid && x.type === 'like' && x.uid === me);
-  if(idx >= 0){ interactCache.splice(idx,1); }
-  else {
-    interactCache.push({ pid: pid, type: 'like', uid: me, name: (ACCOUNTS[me]||{}).name || me, ts: Date.now(), time: dmTime(Date.now()) });
+  let sbOk = true;
+  if(idx >= 0){
+    interactCache.splice(idx,1);
+    sbOk = await sbDeleteInteraction(pid, 'like');
+  } else {
+    const rec = { pid: pid, type: 'like', uid: me, name: (ACCOUNTS[me]||{}).name || me, ts: Date.now(), time: dmTime(Date.now()) };
+    interactCache.push(rec);
+    sbOk = await sbInsertInteraction(rec);
   }
-  const ok = await saveInteract();
+  const ok = sbOk || await saveInteract();
   renderPosts(postsCache);
   refreshIfDetail();
-  if(!ok) toastMsg('网络异常，点赞已先存本地');
+  if(!sbOk) toastMsg('网络异常，点赞状态已先存本地');
   else toastMsg(idx >= 0 ? '已取消点赞' : '已点赞');
 }
 async function toggleComments(pid){
@@ -3802,8 +3823,9 @@ async function addComment(pid){
   await loadInteractOnce();
   const rec = { pid: pid, type: 'comment', uid: me, name: (ACCOUNTS[me]||{}).name || me, text: text, ts: Date.now(), time: dmTime(Date.now()) };
   interactCache.push(rec);
+  const sbOk = await sbInsertInteraction(rec);
+  const ok = sbOk || await saveInteract();
   inp.value = '';
-  const ok = await saveInteract();
   postsExpanded[pid] = true;
   renderPosts(postsCache);
   refreshIfDetail();
@@ -4009,17 +4031,26 @@ async function sheetDelete(){
   if(!currentIsSuper){ toastMsg('仅超级管理员可删除帖子'); return; }
   const ok = await glassConfirm('删除帖子', '确认删除该帖子？删除后不可恢复。');
   if(!ok) return;
-  postsCache = (postsCache || []).filter(p => pidOf(p) !== t.pid);
+  const targetPid = String(t.pid || '');
+  const dbPostId = targetPid.startsWith('P') ? targetPid : ('P' + targetPid);
+  let cloudOk = false;
   try {
-    await ghWriteRecords(GH_POSTS_PATH, postsCache, 'zx_posts');
-    toastMsg('帖子已删除并云端同步');
-  } catch(e){
-    toastMsg('删除失败，请检查网络');
+    if(SB.client && SB.session){
+      const r = await SB.client.rpc('admin_delete_post', { p_id: dbPostId });
+      cloudOk = !r.error;
+      if(r.error) SB.err = r.error.message;
+    }
+  } catch(e){ SB.err = e.message || String(e); cloudOk = false; }
+  if(!cloudOk){
+    toastMsg('后端删除失败：' + (SB.err || '网络异常'));
+    return;
   }
+  postsCache = (postsCache || []).filter(p => pidOf(p) !== t.pid);
   renderPosts(postsCache);
   const st = document.getElementById('statPosts');
   if(st) st.textContent = postsCache.length;
   renderMePage();
+  toastMsg('帖子已删除并同步后端');
 }
 
 // 内容去重：忽略空格与大小写，同一内容只保留最新一条
@@ -4165,8 +4196,10 @@ async function toggleLotteryJoin(pid){
   if(!me){ toastMsg('请先登录'); return; }
   await loadInteractOnce();
   if(iJoinedLottery(pid)){ toastMsg('已参与抽奖，不可退出'); return; }
-  interactCache.push({ pid: pid, type: 'lottery', uid: me, name: (ACCOUNTS[me]||{}).name || me, ts: Date.now(), time: dmTime(Date.now()) });
-  const ok = await saveInteract();
+  const rec = { pid: pid, type: 'lottery', uid: me, name: (ACCOUNTS[me]||{}).name || me, ts: Date.now(), time: dmTime(Date.now()) };
+  interactCache.push(rec);
+  const sbOk = await sbInsertInteraction(rec);
+  const ok = sbOk || await saveInteract();
   renderPosts(postsCache);
   refreshIfDetail();
   toastMsg(ok ? '已参与抽奖' : '网络异常，参与状态已先存本地');
@@ -4393,11 +4426,15 @@ async function renderTickets(){
     </div>`;
   }).join('');
 }
-function resolveTicket(i){
+async function resolveTicket(i){
   const list = staffTicketList();
   const t = list[i]; if(!t) return;
   t.status = '已处理';
-  if(t.cloud){
+  if(t.backend && t.dbId){
+    const ok = await sbResolveTicket(t.dbId);
+    if(!ok){ toastMsg('处理状态云端同步失败'); t.status = '待处理'; }
+    else toastMsg('工单已处理');
+  } else if(t.cloud){
     const rec = ticketCloudCache.find(x=>x.id===t.id);
     if(rec) rec.status = '已处理';
     ghWriteRecords(GH_TICKET_PATH, ticketCloudCache, 'zx_ticket_records')
@@ -4425,15 +4462,20 @@ async function submitTicket(){
     category: category, title: title, contact: contact, content: content,
     time: new Date().toLocaleString(), ts: Date.now(), status: '待处理', cloud: true
   };
-  try { await ghAppendRecord(GH_TICKET_PATH, rec, 'zx_ticket_records'); }
-  catch(e){ const l = JSON.parse(localStorage.getItem('zx_ticket_records')||'[]'); l.push(rec); localStorage.setItem('zx_ticket_records', JSON.stringify(l)); ticketCloudCache.push(rec); ticketCloudLoaded = true; }
+  let sbOk = false;
+  try { sbOk = await sbSubmitTicket(rec); } catch(e){ sbOk = false; }
+  if(!sbOk){
+    try { await ghAppendRecord(GH_TICKET_PATH, rec, 'zx_ticket_records'); }
+    catch(e){ const l = JSON.parse(localStorage.getItem('zx_ticket_records')||'[]'); l.push(rec); localStorage.setItem('zx_ticket_records', JSON.stringify(l)); ticketCloudCache.push(rec); ticketCloudLoaded = true; }
+  }
   document.getElementById('tkTitle').value = '';
   document.getElementById('tkContent').value = '';
   document.getElementById('tkContact').value = '';
   err.textContent = '';
   logAct('ticket_submit', '工单 ' + rec.id, category + ' · ' + title);
-  toastMsg('工单已提交，工作人员会尽快处理');
-  renderMyTickets();
+  toastMsg(sbOk ? '工单已提交，已写入后端' : '工单已提交，工作人员会尽快处理');
+  ticketCloudLoaded = false;
+  await renderMyTickets();
 }
 async function renderMyTickets(){
   const box = document.getElementById('myTicketList'); if(!box) return;
@@ -6433,14 +6475,25 @@ async function savePayCloudHash(h){
   const me=myUid();
   if(ACCOUNTS[me]) ACCOUNTS[me].payHash=h;
   localStorage.setItem(payPwdKey(), h);
-  try{
-    const r=await ghGetRecords(GH_USERS_PATH);
-    const list=r.list||[];
-    let found=false;
-    list.forEach(a=>{ if(String(a.uid)===String(me)){ a.payHash=h; found=true; } });
-    if(!found) list.push({ uid:String(me), name:(ACCOUNTS[me]||{}).name||me, level:(ACCOUNTS[me]||{}).level||'用户', payHash:h, balance:(ACCOUNTS[me]||{}).balance||0 });
-    await ghWriteRecords(GH_USERS_PATH,list,'zx_user_accounts');
-  }catch(e){}
+  let cloudOk = false;
+  try {
+    if(SB.client && SB.session){
+      const r = await SB.client.rpc('set_pay_hash', { p_hash: h });
+      cloudOk = !r.error;
+      if(r.error) SB.err = r.error.message;
+    }
+  } catch(e){ SB.err = e.message || String(e); }
+  if(!cloudOk){
+    try{
+      const r=await ghGetRecords(GH_USERS_PATH);
+      const list=r.list||[];
+      let found=false;
+      list.forEach(a=>{ if(String(a.uid)===String(me)){ a.payHash=h; found=true; } });
+      if(!found) list.push({ uid:String(me), name:(ACCOUNTS[me]||{}).name||me, level:(ACCOUNTS[me]||{}).level||'用户', payHash:h, balance:(ACCOUNTS[me]||{}).balance||0 });
+      await ghWriteRecords(GH_USERS_PATH,list,'zx_user_accounts');
+    }catch(e){}
+  }
+  return cloudOk;
 }
 function payCodeKey(){ return 'zx_pay_code_'+myUid(); }
 function openPay(){
@@ -6506,8 +6559,8 @@ async function rpSetPwd(){
   if(!/^\d{6}$/.test(p1)){ err.textContent='支付密码须为 6 位数字'; return; }
   if(p1!==p2){ err.textContent='两次输入的密码不一致'; return; }
   const h=await sha256(p1);
-  await savePayCloudHash(h);
-  toastMsg('支付密码已设置并同步');
+  const cloudOk = await savePayCloudHash(h);
+  toastMsg(cloudOk ? '支付密码已设置并云端同步' : '网络异常，支付密码已先存本地');
   await finalizeRp();
 }
 
@@ -7322,6 +7375,78 @@ function sbRowToPost(r){
     time: d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes()),
     ts
   };
+}
+function sbTicketRowToRec(r){
+  const ts = r.created_at ? Date.parse(r.created_at) : Date.now();
+  return {
+    id: 'WO-' + r.id, dbId: r.id, uid: String(r.uid || ''),
+    name: r.name || displayName(r.uid, r.uid),
+    title: r.title || '', content: r.content || '',
+    category: r.category || '', contact: r.contact || '',
+    status: r.status || '待处理', reply: r.reply || '',
+    time: dmTime(ts), ts: ts, cloud: true, backend: true
+  };
+}
+function sbInterRowToRec(r){
+  const pid = String(r.post_id || '').replace(/^P/, '');
+  const ts = r.created_at ? Date.parse(r.created_at) : Date.now();
+  return { pid: pid, type: r.type, uid: String(r.uid || ''), name: r.name || displayName(r.uid, r.uid), text: r.text || '', ts: ts, time: dmTime(ts), backend: true };
+}
+async function sbFetchInteractions(){
+  if(!SB.client) return null;
+  const r = await SB.client.from('post_interactions')
+    .select('post_id,uid,type,name,text,created_at').order('created_at',{ascending:true}).limit(1000);
+  if(r.error) throw new Error(r.error.message);
+  return (r.data || []).map(sbInterRowToRec);
+}
+function sbInterPostId(pid){ return String(pid || '').startsWith('P') ? String(pid) : ('P' + String(pid)); }
+async function sbInsertInteraction(rec){
+  if(!SB.client || !SB.session || !SB.uid) return false;
+  const r = await SB.client.from('post_interactions').insert({
+    post_id: sbInterPostId(rec.pid), uid: SB.uid, type: rec.type,
+    name: rec.name || null, text: rec.text || null
+  });
+  if(r.error){ SB.err = r.error.message; return false; }
+  return true;
+}
+async function sbDeleteInteraction(pid, type){
+  if(!SB.client || !SB.session || !SB.uid) return false;
+  const r = await SB.client.from('post_interactions')
+    .delete().eq('post_id', sbInterPostId(pid)).eq('uid', SB.uid).eq('type', type);
+  if(r.error){ SB.err = r.error.message; return false; }
+  return true;
+}
+async function sbFetchTickets(){
+  if(!SB.client) return null;
+  const me = myUid();
+  const acc = ACCOUNTS[me] || {};
+  const isStaff = currentIsSuper || acc.level === '管理员' || acc.level === '超级管理员';
+  let r;
+  if(isStaff){
+    r = await SB.client.rpc('admin_list_tickets');
+    if(r.error){
+      r = await SB.client.from('tickets').select('*').eq('uid', me).order('created_at',{ascending:false});
+    }
+  } else {
+    r = await SB.client.from('tickets').select('*').eq('uid', me).order('created_at',{ascending:false});
+  }
+  if(r.error) throw new Error(r.error.message);
+  return (r.data || []).map(sbTicketRowToRec);
+}
+async function sbSubmitTicket(rec){
+  if(!SB.client || !SB.session || !SB.uid) return false;
+  const r = await SB.client.rpc('submit_ticket', {
+    p_title: rec.title, p_content: rec.content,
+    p_category: rec.category || null, p_contact: rec.contact || null
+  });
+  if(r.error){ SB.err = r.error.message; return false; }
+  return true;
+}
+async function sbResolveTicket(dbId){
+  if(!SB.client || !SB.session) return false;
+  const r = await SB.client.rpc('resolve_ticket', { p_id: dbId });
+  if(r.error){ SB.err = r.error.message; return false; }
+  return true;
 }
 async function sbFetchPosts(){
   if(!SB.client) return null;
