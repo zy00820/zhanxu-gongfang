@@ -1774,6 +1774,8 @@ async function showApp(u){
   if(myBal) myBal.textContent = '¥' + Number(acc.balance || 0).toFixed(2);
   renderStaff(acc);
   currentIsSuper = acc.level === '超级管理员';
+  try { syncRoleFromBackend(); } catch(e){}
+  try { sbRenderStatus(); } catch(e){}
   { const dashInit = document.getElementById('homeDash');
     if(dashInit) dashInit.style.display = acc.level === '用户' ? 'block' : 'none'; }
   const staffTabEl = document.querySelector('.tab[data-view="staffSvc"]');
@@ -2048,6 +2050,7 @@ async function autoLogin(){
     await loadBans();
     if(isBanned(s.uid)){ localStorage.removeItem('zx_saved_login'); sessionStorage.removeItem('zx_user'); return; }
     sessionStorage.setItem('zx_user', s.uid);
+    try { await sbBoot(); } catch(e){}
     showApp(s.uid);
     setTimeout(()=>toastMsg('已自动登录：' + (acc.name || s.uid)), 600);
   } catch(e){}
@@ -3414,8 +3417,9 @@ function nextUid(){
   } catch(e){}
   return String(max + 1);
 }
-async function loadRemoteAccounts(){
+async function loadRemoteAccounts(force){
   let ok = false;
+  const dbUids = new Set();
   const mergeList = (list) => {
     list.forEach(a=>{
       if(!a || !a.uid) return;
@@ -3423,14 +3427,41 @@ async function loadRemoteAccounts(){
         ACCOUNTS[a.uid] = { hash:a.hash, name:a.name, level:a.level||'用户', keyHash:a.keyHash, key:a.key, balance:a.balance||0, email:a.email||'', payHash:a.payHash||'' };
       } else {
         const ex = ACCOUNTS[a.uid];
-        if(a.email) ex.email = a.email;
-        if(a.name) ex.name = a.name;
-        if(a.level) ex.level = a.level;
-        if(a.keyHash) ex.keyHash = a.keyHash;
-        if(a.payHash) ex.payHash = a.payHash;
+        // 后端已有的账号：旧 JSON 只补密码/密钥哈希，不覆盖后端资料、等级和余额
+        const backendOwned = dbUids.has(String(a.uid));
+        if(!backendOwned || !ex.email) ex.email = a.email || ex.email;
+        if(!backendOwned || !ex.name) ex.name = a.name || ex.name;
+        if(!backendOwned || !ex.level) ex.level = a.level || ex.level;
+        if(!ex.keyHash) ex.keyHash = a.keyHash;
+        if(!ex.key) ex.key = a.key;
+        if(!ex.payHash) ex.payHash = a.payHash;
+        if(!backendOwned || ex.balance == null) ex.balance = a.balance || ex.balance || 0;
       }
     });
   };
+  // 后端 profiles 优先：余额、等级、邮箱、角色以后端返回为准
+  try {
+    if(SB.client){
+      const r = await SB.client.from('profiles')
+        .select('uid,email,username,level,balance,coin,banned,role,auth_id');
+      if(!r.error){
+        (r.data || []).forEach(p=>{
+          if(!p || !p.uid) return;
+          dbUids.add(String(p.uid));
+          if(!ACCOUNTS[p.uid]) ACCOUNTS[p.uid] = {};
+          const ex = ACCOUNTS[p.uid];
+          if(p.email) ex.email = p.email;
+          if(p.username) ex.name = p.username;
+          if(p.level) ex.level = p.level;
+          if(p.balance != null) ex.balance = Number(p.balance);
+          if(p.coin != null) ex.coin = Number(p.coin);
+          ex.banned = !!p.banned;
+          ex.role = p.role || ex.role || '';
+          ex.auth_id = p.auth_id || null;
+        });
+      }
+    }
+  } catch(e){}
   try {
     const r = await ghGetRecords(GH_USERS_PATH);
     mergeList(r.list || []);
@@ -6794,9 +6825,12 @@ async function sbResolveProfile(){
   }catch(e){ SB.err = e.message || String(e); return null; }
 }
 
+let _sbBootPromise = null;
 async function sbBoot(){
-  if(SB.loading) return;
+  if(_sbBootPromise) return _sbBootPromise;
+  if(SB.ready) return Promise.resolve();
   SB.loading = true;
+  _sbBootPromise = (async () => {
   try{
     const sdk = await sbLoadSdk();
     SB.client = sdk.createClient(SB_URL, SB_KEY, {
@@ -6825,6 +6859,9 @@ async function sbBoot(){
   SB.loading = false;
   try { auditFlush(); } catch(e){}
   sbRenderStatus();
+  })();
+  await _sbBootPromise;
+  return _sbBootPromise;
 }
 
 // 等后端 SDK 就绪后再绑定会话（避免登录太快、SDK 还没下完导致绑定被跳过）
@@ -6896,14 +6933,19 @@ function sbRenderStatus(){
   if(!el) return;
   let txt = '未连接', color = '#6b7280';
   if(SB.session){
-    txt = SB.uid ? ('已登录 · ' + SB.uid) : '已登录';
+    txt = SB.uid ? ('已连接 · ' + SB.uid) : '已连接';
     color = '#34d399';
   } else if(SB.err){
     txt = '连接异常 · 点我重试'; color = '#f87171';
-  } else if(SB.ready){
-    txt = '已就绪（待登录）'; color = '#34d399';
   } else if(SB.loading){
     txt = '连接中…'; color = '#fbbf24';
+  } else if(SB.ready){
+    const me = myUid();
+    const probe = _roleProbeDone && _roleProbeDone.uid === me ? _roleProbeDone.bound : null;
+    if(me && probe === true){ txt = '已绑定 · 会话恢复中'; color = '#fbbf24'; }
+    else if(me && probe === false){ txt = '云端未绑定'; color = '#6b7280'; }
+    else if(me){ txt = '云端校验中…'; color = '#fbbf24'; }
+    else { txt = '未连接'; color = '#6b7280'; }
   }
   el.textContent = txt;
   el.style.color = color;
@@ -7096,7 +7138,8 @@ async function renderAudit(force){
 function bindCodeKey(){ return 'zx_bind_code_' + myUid(); }
 function sbRetry(){
   if(SB.loading) return;
-  SB.err = null; SB.loading = false;
+  SB.err = null; SB.loading = false; SB.ready = false;
+  _sbBootPromise = null;
   try { sbBoot(); } catch(e){}
   setTimeout(()=>{ try{ sbRenderStatus(); } catch(e){} }, 800);
 }
@@ -7344,7 +7387,8 @@ function bootHide(){
 
 async function bootLoadAll(){
   const started = Date.now();
-  bootSet(6, '账号数据', '正在同步云端账号');
+  if(!SB.ready){ try { await sbBoot(); } catch(e){} }
+  bootSet(6, '账号数据', '正在从云端同步账号');
   try { await loadRemoteAccounts(true); } catch(e){}
   bootSet(14, '昵称与封禁', '正在同步用户资料');
   try { await Promise.all([loadNameOverrides(true), loadBans()]); } catch(e){}
