@@ -1352,8 +1352,7 @@ option{background:#fff;color:#1f2937}
             <option value="游戏">游戏</option>
             <option value="运动健康">运动健康</option>
           </select>
-          <input id="devFile" type="file" accept=".rpk" style="width:100%;margin-bottom:10px;font-size:12px;color:#6b7280">
-          <div style="font-size:11px;color:#6b7280;margin-bottom:10px">仅支持 .rpk 文件（栈序 OS 应用/表盘包），单个文件不超过 2MB；文件会存进仓库 dev-uploads/</div>
+          <div style="font-size:11px;color:#6b7280;margin-bottom:10px">创建后可在“管理应用”中为该作品上传 .rpk 安装包；包体单个不超过 2MB，存入仓库 dev-uploads/</div>
           <button onclick="submitDevItem()" style="width:100%;padding:11px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:9px;font-size:14px;cursor:pointer">提交审核</button>
         </div>
       </div>
@@ -1366,6 +1365,53 @@ option{background:#fff;color:#1f2937}
             <a onclick="goDevPage('home')" style="font-size:12px;color:#2563eb;cursor:pointer">返回首页</a>
           </div>
           <div id="devMyList"></div>
+        </div>
+      </div>
+
+      <!-- 单独编辑应用页 -->
+      <div id="devPage-edit" style="display:none">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:600;color:#111827">编辑应用</div>
+            <a onclick="goDevPage('manage')" style="font-size:12px;color:#2563eb;cursor:pointer">返回管理</a>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <select id="editType" onchange="const t=this.value;const c=document.getElementById('editCategory');if(t==='表盘')c.value='表盘';else if(c.value==='表盘')c.value='应用'" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
+              <option value="应用">应用</option>
+              <option value="表盘">表盘</option>
+            </select>
+            <input id="editName" placeholder="名称" style="flex:1.4;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
+          </div>
+          <div style="margin-bottom:10px">
+            <input id="editVersion" placeholder="版本，如 1.0.0" style="width:100%;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none">
+          </div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:6px">应用简介</div>
+          <textarea id="editDesc" rows="3" maxlength="600" placeholder="介绍应用功能、使用场景等，最多 600 字" oninput="document.getElementById('editDescCount').textContent=this.value.length" style="width:100%;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+          <div style="font-size:11px;color:#6b7280;margin:4px 0 10px;text-align:right"><span id="editDescCount">0</span>/600</div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:6px">应用分类</div>
+          <select id="editCategory" style="width:100%;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(115,184,255,0.2);border-radius:9px;color:#fff;font-size:13px;outline:none;margin-bottom:10px">
+            <option value="应用">应用</option>
+            <option value="表盘">表盘</option>
+            <option value="工具">工具</option>
+            <option value="娱乐">娱乐</option>
+            <option value="游戏">游戏</option>
+            <option value="运动健康">运动健康</option>
+          </select>
+          <button onclick="saveDevEdit()" style="width:100%;padding:11px;background:rgba(115,184,255,0.16);border:1px solid rgba(115,184,255,0.36);color:#2563eb;border-radius:9px;font-size:14px;cursor:pointer">保存修改</button>
+        </div>
+      </div>
+
+      <!-- 单独上传安装包页 -->
+      <div id="devPage-upload" style="display:none">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:600;color:#111827">上传安装包</div>
+            <a onclick="goDevPage('manage')" style="font-size:12px;color:#2563eb;cursor:pointer">返回管理</a>
+          </div>
+          <div id="uploadCurrent" style="font-size:12px;color:#6b7280;line-height:1.6;margin-bottom:10px"></div>
+          <input id="uploadDevFile" type="file" accept=".rpk" style="width:100%;margin-bottom:10px;font-size:12px;color:#6b7280">
+          <div style="font-size:11px;color:#6b7280;margin-bottom:10px">仅支持 .rpk 文件（栈序 OS 应用/表盘包），单个文件不超过 2MB；文件会存进仓库 dev-uploads/</div>
+          <button onclick="uploadDevPackage()" style="width:100%;padding:11px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:9px;font-size:14px;cursor:pointer">上传并替换安装包</button>
         </div>
       </div>
 
@@ -2568,7 +2614,7 @@ let rvTabSel = 'dev';
 
 function goDevPage(p){
   devPage = p;
-  ['home','create','manage','review','appadmin'].forEach(k=>{
+  ['home','create','manage','edit','upload','review','appadmin'].forEach(k=>{
     const el = document.getElementById('devPage-' + k);
     if(el) el.style.display = (k === p) ? 'block' : 'none';
   });
@@ -2612,7 +2658,7 @@ async function renderDevCenter(force){
 
   const tiles = [];
   if(allowed){
-    tiles.push({ key:'create', icon:'✦', label:'创建应用', desc:'上传应用 / 表盘', bg:'rgba(167,139,250,0.10)', bd:'rgba(167,139,250,0.28)', fc:'#a78bfa', tap:"goDevPage('create')" });
+    tiles.push({ key:'create', icon:'✦', label:'创建应用', desc:'填写应用资料', bg:'rgba(167,139,250,0.10)', bd:'rgba(167,139,250,0.28)', fc:'#a78bfa', tap:"goDevPage('create')" });
     tiles.push({ key:'manage', icon:'▤', label:'管理应用', desc:'我的全部作品', bg:'rgba(37,99,235,0.08)', bd:'rgba(37,99,235,0.25)', fc:'#2563eb', tap:"goDevPage('manage')" });
     tiles.push({ key:'count', icon:'◈', label:'应用数', desc:'已提交作品', count:mine.length, bg:'rgba(52,211,153,0.08)', bd:'rgba(52,211,153,0.25)', fc:'#34d399', tap:"goDevPage('manage')" });
     tiles.push({ key:'pending', icon:'◔', label:'待审核', desc:'我的待审', count:pendingMine.length, bg:'rgba(251,191,36,0.10)', bd:'rgba(251,191,36,0.28)', fc:'#fbbf24', tap:"goDevPage('manage')" });
@@ -2634,16 +2680,22 @@ function renderMyApps(){
   const mbox = document.getElementById('devMyList');
   if(!mbox) return;
   const mine = devCache.filter(x=>String(x.by) === String(me)).sort((a,b)=>(b.ts||0)-(a.ts||0));
-  mbox.innerHTML = mine.length ? mine.map(x=>
-    '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center">' +
-        '<div style="font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + (x.category && x.category !== x.type ? ' · ' + String(x.category).replace(/</g,'&lt;') : '') + '</span></div>' +
-        '<div style="font-size:11px;color:' + devStatusColor(x.status) + '">' + String(x.status||'') + '</div>' +
+  mbox.innerHTML = mine.length ? mine.map(x=>{
+    const id = String(x.id||'').replace(/'/g,'\\\'');
+    return '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
+        '<div style="min-width:0;font-size:13px;color:#1f2937">' + String(x.name||'').replace(/</g,'&lt;') + ' <span style="font-size:11px;color:#6b7280">' + String(x.type||'') + (x.category && x.category !== x.type ? ' · ' + String(x.category).replace(/</g,'&lt;') : '') + '</span></div>' +
+        '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">' +
+          '<span style="font-size:11px;color:' + devStatusColor(x.status) + '">' + String(x.status||'') + '</span>' +
+          '<button onclick="openDevEdit(\''+id+'\')" style="padding:6px 10px;background:rgba(115,184,255,0.12);border:1px solid rgba(115,184,255,0.3);color:#2563eb;border-radius:7px;font-size:12px;cursor:pointer">编辑</button>' +
+          '<button onclick="openDevUpload(\''+id+'\')" style="padding:6px 10px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;border-radius:7px;font-size:12px;cursor:pointer">上传</button>' +
+        '</div>' +
       '</div>' +
       '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.6">' + String(x.version||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '<br>' + String(x.time||'') + '</div>' +
-      (x.status === '已通过' && x.url ? '<div style="margin-top:6px"><button onclick="downloadDevItem(\''+String(x.id||'')+'\')" style="font-size:11px;color:#2563eb;background:none;border:none;cursor:pointer;padding:0">下载已上架文件</button></div>' : '') +
+      (x.status === '已通过' && x.url ? '<div style="margin-top:6px"><button onclick="downloadDevItem(\''+id+'\')" style="font-size:11px;color:#2563eb;background:none;border:none;cursor:pointer;padding:0">下载已上架文件</button></div>' : '') +
       (x.status === '已拒绝' && x.reason ? '<div style="margin-top:5px;font-size:11px;color:#f87171">原因：' + String(x.reason).replace(/</g,'&lt;') + '</div>' : '') +
-    '</div>').join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">还没有提交过作品</div>';
+    '</div>';
+  }).join('') : '<div style="text-align:center;color:#6b7280;font-size:12px;padding:14px">还没有提交过作品</div>';
 }
 function renderPendingApps(){
   const pbox = document.getElementById('devPendingList');
@@ -2742,26 +2794,15 @@ async function submitDevItem(){
   const version = document.getElementById('devVersion').value.trim();
   const desc = document.getElementById('devDesc').value.trim().slice(0, 600);
   const category = document.getElementById('devCategory').value;
-  const fileInput = document.getElementById('devFile');
-  const file = fileInput.files && fileInput.files[0];
   if(!name){ toastMsg('请填写作品名称'); return; }
-  if(!file){ toastMsg('请选择要上传的文件'); return; }
-  if(!/\.rpk$/i.test(file.name)){ toastMsg('开发者中心仅支持上传 .rpk 文件'); return; }
-  if(file.size > 2 * 1024 * 1024){ toastMsg('文件超过 2MB，请压缩后再上传'); return; }
   await loadApply();
   const approvedApply = applyCache.filter(a=>a.status === '已通过').map(a=>String(a.uid));
   const manuallyAdded = approvedApply.indexOf(String(me)) < 0;
   const hiddenByType = (type === '表盘' || category === '表盘');
-  toastMsg('正在上传，请稍候…');
   try {
-    const b64 = await readFileAsBase64(file);
-    const path = GH_UPLOAD_DIR + Date.now() + '-' + devSafeName(file.name);
-    const r = await ghRequest(path, 'PUT', { message: 'upload: ' + name + ' (开发者中心)', content: b64 });
-    if(!r.resp || !r.resp.ok) throw new Error('上传失败 ' + ((r.resp && r.resp.status) || r.error));
-    const url = GH_RAW + path.split('/').map(encodeURIComponent).join('/');
     const acc = ACCOUNTS[me] || {};
     const rec = { id: 'DEV' + Date.now(), type: type, category: category, name: name, version: version, desc: desc,
-                  path: path, url: url, size: file.size, by: String(me), byName: acc.name || '',
+                  path: '', url: '', size: 0, by: String(me), byName: acc.name || '',
                   hidden: manuallyAdded || hiddenByType,
                   status: '待审核', time: dmTime(Date.now()), ts: Date.now() };
     devCache.push(rec);
@@ -2773,8 +2814,80 @@ async function submitDevItem(){
     document.getElementById('devDesc').value = '';
     document.getElementById('devCategory').value = '应用';
     const dc = document.getElementById('devDescCount'); if(dc) dc.textContent = '0';
+    toastMsg('已创建，请在管理应用中上传安装包');
+    renderDevCenter();
+    goDevPage('manage');
+  } catch(e){
+    toastMsg('创建失败：' + (e && e.message ? e.message : '请检查网络'));
+  }
+}
+let currentDevId = '';
+function findDevItem(id){ return devCache.find(x=>String(x.id)===String(id)); }
+function openDevEdit(id){
+  const item = findDevItem(id);
+  if(!item){ toastMsg('未找到该应用'); return; }
+  currentDevId = String(id);
+  document.getElementById('editType').value = item.type === '表盘' ? '表盘' : '应用';
+  document.getElementById('editName').value = item.name || '';
+  document.getElementById('editVersion').value = item.version || '';
+  document.getElementById('editDesc').value = item.desc || '';
+  document.getElementById('editCategory').value = item.category || (item.type === '表盘' ? '表盘' : '应用');
+  const dc = document.getElementById('editDescCount'); if(dc) dc.textContent = String(item.desc || '').length;
+  goDevPage('edit');
+}
+async function saveDevEdit(){
+  const item = findDevItem(currentDevId);
+  if(!item){ toastMsg('未找到该应用'); return; }
+  const type = document.getElementById('editType').value;
+  const name = document.getElementById('editName').value.trim();
+  const version = document.getElementById('editVersion').value.trim();
+  const desc = document.getElementById('editDesc').value.trim().slice(0, 600);
+  const category = document.getElementById('editCategory').value;
+  if(!name){ toastMsg('请填写作品名称'); return; }
+  item.type = type; item.name = name; item.version = version; item.desc = desc; item.category = category;
+  item.hidden = item.hidden || (type === '表盘' || category === '表盘');
+  try { await ghWriteRecords(GH_DEV_PATH, devCache, 'zx_dev_records'); }
+  catch(e){ localStorage.setItem('zx_dev_records', JSON.stringify(devCache)); }
+  toastMsg('应用信息已保存');
+  renderDevCenter();
+  goDevPage('manage');
+}
+function openDevUpload(id){
+  const item = findDevItem(id);
+  if(!item){ toastMsg('未找到该应用'); return; }
+  currentDevId = String(id);
+  const box = document.getElementById('uploadCurrent');
+  if(box){
+    box.innerHTML = '当前作品：' + String(item.name||'').replace(/</g,'&lt;') + '<br>当前安装包：' + (item.url ? String(item.path||'已上传').replace(/</g,'&lt;') : '暂未上传');
+  }
+  const fi = document.getElementById('uploadDevFile'); if(fi) fi.value = '';
+  goDevPage('upload');
+}
+async function uploadDevPackage(){
+  const item = findDevItem(currentDevId);
+  if(!item){ toastMsg('未找到该应用'); return; }
+  const fileInput = document.getElementById('uploadDevFile');
+  const file = fileInput.files && fileInput.files[0];
+  if(!file){ toastMsg('请选择要上传的文件'); return; }
+  if(!/\.rpk$/i.test(file.name)){ toastMsg('开发者中心仅支持上传 .rpk 文件'); return; }
+  if(file.size > 2 * 1024 * 1024){ toastMsg('文件超过 2MB，请压缩后再上传'); return; }
+  toastMsg('正在上传，请稍候…');
+  try {
+    const b64 = await readFileAsBase64(file);
+    const path = GH_UPLOAD_DIR + Date.now() + '-' + devSafeName(file.name);
+    const r = await ghRequest(path, 'PUT', { message: 'upload: ' + item.name + ' (开发者中心)', content: b64 });
+    if(!r.resp || !r.resp.ok) throw new Error('上传失败 ' + ((r.resp && r.resp.status) || r.error));
+    item.path = path;
+    item.url = GH_RAW + path.split('/').map(encodeURIComponent).join('/');
+    item.size = file.size;
+    item.status = '待审核';
+    item.reason = '';
+    item.ts = Date.now();
+    item.time = dmTime(Date.now());
+    try { await ghWriteRecords(GH_DEV_PATH, devCache, 'zx_dev_records'); }
+    catch(e){ localStorage.setItem('zx_dev_records', JSON.stringify(devCache)); }
     fileInput.value = '';
-    toastMsg('已提交，等待超管审核');
+    toastMsg('安装包已上传，等待审核');
     renderDevCenter();
     goDevPage('manage');
   } catch(e){
