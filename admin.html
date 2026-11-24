@@ -3636,8 +3636,9 @@ async function doRegister(){
     const uid = nextUid();
     const hash = await sha256(p1);
     const key = genUserKey();
+    const keyHash = await sha256(key);
     const rec = {
-      uid: uid, name: name, email: email, hash: hash, keyHash: keyHash,
+      uid: uid, name: name, email: email, hash: hash, key: key, keyHash: keyHash,
       level: '用户', balance: 0, time: new Date().toLocaleString()
     };
     let localOk = false;
@@ -3651,7 +3652,7 @@ async function doRegister(){
       localStorage.setItem('zx_user_accounts', JSON.stringify(local));
       localOk = true;
     }
-    ACCOUNTS[uid] = { hash: hash, name: name, level: '用户', keyHash: keyHash, balance: 0 };
+    ACCOUNTS[uid] = { hash: hash, name: name, level: '用户', key: key, keyHash: keyHash, balance: 0 };
     initNormalUsers();
     renderUsers('');
     logAct('register', uid, '昵称 ' + name + ' · 邮箱 ' + email);
@@ -5074,7 +5075,11 @@ async function openProfileFor(uid){
   document.getElementById('pfExp').textContent = s.exp;
   document.getElementById('pfRank').textContent = 'Lv.' + rank;
   document.getElementById('pfUid').textContent = uid;
-  document.getElementById('pfKey').textContent = '****（已加密存储）';
+  if(currentIsSuper){
+    document.getElementById('pfKey').textContent = acc.key || (acc.keyHash ? '仅哈希存储，无明文密钥' : '未设置');
+  } else {
+    document.getElementById('pfKey').textContent = '****（已加密存储）';
+  }
   const tlist = TITLES[uid] || [];
   document.getElementById('pfTitles').textContent = tlist.length ? tlist.join('、') : '暂无';
   document.getElementById('pfGender').textContent = acc.gender || '未填写';
