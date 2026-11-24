@@ -298,7 +298,8 @@ input::placeholder,textarea::placeholder{color:#9ca3af !important}
 .chip.active{background:#fff;color:#111827;font-weight:600;box-shadow:0 1px 4px rgba(16,24,40,0.12)}
 .chip.blue.active{background:#2563eb;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,0.3)}
 .app-card{background:#fff;border:1px solid #eef1f5;border-radius:16px;padding:14px;margin-bottom:12px;display:flex;gap:12px;box-shadow:0 1px 3px rgba(16,24,40,0.06)}
-.app-thumb{width:60px;height:60px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:600}
+.app-thumb{width:60px;height:60px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:600;overflow:hidden}
+.app-thumb img{width:100%;height:100%;object-fit:cover;border-radius:14px;display:block}
 .app-name{font-size:15px;font-weight:600;color:#111827}
 .app-author{font-size:12px;color:#6b7280;margin-top:3px}
 .app-meta{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:12px;color:#6b7280}
@@ -1352,6 +1353,9 @@ option{background:#fff;color:#1f2937}
             <option value="游戏">游戏</option>
             <option value="运动健康">运动健康</option>
           </select>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:6px">应用图标</div>
+          <input id="devIcon" type="file" accept="image/png,image/jpeg,image/webp" style="width:100%;margin-bottom:6px;font-size:12px;color:#6b7280">
+          <div style="font-size:11px;color:#6b7280;margin-bottom:10px">建议上传 144×144 方形图标；PNG / JPG / WebP，单张不超过 1MB</div>
           <div style="font-size:11px;color:#6b7280;margin-bottom:10px">创建后可在“管理应用”中为该作品上传 .rpk 安装包；包体单个不超过 2MB，存入仓库 dev-uploads/</div>
           <button onclick="submitDevItem()" style="width:100%;padding:11px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:9px;font-size:14px;cursor:pointer">提交审核</button>
         </div>
@@ -2507,6 +2511,16 @@ async function downloadDevItem(id){
     a2.click();
     a2.remove();
   }
+  bumpDevDownload(String(x.id));
+}
+async function bumpDevDownload(id){
+  const x = devCache.find(y=>String(y.id)===String(id));
+  if(!x) return;
+  x.dl = (parseInt(x.dl, 10) || 0) + 1;
+  try { await ghWriteRecords(GH_DEV_PATH, devCache, 'zx_dev_records'); }
+  catch(e){ localStorage.setItem('zx_dev_records', JSON.stringify(devCache)); }
+  try { renderAppCenter(); } catch(e){}
+  try { renderMyApps(); } catch(e){}
 }
 function discoverItemHtml(x){
   const name = escS(x.name), author = escS(displayName(x.by, x.byName)), type = escS(x.type || '应用');
@@ -2520,8 +2534,11 @@ function discoverItemHtml(x){
   const action = x.url
     ? '<button class="app-action" onclick="downloadDevItem(\'' + escS(x.id) + '\')">获取</button>'
     : '<span class="app-action disabled">未上架</span>';
+  const thumb = x.iconUrl
+    ? '<div class="app-thumb"><img src="' + escS(x.iconUrl) + '" alt="' + name + '图标"></div>'
+    : '<div class="app-thumb" style="background:' + grad + '">' + name.charAt(0) + '</div>';
   return '<div class="app-card">' +
-    '<div class="app-thumb" style="background:' + grad + '">' + name.charAt(0) + '</div>' +
+    thumb +
     '<div style="flex:1;min-width:0">' +
       '<div class="app-name">' + name + '</div>' +
       '<div class="app-author">' + author + '</div>' +
@@ -2691,7 +2708,7 @@ function renderMyApps(){
           '<button onclick="openDevUpload(\''+id+'\')" style="padding:6px 10px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;border-radius:7px;font-size:12px;cursor:pointer">上传</button>' +
         '</div>' +
       '</div>' +
-      '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.6">' + String(x.version||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '<br>' + String(x.time||'') + '</div>' +
+      '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.6">下载 ' + (Number(x.dl) || 0) + ' · ' + String(x.version||'') + ' · ' + String(x.desc||'').replace(/</g,'&lt;') + '<br>' + String(x.time||'') + '</div>' +
       (x.status === '已通过' && x.url ? '<div style="margin-top:6px"><button onclick="downloadDevItem(\''+id+'\')" style="font-size:11px;color:#2563eb;background:none;border:none;cursor:pointer;padding:0">下载已上架文件</button></div>' : '') +
       (x.status === '已拒绝' && x.reason ? '<div style="margin-top:5px;font-size:11px;color:#f87171">原因：' + String(x.reason).replace(/</g,'&lt;') + '</div>' : '') +
     '</div>';
@@ -2794,15 +2811,31 @@ async function submitDevItem(){
   const version = document.getElementById('devVersion').value.trim();
   const desc = document.getElementById('devDesc').value.trim().slice(0, 600);
   const category = document.getElementById('devCategory').value;
+  const iconInput = document.getElementById('devIcon');
+  const iconFile = iconInput.files && iconInput.files[0];
   if(!name){ toastMsg('请填写作品名称'); return; }
+  if(iconFile){
+    if(!/^image\/(png|jpe?g|webp)$/i.test(iconFile.type) && !/\.(png|jpe?g|webp)$/i.test(iconFile.name)){ toastMsg('图标仅支持 PNG / JPG / WebP'); return; }
+    if(iconFile.size > 1024 * 1024){ toastMsg('图标不能超过 1MB'); return; }
+  }
   await loadApply();
   const approvedApply = applyCache.filter(a=>a.status === '已通过').map(a=>String(a.uid));
   const manuallyAdded = approvedApply.indexOf(String(me)) < 0;
   const hiddenByType = (type === '表盘' || category === '表盘');
   try {
+    let iconPath = '', iconUrl = '';
+    if(iconFile){
+      toastMsg('正在上传图标…');
+      const iconB64 = await readFileAsBase64(iconFile);
+      iconPath = GH_UPLOAD_DIR + Date.now() + '-icon-' + devSafeName(iconFile.name);
+      const ir = await ghRequest(iconPath, 'PUT', { message: 'upload icon: ' + name, content: iconB64 });
+      if(!ir.resp || !ir.resp.ok) throw new Error('图标上传失败 ' + ((ir.resp && ir.resp.status) || ir.error));
+      iconUrl = GH_RAW + iconPath.split('/').map(encodeURIComponent).join('/');
+    }
     const acc = ACCOUNTS[me] || {};
     const rec = { id: 'DEV' + Date.now(), type: type, category: category, name: name, version: version, desc: desc,
-                  path: '', url: '', size: 0, by: String(me), byName: acc.name || '',
+                  path: '', url: '', size: 0, dl: 0, iconPath: iconPath, iconUrl: iconUrl,
+                  by: String(me), byName: acc.name || '',
                   hidden: manuallyAdded || hiddenByType,
                   status: '待审核', time: dmTime(Date.now()), ts: Date.now() };
     devCache.push(rec);
@@ -2814,6 +2847,7 @@ async function submitDevItem(){
     document.getElementById('devDesc').value = '';
     document.getElementById('devCategory').value = '应用';
     const dc = document.getElementById('devDescCount'); if(dc) dc.textContent = '0';
+    if(iconInput) iconInput.value = '';
     toastMsg('已创建，请在管理应用中上传安装包');
     renderDevCenter();
     goDevPage('manage');
