@@ -383,8 +383,8 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.2.1 更新</div>
-        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 我的帖子改为与社区一致的卡片样式<br>· 支付密码、工单、帖子互动已迁入后端</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.2.2 更新</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 图标与安装包上传显示实时进度条<br>· 管理应用支持单独编辑资料与替换安装包</div>
       </div>
     </div>
 
@@ -562,7 +562,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.2.1</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.2.2</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -1207,7 +1207,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.2.1</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.2.2</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -1356,6 +1356,10 @@ option{background:#fff;color:#1f2937}
           <div style="font-size:12px;color:#6b7280;margin-bottom:6px">应用图标</div>
           <input id="devIcon" type="file" accept="image/png,image/jpeg,image/webp" style="width:100%;margin-bottom:6px;font-size:12px;color:#6b7280">
           <div style="font-size:11px;color:#6b7280;margin-bottom:10px">建议上传 144×144 方形图标；PNG / JPG / WebP，单张不超过 1MB</div>
+          <div id="devIconProgress" style="display:none;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:4px"><span id="devIconProgressText">准备上传图标</span><span id="devIconProgressPct">0%</span></div>
+            <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden"><div id="devIconProgressBar" style="height:100%;width:0%;background:#a78bfa;border-radius:999px;transition:width .2s"></div></div>
+          </div>
           <div style="font-size:11px;color:#6b7280;margin-bottom:10px">创建后可在“管理应用”中为该作品上传 .rpk 安装包；包体单个不超过 2MB，存入仓库 dev-uploads/</div>
           <button onclick="submitDevItem()" style="width:100%;padding:11px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:9px;font-size:14px;cursor:pointer">提交审核</button>
         </div>
@@ -1415,6 +1419,10 @@ option{background:#fff;color:#1f2937}
           <div id="uploadCurrent" style="font-size:12px;color:#6b7280;line-height:1.6;margin-bottom:10px"></div>
           <input id="uploadDevFile" type="file" accept=".rpk" style="width:100%;margin-bottom:10px;font-size:12px;color:#6b7280">
           <div style="font-size:11px;color:#6b7280;margin-bottom:10px">仅支持 .rpk 文件（栈序 OS 应用/表盘包），单个文件不超过 2MB；文件会存进仓库 dev-uploads/</div>
+          <div id="pkgUploadProgress" style="display:none;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:4px"><span id="pkgUploadProgressText">准备上传安装包</span><span id="pkgUploadProgressPct">0%</span></div>
+            <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden"><div id="pkgUploadProgressBar" style="height:100%;width:0%;background:#2563eb;border-radius:999px;transition:width .2s"></div></div>
+          </div>
           <button onclick="uploadDevPackage()" style="width:100%;padding:11px;background:rgba(167,139,250,0.16);border:1px solid rgba(167,139,250,0.36);color:#a78bfa;border-radius:9px;font-size:14px;cursor:pointer">上传并替换安装包</button>
         </div>
       </div>
@@ -2802,6 +2810,50 @@ function readFileAsBase64(file){
     fr.readAsDataURL(file);
   });
 }
+function setUploadProgress(wrapId, barId, pctId, textId, pct, text){
+  const wrap = document.getElementById(wrapId);
+  if(wrap) wrap.style.display = 'block';
+  const bar = document.getElementById(barId); if(bar) bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+  const pctEl = document.getElementById(pctId); if(pctEl) pctEl.textContent = Math.max(0, Math.min(100, pct)) + '%';
+  const textEl = document.getElementById(textId); if(textEl && text) textEl.textContent = text;
+}
+function hideUploadProgress(wrapId){ const wrap = document.getElementById(wrapId); if(wrap) wrap.style.display = 'none'; }
+function readFileWithProgress(file, onProgress){
+  return new Promise((resolve, reject)=>{
+    const fr = new FileReader();
+    fr.onprogress = e=>{ if(e.lengthComputable) onProgress(Math.round(35 * e.loaded / e.total)); };
+    fr.onload = ()=>{ const s = String(fr.result||''); const i = s.indexOf(','); resolve(s.slice(i+1)); };
+    fr.onerror = reject;
+    fr.readAsDataURL(file);
+  });
+}
+function uploadGhWithProgress(path, bodyObj, onProgress){
+  return new Promise(resolve=>{
+    const body = JSON.stringify(bodyObj);
+    let attempt = 0;
+    const tryNext = ()=>{
+      if(attempt >= GH_APIS.length){ resolve({ ok:false, error:'上传失败，请检查网络' }); return; }
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', GH_APIS[attempt] + path);
+      xhr.setRequestHeader('Authorization', 'token ' + GH_TOKEN);
+      xhr.setRequestHeader('Accept', 'application/vnd.github+json');
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.timeout = 30000;
+      xhr.upload.onprogress = e=>{
+        if(e.lengthComputable) onProgress(40 + Math.round(60 * e.loaded / e.total));
+        else onProgress(60);
+      };
+      xhr.onload = ()=>{
+        if([200,201].includes(xhr.status)){ onProgress(100); resolve({ ok:true, status:xhr.status }); }
+        else { attempt++; tryNext(); }
+      };
+      xhr.onerror = ()=>{ attempt++; tryNext(); };
+      xhr.ontimeout = ()=>{ attempt++; tryNext(); };
+      xhr.send(body);
+    };
+    tryNext();
+  });
+}
 async function submitDevItem(){
   const me = myUid();
   if(!me) return;
@@ -2825,11 +2877,11 @@ async function submitDevItem(){
   try {
     let iconPath = '', iconUrl = '';
     if(iconFile){
-      toastMsg('正在上传图标…');
-      const iconB64 = await readFileAsBase64(iconFile);
+      setUploadProgress('devIconProgress','devIconProgressBar','devIconProgressPct','devIconProgressText',5,'读取图标…');
+      const iconB64 = await readFileWithProgress(iconFile, p=>setUploadProgress('devIconProgress','devIconProgressBar','devIconProgressPct','devIconProgressText',p,'读取图标…'));
       iconPath = GH_UPLOAD_DIR + Date.now() + '-icon-' + devSafeName(iconFile.name);
-      const ir = await ghRequest(iconPath, 'PUT', { message: 'upload icon: ' + name, content: iconB64 });
-      if(!ir.resp || !ir.resp.ok) throw new Error('图标上传失败 ' + ((ir.resp && ir.resp.status) || ir.error));
+      const ir = await uploadGhWithProgress(iconPath, { message: 'upload icon: ' + name, content: iconB64 }, p=>setUploadProgress('devIconProgress','devIconProgressBar','devIconProgressPct','devIconProgressText',p,'上传图标…'));
+      if(!ir.ok) throw new Error(ir.error || '图标上传失败');
       iconUrl = GH_RAW + iconPath.split('/').map(encodeURIComponent).join('/');
     }
     const acc = ACCOUNTS[me] || {};
@@ -2848,10 +2900,12 @@ async function submitDevItem(){
     document.getElementById('devCategory').value = '应用';
     const dc = document.getElementById('devDescCount'); if(dc) dc.textContent = '0';
     if(iconInput) iconInput.value = '';
+    hideUploadProgress('devIconProgress');
     toastMsg('已创建，请在管理应用中上传安装包');
     renderDevCenter();
     goDevPage('manage');
   } catch(e){
+    hideUploadProgress('devIconProgress');
     toastMsg('创建失败：' + (e && e.message ? e.message : '请检查网络'));
   }
 }
@@ -2895,6 +2949,7 @@ function openDevUpload(id){
     box.innerHTML = '当前作品：' + String(item.name||'').replace(/</g,'&lt;') + '<br>当前安装包：' + (item.url ? String(item.path||'已上传').replace(/</g,'&lt;') : '暂未上传');
   }
   const fi = document.getElementById('uploadDevFile'); if(fi) fi.value = '';
+  hideUploadProgress('pkgUploadProgress');
   goDevPage('upload');
 }
 async function uploadDevPackage(){
@@ -2905,12 +2960,12 @@ async function uploadDevPackage(){
   if(!file){ toastMsg('请选择要上传的文件'); return; }
   if(!/\.rpk$/i.test(file.name)){ toastMsg('开发者中心仅支持上传 .rpk 文件'); return; }
   if(file.size > 2 * 1024 * 1024){ toastMsg('文件超过 2MB，请压缩后再上传'); return; }
-  toastMsg('正在上传，请稍候…');
   try {
-    const b64 = await readFileAsBase64(file);
+    setUploadProgress('pkgUploadProgress','pkgUploadProgressBar','pkgUploadProgressPct','pkgUploadProgressText',5,'读取安装包…');
+    const b64 = await readFileWithProgress(file, p=>setUploadProgress('pkgUploadProgress','pkgUploadProgressBar','pkgUploadProgressPct','pkgUploadProgressText',p,'读取安装包…'));
     const path = GH_UPLOAD_DIR + Date.now() + '-' + devSafeName(file.name);
-    const r = await ghRequest(path, 'PUT', { message: 'upload: ' + item.name + ' (开发者中心)', content: b64 });
-    if(!r.resp || !r.resp.ok) throw new Error('上传失败 ' + ((r.resp && r.resp.status) || r.error));
+    const r = await uploadGhWithProgress(path, { message: 'upload: ' + item.name + ' (开发者中心)', content: b64 }, p=>setUploadProgress('pkgUploadProgress','pkgUploadProgressBar','pkgUploadProgressPct','pkgUploadProgressText',p,'上传安装包…'));
+    if(!r.ok) throw new Error(r.error || '上传失败');
     item.path = path;
     item.url = GH_RAW + path.split('/').map(encodeURIComponent).join('/');
     item.size = file.size;
@@ -2921,10 +2976,12 @@ async function uploadDevPackage(){
     try { await ghWriteRecords(GH_DEV_PATH, devCache, 'zx_dev_records'); }
     catch(e){ localStorage.setItem('zx_dev_records', JSON.stringify(devCache)); }
     fileInput.value = '';
+    hideUploadProgress('pkgUploadProgress');
     toastMsg('安装包已上传，等待审核');
     renderDevCenter();
     goDevPage('manage');
   } catch(e){
+    hideUploadProgress('pkgUploadProgress');
     toastMsg('上传失败：' + (e && e.message ? e.message : '请检查网络或文件大小'));
   }
 }
@@ -3870,7 +3927,7 @@ async function openAppWelfare(){
   const apkUrl = 'zhanxu-cloud.apk';
   const ok = await glassOpen({
     title: 'App 福利',
-    msg: '栈序云 Android 套壳版 v1.2.1（约 17 KB）\nWebView 容器，登录态、数据与网页端互通。\n\n点击「下载安装」获取 APK；若浏览器提示风险，选择“仍要下载”，并在系统设置里允许本次安装未知应用。',
+    msg: '栈序云 Android 套壳版 v1.2.2（约 17 KB）\nWebView 容器，登录态、数据与网页端互通。\n\n点击「下载安装」获取 APK；若浏览器提示风险，选择“仍要下载”，并在系统设置里允许本次安装未知应用。',
     okText: '下载安装',
     cancel: true
   });
@@ -4650,6 +4707,11 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.2.2', date: '2026-11-25', items: [
+      '应用图标与 .rpk 安装包上传增加实时进度条，可查看读取与上传进度',
+      '管理应用每条作品提供单独编辑页和单独上传页，安装包从创建页移到管理页',
+      '应用中心显示图标与下载量，下载后计数自动累加'
+    ]},
     { ver: 'v1.2.1', date: '2026-11-23', items: [
       '我的帖子改为与社区发帖一致的卡片样式，头像、昵称、话题、点赞评论同屏展示',
       '支付密码、工单、帖子点赞评论与抽奖记录迁入后端',
