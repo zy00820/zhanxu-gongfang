@@ -735,7 +735,7 @@ option{background:#fff;color:#1f2937}
     </div>
   </div>
 
-  <!-- 加入群聊（单页，开发中） -->
+  <!-- 加入群聊（单页） -->
   <div id="joinGroupMask" onclick="if(event.target===this)closeJoinGroup()" style="display:none;position:fixed;inset:0;z-index:213;background:#ffffff">
     <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:#ffffff">
       <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid #eef0f4;background:#ffffff">
@@ -743,10 +743,18 @@ option{background:#fff;color:#1f2937}
         <div style="flex:1;font-size:15px;color:#111827;font-weight:600;text-align:center">加入群聊</div>
         <div style="width:58px"></div>
       </div>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
-        <div style="width:56px;height:56px;border-radius:16px;background:#f5f3ff;display:flex;align-items:center;justify-content:center;font-size:26px;color:#7c3aed;margin-bottom:16px">☰</div>
-        <div style="font-size:16px;font-weight:600;color:#111827;margin-bottom:6px">功能开发中</div>
-        <div style="font-size:13px;color:#9ca3af;line-height:1.7">群号 / 邀请码加入方式正在开发，<br>当前可先由群主或管理员在群设置中添加成员。</div>
+      <div style="flex:1;overflow-y:auto;padding:24px 18px">
+        <div style="max-width:420px;margin:0 auto">
+          <div style="width:56px;height:56px;border-radius:16px;background:#f5f3ff;display:flex;align-items:center;justify-content:center;margin:4px auto 16px">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>
+          </div>
+          <div style="font-size:16px;font-weight:600;color:#111827;text-align:center;margin-bottom:6px">输入 10 位群号</div>
+          <div style="font-size:13px;color:#9ca3af;line-height:1.7;text-align:center;margin-bottom:22px">提交后需等待群主或管理员审核通过。</div>
+          <label style="display:block;font-size:13px;color:#374151;font-weight:600;margin-bottom:8px">群号</label>
+          <input id="joinGroupCode" inputmode="numeric" maxlength="10" placeholder="例如：4898943706" onkeydown="if(event.key==='Enter')submitJoinGroup()" style="width:100%;padding:13px 14px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:12px;color:#111827;font-size:16px;letter-spacing:2px;outline:none">
+          <div id="joinGroupErr" style="min-height:20px;margin-top:8px;font-size:12px;color:#ef4444"></div>
+          <button id="joinGroupBtn" onclick="submitJoinGroup()" style="width:100%;margin-top:14px;padding:13px;background:#7c3aed;border:none;color:#fff;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">申请加入群聊</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1199,7 +1207,6 @@ option{background:#fff;color:#1f2937}
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div style="font-size:14px;color:#1f2937;font-weight:500">群聊</div>
           <div style="display:flex;gap:8px;position:relative">
-            <button onclick="openCreateGroup()" style="padding:7px 12px;border-radius:8px;background:rgba(167,139,250,0.14);border:1px solid rgba(167,139,250,0.32);color:#a78bfa;font-size:12px;cursor:pointer">+ 创建群聊</button>
             <button onclick="toggleGroupMenu(event)" aria-label="群聊操作菜单" style="padding:7px 10px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#d1d5db;font-size:14px;cursor:pointer">☰</button>
             <div id="groupActionMenu" onclick="event.stopPropagation()" style="display:none;position:absolute;right:0;top:40px;z-index:220;min-width:132px;background:rgba(15,20,30,0.96);border:1px solid rgba(255,255,255,0.12);border-radius:12px;box-shadow:0 8px 24px rgba(15,23,42,0.24);padding:6px">
               <button onclick="menuCreateGroup()" style="width:100%;text-align:left;padding:9px 10px;background:none;border:none;color:#e5e7eb;font-size:13px;cursor:pointer;border-radius:8px">创建群聊</button>
@@ -6102,31 +6109,49 @@ let groupsLoaded = false;
 let gmsgsLoaded = false;
 let gmsgCache = [];
 /* ===== 群聊走后端：chat_groups / group_messages（旧 GitHub JSON 仅作历史只读） ===== */
+function fallbackGroupCode(g){
+  if(g && g.gcode) return String(g.gcode);
+  const digits = String((g && g.gid) || '').replace(/\D/g, '');
+  return digits.slice(-10).padStart(10, '0').slice(-10);
+}
 function sbGroupRowToG(r){
   const ts = r.created_at ? new Date(r.created_at).getTime() : 0;
   const mem = Array.isArray(r.members) ? r.members.map(String) : [];
-  return {
+  const g = {
     gid: r.gid, name: r.name, owner: r.owner_uid, members: mem,
     admins: (Array.isArray(r.admins) ? r.admins.map(String) : []),
+    requests: (Array.isArray(r.requests) ? r.requests.map(String) : []),
     creator: ((ACCOUNTS[r.owner_uid]||{}).name || r.owner_uid),
     time: ts ? dmTime(ts) : '', ts: ts, backend: true
   };
+  g.gcode = fallbackGroupCode(g);
+  return g;
 }
 async function sbLoadGroups(){
   if(!SB.client || !SB.session || !SB.uid) return null;
   try {
-    const r = await SB.client.from('chat_groups').select('gid,name,owner_uid,members,admins,created_at');
+    const r = await SB.client.from('chat_groups').select('gid,name,owner_uid,members,admins,requests,gcode,created_at');
     if(r.error){ SB.err = r.error.message; return null; }
     return (r.data || []).map(sbGroupRowToG);
   } catch(e){ SB.err = e.message || String(e); return null; }
 }
+function genGroupCode(){
+  const used = new Set((groupCache||[]).map(g=>g.gcode));
+  let code = '';
+  do {
+    code = String(Math.floor(1000000000 + Math.random() * 9000000000));
+  } while(used.has(code));
+  return code;
+}
 async function sbUpsertGroup(g){
   if(!SB.client || !SB.session || !SB.uid) return false;
   try {
-    const r = await SB.client.from('chat_groups').upsert({
+    const payload = {
       gid: String(g.gid), name: String(g.name||'群聊'), owner_uid: String(g.owner),
-      members: (g.members||[]).map(String), admins: (g.admins||[]).map(String)
-    });
+      members: (g.members||[]).map(String), admins: (g.admins||[]).map(String),
+      requests: (g.requests||[]).map(String), gcode: fallbackGroupCode(g)
+    };
+    const r = await SB.client.from('chat_groups').upsert(payload);
     if(r.error){ SB.err = r.error.message; return false; }
     return true;
   } catch(e){ SB.err = e.message || String(e); return false; }
@@ -6175,8 +6200,10 @@ async function loadGroups(force){
   } catch(e){ legacy = []; }
   const map = new Map();
   legacy.forEach(g=>{
-    map.set(g.gid, { gid:g.gid, name:g.name, owner:g.owner, members:(g.members||[]).map(String),
-                     admins:(g.admins||[]).map(String), creator:g.creator, time:g.time, ts:g.ts||0, backend:false });
+    const rec = { gid:g.gid, name:g.name, owner:g.owner, members:(g.members||[]).map(String),
+                     admins:(g.admins||[]).map(String), requests:(g.requests||[]).map(String), creator:g.creator, time:g.time, ts:g.ts||0, backend:false };
+    rec.gcode = fallbackGroupCode(rec);
+    map.set(g.gid, rec);
   });
   (db || []).forEach(g=>map.set(g.gid, g));
   groupCache = [...map.values()];
@@ -6219,8 +6246,41 @@ function toggleGroupMenu(e){
 }
 function closeGroupMenu(){ const m = document.getElementById('groupActionMenu'); if(m) m.style.display = 'none'; }
 function menuCreateGroup(){ closeGroupMenu(); openCreateGroup(); }
-function openJoinGroup(){ closeGroupMenu(); document.getElementById('joinGroupMask').style.display = 'block'; }
+function openJoinGroup(){
+  closeGroupMenu();
+  const inp = document.getElementById('joinGroupCode');
+  if(inp) inp.value = '';
+  const err = document.getElementById('joinGroupErr');
+  if(err) err.textContent = '';
+  document.getElementById('joinGroupMask').style.display = 'block';
+}
 function closeJoinGroup(){ document.getElementById('joinGroupMask').style.display = 'none'; }
+async function submitJoinGroup(){
+  if(!needBind('加入群聊')) return;
+  const inp = document.getElementById('joinGroupCode');
+  const err = document.getElementById('joinGroupErr');
+  const btn = document.getElementById('joinGroupBtn');
+  const code = String(inp.value||'').trim();
+  err.textContent = '';
+  if(!/^\d{10}$/.test(code)){ err.textContent = '请输入 10 位数字群号'; return; }
+  if(!SB.client || !SB.session || !SB.uid){ err.textContent = '云端未连接，请先绑定账号'; return; }
+  btn.disabled = true;
+  btn.textContent = '提交中…';
+  try {
+    const r = await SB.client.rpc('request_join_group', { p_code: code });
+    if(r.error){ err.textContent = r.error.message || '申请失败'; return; }
+    const status = r.data;
+    if(status === 'already_member') toastMsg('你已在该群聊中');
+    else if(status === 'already_request') toastMsg('申请已提交，等待群主审核');
+    else toastMsg('申请已提交，等待群主审核');
+    closeJoinGroup();
+  } catch(e){
+    err.textContent = e.message || '申请失败，请稍后重试';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '申请加入群聊';
+  }
+}
 document.addEventListener('click', closeGroupMenu);
 function openCreateGroup(){
   const me = myUid();
@@ -6266,7 +6326,8 @@ async function createGroup(){
   if(members.length > GROUP_LIMIT - 1){ err.textContent = '群成员上限 30 人'; return; }
   const rec = {
     gid: 'G' + Date.now(), name: name, owner: me,
-    members: [me].concat(members),
+    members: [me].concat(members), admins: [], requests: [],
+    gcode: genGroupCode(),
     creator: (ACCOUNTS[me]||{}).name || me,
     time: dmTime(Date.now()), ts: Date.now()
   };
@@ -6423,8 +6484,23 @@ function renderGrpSetting(){
     const isOwner = g.owner === me;
     const isAdminMe = admins.indexOf(me) >= 0;
     const canKick = isOwner || isAdminMe;          // 群主与管理员可增减成员
+    const requests = (g.requests || []).filter(Boolean);
     const nonMembers = Object.keys(ACCOUNTS).filter(u=>members.indexOf(u) < 0);
     const ownerName = String(((ACCOUNTS[g.owner]||{}).name)||g.owner||'—');
+
+    const requestRows = requests.map(uid=>{
+      const a = ACCOUNTS[uid] || {};
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,0.05)">' +
+        '<div style="min-width:0;font-size:13px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+String(a.name||uid).replace(/</g,'&lt;')+'<span style="font-size:11px;color:#9ca3af;margin-left:6px">'+uid+'</span></div>' +
+        '<div style="display:flex;gap:6px;flex-shrink:0">' +
+          '<button onclick="approveGroupRequest(\''+g.gid+'\',\''+uid+'\')" style="padding:6px 11px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);color:#34d399;border-radius:8px;font-size:11px;cursor:pointer">通过</button>' +
+          '<button onclick="rejectGroupRequest(\''+g.gid+'\',\''+uid+'\')" style="padding:6px 11px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:11px;cursor:pointer">拒绝</button>' +
+        '</div></div>';
+    }).join('');
+    const requestSection = isOwner ? (
+      setGroupTitle('群审核') +
+      (requests.length ? requestRows : '<div style="font-size:13px;color:#9ca3af;padding:8px 4px">暂无待审核申请</div>')
+    ) : '';
 
     const ownerRows = isOwner ? (
       setGroupTitle('群主管理') +
@@ -6471,10 +6547,12 @@ function renderGrpSetting(){
     return '<div style="margin-bottom:14px">' +
       setGroupTitle('群信息') +
       setRow('群名称', String(g.name||'群聊').replace(/</g,'&lt;')) +
+      setRow('群号', fallbackGroupCode(g)) +
       setRow('群成员', members.length + '/' + GROUP_LIMIT + ' 人') +
       setRow('我的身份', isOwner ? '群主' : (isAdminMe ? '管理员' : '成员')) +
       ownerRows +
       (isOwner ? picker : '') +
+      requestSection +
       setGroupTitle('成员列表（' + members.length + '）') +
       memberRows +
       addSel +
@@ -6511,6 +6589,44 @@ async function grpDissolve(gid){
   delete _unread.grp[gid]; saveUnread(); renderDmBadge();
   renderDmCenterPage();
   toastMsg('群聊已解散');
+}
+async function approveGroupRequest(gid, uid){
+  if(!needBind('通过入群申请')) return;
+  const g = groupCache.find(x=>x.gid === gid);
+  if(!g) return;
+  if(g.owner !== myUid()){ toastMsg('只有群主可以审核入群申请'); return; }
+  const beforeMembers = [...(g.members||[])];
+  const beforeRequests = [...(g.requests||[])];
+  g.members = [...new Set([...(g.members||[]), String(uid)])];
+  g.requests = (g.requests||[]).filter(x=>x !== String(uid));
+  try {
+    const r = await SB.client.rpc('approve_group_request', { p_gid: gid, p_uid: String(uid) });
+    if(r.error){ g.members = beforeMembers; g.requests = beforeRequests; SB.err = r.error.message; toastMsg('审核失败：' + (SB.err || '后端写入失败')); return; }
+    logAct('group_request_approve', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 已入群');
+    toastMsg('已通过入群申请');
+    renderGrpSetting(); renderDmCenterPage();
+  } catch(e){
+    g.members = beforeMembers; g.requests = beforeRequests;
+    toastMsg('审核失败，请稍后重试');
+  }
+}
+async function rejectGroupRequest(gid, uid){
+  if(!needBind('拒绝入群申请')) return;
+  const g = groupCache.find(x=>x.gid === gid);
+  if(!g) return;
+  if(g.owner !== myUid()){ toastMsg('只有群主可以审核入群申请'); return; }
+  const beforeRequests = [...(g.requests||[])];
+  g.requests = (g.requests||[]).filter(x=>x !== String(uid));
+  try {
+    const r = await SB.client.rpc('reject_group_request', { p_gid: gid, p_uid: String(uid) });
+    if(r.error){ g.requests = beforeRequests; SB.err = r.error.message; toastMsg('操作失败：' + (SB.err || '后端写入失败')); return; }
+    logAct('group_request_reject', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 申请被拒绝');
+    toastMsg('已拒绝该申请');
+    renderGrpSetting(); renderDmCenterPage();
+  } catch(e){
+    g.requests = beforeRequests;
+    toastMsg('操作失败，请稍后重试');
+  }
 }
 async function grpAddMember(gid){
   if(!needBind('添加群成员')) return;
