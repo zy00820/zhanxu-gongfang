@@ -383,8 +383,8 @@ option{background:#fff;color:#1f2937}
         <a onclick="showRegister()" style="color:#2563eb;font-size:12px;cursor:pointer;text-decoration:underline">没有账号？立即注册</a>
       </div>
       <div style="margin-top:16px;padding:12px;background:rgba(115,184,255,0.06);border-radius:10px;border:1px solid rgba(115,184,255,0.12)">
-        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.2.2 更新</div>
-        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 图标与安装包上传显示实时进度条<br>· 管理应用支持单独编辑资料与替换安装包</div>
+        <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:6px">v1.2.3 更新</div>
+        <div style="font-size:11px;color:#6b7280;line-height:1.7">· 群管理拆为独立整页，昵称修改、群审核、成员管理分页处理<br>· 群昵称可单独保存，入群申请与成员权限保持群主/管理员分级</div>
       </div>
     </div>
 
@@ -562,7 +562,7 @@ option{background:#fff;color:#1f2937}
         <span style="font-size:14px;color:#1f2937">关于栈序云</span>
         <span style="display:flex;align-items:center;gap:5px">
           <span style="font-size:10px;color:#6b7280">点击3次即可查看更新日志</span>
-          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.2.2</span>
+          <span id="settingsVersion" style="font-size:12px;color:#6b7280">v1.2.3</span>
         </span>
       </div>
       <button onclick="closeSettings();doLogout()" style="width:100%;margin-top:16px;padding:13px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer">退出登录</button>
@@ -950,6 +950,59 @@ option{background:#fff;color:#1f2937}
     </div>
   </div>
 
+  <!-- 群管理（独立整页） -->
+  <div id="grpManageMask" onclick="if(event.target===this)closeGrpManage()" style="display:none;position:fixed;inset:0;z-index:217;background:#ffffff">
+    <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:#ffffff">
+      <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid #eef0f4;background:#ffffff">
+        <button onclick="closeGrpManage()" style="padding:7px 12px;border-radius:8px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+        <div style="flex:1;font-size:15px;font-weight:600;color:#111827;text-align:center">群管理</div>
+        <div style="width:58px"></div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px"><div id="grpManageBox"></div></div>
+    </div>
+  </div>
+
+  <!-- 群昵称修改（独立整页） -->
+  <div id="grpNameMask" onclick="if(event.target===this)closeGrpNamePage()" style="display:none;position:fixed;inset:0;z-index:218;background:#ffffff">
+    <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:#ffffff">
+      <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid #eef0f4;background:#ffffff">
+        <button onclick="closeGrpNamePage()" style="padding:7px 12px;border-radius:8px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+        <div style="flex:1;font-size:15px;font-weight:600;color:#111827;text-align:center">群昵称修改</div>
+        <div style="width:58px"></div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:18px">
+        <label style="display:block;font-size:13px;color:#374151;font-weight:600;margin-bottom:8px">群昵称</label>
+        <input id="grpNameInput" maxlength="30" placeholder="请输入群昵称" style="width:100%;padding:13px 14px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:12px;color:#111827;font-size:15px;outline:none">
+        <div id="grpNameErr" style="min-height:20px;margin-top:8px;font-size:12px;color:#ef4444"></div>
+        <button onclick="saveGrpName()" style="width:100%;margin-top:14px;padding:13px;background:#7c3aed;border:none;color:#fff;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">保存修改</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 群审核（独立整页） -->
+  <div id="grpReviewMask" onclick="if(event.target===this)closeGrpReviewPage()" style="display:none;position:fixed;inset:0;z-index:219;background:#ffffff">
+    <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:#ffffff">
+      <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid #eef0f4;background:#ffffff">
+        <button onclick="closeGrpReviewPage()" style="padding:7px 12px;border-radius:8px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+        <div style="flex:1;font-size:15px;font-weight:600;color:#111827;text-align:center">群审核</div>
+        <div style="width:58px"></div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px"><div id="grpReviewList"></div></div>
+    </div>
+  </div>
+
+  <!-- 管理成员（独立整页） -->
+  <div id="grpMembersMask" onclick="if(event.target===this)closeGrpMembersPage()" style="display:none;position:fixed;inset:0;z-index:220;background:#ffffff">
+    <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:#ffffff">
+      <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid #eef0f4;background:#ffffff">
+        <button onclick="closeGrpMembersPage()" style="padding:7px 12px;border-radius:8px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+        <div style="flex:1;font-size:15px;font-weight:600;color:#111827;text-align:center">管理成员</div>
+        <div style="width:58px"></div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px"><div id="grpMemberList"></div></div>
+    </div>
+  </div>
+
 <!-- 编辑员工弹窗 -->
   <div id="editStaffMask" onclick="if(event.target===this)closeEditStaff()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;backdrop-filter:blur(4px)">
     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(15,20,30,0.92);backdrop-filter:blur(28px) saturate(180%);border-top:1px solid rgba(115,184,255,0.3);border-radius:20px 20px 0 0;padding:24px 20px calc(20px + env(safe-area-inset-bottom))">
@@ -1260,7 +1313,7 @@ option{background:#fff;color:#1f2937}
             <div style="font-size:11px;color:#6b7280;margin-top:3px">设置 · 连点版本号 3 次进入</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.2.2</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(115,184,255,0.15);color:#2563eb">v1.2.3</span>
             <button onclick="closeChangelog()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
           </div>
         </div>
@@ -4007,7 +4060,7 @@ async function openAppWelfare(){
   const apkUrl = 'zhanxu-cloud.apk';
   const ok = await glassOpen({
     title: 'App 福利',
-    msg: '栈序云 Android 套壳版 v1.2.2（约 17 KB）\nWebView 容器，登录态、数据与网页端互通。\n\n点击「下载安装」获取 APK；若浏览器提示风险，选择“仍要下载”，并在系统设置里允许本次安装未知应用。',
+    msg: '栈序云 Android 套壳版 v1.2.3（约 17 KB）\nWebView 容器，登录态、数据与网页端互通。\n\n点击「下载安装」获取 APK；若浏览器提示风险，选择“仍要下载”，并在系统设置里允许本次安装未知应用。',
     okText: '下载安装',
     cancel: true
   });
@@ -4787,6 +4840,11 @@ async function renderMyTickets(){
 // ===== 更新日志 =====
 function renderChangelog(){
   const logs = [
+    { ver: 'v1.2.3', date: '2026-11-26', items: [
+      '群设置新增独立“群管理”整页，群审核与管理成员并入该入口',
+      '群昵称修改、群审核、管理成员分别使用独立整页 HTML',
+      '群主保留解散群聊与入群审核权限，成员管理按群主/管理员分级开放'
+    ]},
     { ver: 'v1.2.2', date: '2026-11-25', items: [
       '应用图标与 .rpk 安装包上传增加实时进度条，可查看读取与上传进度',
       '管理应用每条作品提供单独编辑页和单独上传页，安装包从创建页移到管理页',
@@ -6522,99 +6580,175 @@ function grpMemberTag(g, uid){
   if((g.admins||[]).indexOf(uid) >= 0) return '<span style="font-size:10px;padding:2px 6px;border-radius:5px;background:rgba(167,139,250,0.2);color:#a78bfa;margin-left:4px">管理员</span>';
   return '';
 }
+function currentGroup(){ return groupCache.find(x=>x.gid === _grpSetGid) || null; }
 function renderGrpSetting(){
   const box = document.getElementById('grpSetBox');
-  const list = _grpSetGid ? groupCache.filter(x=>x.gid === _grpSetGid) : groupCache;
-  if(!list.length){
+  const g = currentGroup();
+  if(!g){
     box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:24px">暂无群聊</div>';
     return;
   }
   const me = myUid();
-  box.innerHTML = list.map(g=>{
-    const admins = g.admins || [];
-    const members = (g.members||[]).filter(Boolean);
-    const isOwner = g.owner === me;
-    const isAdminMe = admins.indexOf(me) >= 0;
-    const canKick = isOwner || isAdminMe;          // 群主与管理员可增减成员
-    const requests = (g.requests || []).filter(Boolean);
-    const nonMembers = Object.keys(ACCOUNTS).filter(u=>members.indexOf(u) < 0);
-    const ownerName = String(((ACCOUNTS[g.owner]||{}).name)||g.owner||'—');
+  const admins = g.admins || [];
+  const members = (g.members||[]).filter(Boolean);
+  const isOwner = g.owner === me;
+  const isAdminMe = admins.indexOf(me) >= 0;
+  const canManage = isOwner || isAdminMe;
+  const ownerName = String(((ACCOUNTS[g.owner]||{}).name)||g.owner||'—');
 
-    const requestRows = requests.map(uid=>{
-      const a = ACCOUNTS[uid] || {};
-      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,0.05)">' +
-        '<div style="min-width:0;font-size:13px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+String(a.name||uid).replace(/</g,'&lt;')+'<span style="font-size:11px;color:#9ca3af;margin-left:6px">'+uid+'</span></div>' +
-        '<div style="display:flex;gap:6px;flex-shrink:0">' +
-          '<button onclick="approveGroupRequest(\''+g.gid+'\',\''+uid+'\')" style="padding:6px 11px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);color:#34d399;border-radius:8px;font-size:11px;cursor:pointer">通过</button>' +
-          '<button onclick="rejectGroupRequest(\''+g.gid+'\',\''+uid+'\')" style="padding:6px 11px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:11px;cursor:pointer">拒绝</button>' +
-        '</div></div>';
-    }).join('');
-    const requestSection = isOwner ? (
-      setGroupTitle('群审核') +
-      (requests.length ? requestRows : '<div style="font-size:13px;color:#9ca3af;padding:8px 4px">暂无待审核申请</div>')
-    ) : '';
+  const ownerRows = isOwner
+    ? setRow('解散群聊', '所有成员将被移出', "grpDissolve('"+g.gid+"')", '#f87171')
+    : setRow('群主', ownerName + ' · 仅群主可解散群聊');
 
-    const ownerRows = isOwner ? (
-      setGroupTitle('群主管理') +
-      setRow('群管理员', admins.length ? (admins.length + ' 人') : '未设置', "grpShowAdminPicker('"+g.gid+"')") +
-      setRow('解散群聊', '所有成员将被移出', "grpDissolve('"+g.gid+"')", '#f87171')
-    ) : (
-      setGroupTitle('群主管理') +
-      setRow('群主', ownerName + '  · 仅群主可设置管理员或解散群聊')
-    );
-
-    const picker = isOwner ? (
-      '<div id="adminPick-'+g.gid+'" style="display:none;padding:6px 0 2px">' +
-        members.filter(u=>u!==g.owner).map(u=>{
-          const isA = admins.indexOf(u) >= 0;
-          return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 4px;border-bottom:1px solid rgba(255,255,255,0.05)">'+
-            '<span style="font-size:13px;color:#374151">'+String(((ACCOUNTS[u]||{}).name)||u).replace(/</g,'&lt;')+grpMemberTag(g,u)+'</span>'+
-            '<button onclick="'+(isA?'grpDemote':'grpPromote')+'('+("'"+g.gid+"','"+u+"'")+')" style="padding:6px 11px;background:'+(isA?'rgba(255,255,255,0.06)':'rgba(167,139,250,0.14)')+';border:1px solid '+(isA?'rgba(255,255,255,0.14)':'rgba(167,139,250,0.34)')+';color:'+(isA?'#6b7280':'#a78bfa')+';border-radius:8px;font-size:11px;cursor:pointer">'+(isA?'取消管理':'设为管理')+'</button>'+
-          '</div>';
-        }).join('') +
-      '</div>'
-    ) : '';
-
-    const memberRows = members.map(uid=>{
-      const a = ACCOUNTS[uid] || {};
-      const isO = g.owner === uid;
-      let act = '';
-      if(!isO && canKick){
-        act = '<button onclick="grpRemoveMember(\''+g.gid+'\',\''+uid+'\')" style="padding:6px 11px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:11px;cursor:pointer">移出</button>';
-      }
-      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,0.05)">' +
-        '<div style="min-width:0;font-size:13px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+String(a.name||uid).replace(/</g,'&lt;')+grpMemberTag(g,uid)+'</div>' +
-        '<div style="display:flex;gap:6px;flex-shrink:0">'+act+'</div></div>';
-    }).join('');
-
-    const addSel = (canKick && nonMembers.length)
-      ? '<div style="display:flex;gap:8px;margin-top:12px">' +
-          '<select id="addSel-'+g.gid+'" style="flex:1;padding:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(115,184,255,0.22);border-radius:9px;color:#fff;font-size:13px;outline:none">' +
-            nonMembers.map(u=>'<option value="'+u+'">'+String((ACCOUNTS[u]||{}).name||u)+'（'+u+'）</option>').join('') +
-          '</select>' +
-          '<button onclick="grpAddMember(\''+g.gid+'\')" style="padding:10px 14px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;border-radius:9px;font-size:12px;cursor:pointer">添加</button>' +
-        '</div>'
-      : '';
-
-    return '<div style="margin-bottom:14px">' +
-      setGroupTitle('群信息') +
-      setRow('群名称', String(g.name||'群聊').replace(/</g,'&lt;')) +
-      setRow('群号', fallbackGroupCode(g)) +
-      setRow('群成员', members.length + '/' + GROUP_LIMIT + ' 人') +
-      setRow('我的身份', isOwner ? '群主' : (isAdminMe ? '管理员' : '成员')) +
-      ownerRows +
-      (isOwner ? picker : '') +
-      requestSection +
-      setGroupTitle('成员列表（' + members.length + '）') +
-      memberRows +
-      addSel +
-    '</div>';
-  }).join('');
+  return box.innerHTML = '<div style="margin-bottom:14px">' +
+    setGroupTitle('群信息') +
+    setRow('群昵称', String(g.name||'群聊').replace(/</g,'&lt;')) +
+    setRow('群号', fallbackGroupCode(g)) +
+    setRow('群成员', members.length + '/' + GROUP_LIMIT + ' 人') +
+    setRow('我的身份', isOwner ? '群主' : (isAdminMe ? '管理员' : '成员')) +
+    (canManage ? setRow('群管理', '昵称、审核与成员管理', "openGrpManage()") : '') +
+    ownerRows +
+  '</div>';
 }
-function grpShowAdminPicker(gid){
-  const el = document.getElementById('adminPick-'+gid);
-  if(!el) return;
-  el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+
+function renderGrpManage(){
+  const box = document.getElementById('grpManageBox');
+  const g = currentGroup();
+  if(!g){ box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:24px">暂无群聊</div>'; return; }
+  const me = myUid();
+  const admins = g.admins || [];
+  const members = (g.members||[]).filter(Boolean);
+  const isOwner = g.owner === me;
+  const canManage = isOwner || admins.indexOf(me) >= 0;
+  if(!canManage){ box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:24px">暂无管理权限</div>'; return; }
+
+  const requests = (g.requests||[]).filter(Boolean);
+  const reviewEntry = isOwner
+    ? setRow('群审核', requests.length ? requests.length + ' 条待处理' : '暂无待处理', "openGrpReviewPage()")
+    : '';
+
+  box.innerHTML =
+    '<div class="card" style="padding:6px 0">' +
+      setRow('群昵称修改', String(g.name||'群聊').replace(/</g,'&lt;'), "openGrpNamePage()") +
+      reviewEntry +
+      setRow('管理成员', members.length + '/' + GROUP_LIMIT + ' 人', "openGrpMembersPage()") +
+    '</div>';
+}
+
+function openGrpManage(){
+  const g = currentGroup();
+  if(!g) return;
+  renderGrpManage();
+  document.getElementById('grpManageMask').style.display = 'block';
+}
+function closeGrpManage(){ document.getElementById('grpManageMask').style.display = 'none'; }
+
+function openGrpNamePage(){
+  const g = currentGroup();
+  if(!g) return;
+  document.getElementById('grpNameInput').value = String(g.name||'');
+  document.getElementById('grpNameErr').textContent = '';
+  document.getElementById('grpNameMask').style.display = 'block';
+}
+function closeGrpNamePage(){ document.getElementById('grpNameMask').style.display = 'none'; }
+async function saveGrpName(){
+  if(!needBind('修改群昵称')) return;
+  const g = currentGroup();
+  if(!g) return;
+  const me = myUid();
+  if(g.owner !== me && (g.admins||[]).indexOf(me) < 0){ toastMsg('只有群主和管理员可以修改群昵称'); return; }
+  const input = document.getElementById('grpNameInput');
+  const err = document.getElementById('grpNameErr');
+  const name = String(input.value||'').trim();
+  if(!name){ err.textContent = '群昵称不能为空'; return; }
+  if(name.length > 30){ err.textContent = '群昵称不能超过 30 字'; return; }
+  const oldName = g.name;
+  g.name = name;
+  try {
+    await persistGroups();
+    logAct('group_name_update', '群 ' + g.gid, '群昵称由「' + oldName + '」改为「' + name + '」');
+    toastMsg('群昵称已保存');
+    closeGrpNamePage();
+    renderGrpManage(); renderGrpSetting(); renderDmCenterPage();
+  } catch(e){
+    g.name = oldName;
+    err.textContent = '保存失败，请检查网络后重试';
+  }
+}
+
+function openGrpReviewPage(){
+  const g = currentGroup();
+  if(!g) return;
+  if(g.owner !== myUid()){ toastMsg('只有群主可以审核入群申请'); return; }
+  renderGrpReview();
+  document.getElementById('grpReviewMask').style.display = 'block';
+}
+function closeGrpReviewPage(){ document.getElementById('grpReviewMask').style.display = 'none'; }
+function renderGrpReview(){
+  const box = document.getElementById('grpReviewList');
+  const g = currentGroup();
+  if(!g){ box.innerHTML = ''; return; }
+  const requests = (g.requests||[]).filter(Boolean);
+  if(!requests.length){
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:24px">暂无待审核申请</div>';
+    return;
+  }
+  box.innerHTML = '<div class="card" style="padding:6px 0">' + requests.map(uid=>{
+    const a = ACCOUNTS[uid] || {};
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,0.05)">' +
+      '<div style="min-width:0;font-size:13px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+String(a.name||uid).replace(/</g,'&lt;')+'<span style="font-size:11px;color:#9ca3af;margin-left:6px">'+uid+'</span></div>' +
+      '<div style="display:flex;gap:6px;flex-shrink:0">' +
+        '<button onclick="approveGroupRequest(\''+g.gid+'\',\''+uid+'\')" style="padding:6px 11px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);color:#34d399;border-radius:8px;font-size:11px;cursor:pointer">通过</button>' +
+        '<button onclick="rejectGroupRequest(\''+g.gid+'\',\''+uid+'\')" style="padding:6px 11px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:11px;cursor:pointer">拒绝</button>' +
+      '</div></div>';
+  }).join('') + '</div>';
+}
+
+function openGrpMembersPage(){
+  const g = currentGroup();
+  if(!g) return;
+  const me = myUid();
+  if(!(g.owner === me || (g.admins||[]).indexOf(me) >= 0)){ toastMsg('只有群主和管理员可以管理成员'); return; }
+  renderGrpMembers();
+  document.getElementById('grpMembersMask').style.display = 'block';
+}
+function closeGrpMembersPage(){ document.getElementById('grpMembersMask').style.display = 'none'; }
+function renderGrpMembers(){
+  const box = document.getElementById('grpMemberList');
+  const g = currentGroup();
+  if(!g){ box.innerHTML = ''; return; }
+  const me = myUid();
+  const admins = g.admins || [];
+  const members = (g.members||[]).filter(Boolean);
+  const nonMembers = Object.keys(ACCOUNTS).filter(u=>members.indexOf(u) < 0);
+  const canKick = g.owner === me || admins.indexOf(me) >= 0;
+
+  const memberRows = members.map(uid=>{
+    const a = ACCOUNTS[uid] || {};
+    const isO = g.owner === uid;
+    const isA = admins.indexOf(uid) >= 0;
+    let act = '';
+    if(!isO && canKick){
+      act += '<button onclick="grpRemoveMember(\''+g.gid+'\',\''+uid+'\')" style="padding:6px 11px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:11px;cursor:pointer">移出</button>';
+      if(g.owner === me){
+        act = '<button onclick="'+(isA?'grpDemote':'grpPromote')+'('+("'"+g.gid+"','"+uid+"'")+')" style="padding:6px 11px;background:'+(isA?'rgba(255,255,255,0.06)':'rgba(167,139,250,0.14)')+';border:1px solid '+(isA?'rgba(255,255,255,0.14)':'rgba(167,139,250,0.34)')+';color:'+(isA?'#6b7280':'#a78bfa')+';border-radius:8px;font-size:11px;cursor:pointer;margin-right:6px">'+(isA?'取消管理':'设为管理')+'</button>' + act;
+      }
+    }
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,0.05)">' +
+      '<div style="min-width:0;font-size:13px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+String(a.name||uid).replace(/</g,'&lt;')+grpMemberTag(g,uid)+'</div>' +
+      '<div style="display:flex;gap:6px;flex-shrink:0">'+act+'</div></div>';
+  }).join('');
+
+  const addSel = (canKick && nonMembers.length)
+    ? '<div style="display:flex;gap:8px;margin-top:12px">' +
+        '<select id="addSel-'+g.gid+'" style="flex:1;padding:10px;background:#f8f9fb;border:1px solid #e5e7eb;border-radius:9px;color:#111827;font-size:13px;outline:none">' +
+          nonMembers.map(u=>'<option value="'+u+'">'+String((ACCOUNTS[u]||{}).name||u)+'（'+u+'）</option>').join('') +
+        '</select>' +
+        '<button onclick="grpAddMember(\''+g.gid+'\')" style="padding:10px 14px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);color:#34d399;border-radius:9px;font-size:12px;cursor:pointer">添加</button>' +
+      '</div>'
+    : '';
+
+  box.innerHTML = '<div class="card" style="padding:6px 0">' + memberRows + addSel + '</div>';
 }
 async function grpDissolve(gid){
   if(!needBind('解散群聊')) return;
@@ -6633,7 +6767,7 @@ async function grpDissolve(gid){
     gmsgCache = (gmsgCache||[]).filter(m=>m && m.gid !== gid);
     gmsgsLoaded = true;
   } catch(e){}
-  closeGrpSetting();
+  closeGrpSetting(); closeGrpManage(); closeGrpNamePage(); closeGrpReviewPage(); closeGrpMembersPage();
   if(gchatGid === gid){
     gchatGid = null;
     document.getElementById('gchatMask').style.display = 'none';
@@ -6656,7 +6790,7 @@ async function approveGroupRequest(gid, uid){
     if(r.error){ g.members = beforeMembers; g.requests = beforeRequests; SB.err = r.error.message; toastMsg('审核失败：' + (SB.err || '后端写入失败')); return; }
     logAct('group_request_approve', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 已入群');
     toastMsg('已通过入群申请');
-    renderGrpSetting(); renderDmCenterPage();
+    renderGrpSetting(); renderGrpManage(); renderGrpReview(); renderDmCenterPage();
   } catch(e){
     g.members = beforeMembers; g.requests = beforeRequests;
     toastMsg('审核失败，请稍后重试');
@@ -6674,7 +6808,7 @@ async function rejectGroupRequest(gid, uid){
     if(r.error){ g.requests = beforeRequests; SB.err = r.error.message; toastMsg('操作失败：' + (SB.err || '后端写入失败')); return; }
     logAct('group_request_reject', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 申请被拒绝');
     toastMsg('已拒绝该申请');
-    renderGrpSetting(); renderDmCenterPage();
+    renderGrpSetting(); renderGrpManage(); renderGrpReview(); renderDmCenterPage();
   } catch(e){
     g.requests = beforeRequests;
     toastMsg('操作失败，请稍后重试');
@@ -6693,7 +6827,7 @@ async function grpAddMember(gid){
   g.members.push(uid);
   try { await persistGroups(); toastMsg('已加入群聊'); } catch(e){ toastMsg('保存失败，请检查网络'); return; }
   logAct('group_member_add', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 加入群聊');
-  renderGrpSetting(); renderDmCenterPage();
+  renderGrpSetting(); renderGrpManage(); renderGrpMembers(); renderDmCenterPage();
 }
 async function grpRemoveMember(gid, uid){
   if(!needBind('移出群成员')) return;
@@ -6708,7 +6842,7 @@ async function grpRemoveMember(gid, uid){
   g.admins = (g.admins||[]).filter(x=>x!==uid);
   try { await persistGroups(); toastMsg('已移出群聊'); } catch(e){ toastMsg('保存失败'); return; }
   logAct('group_member_del', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 被移出群聊');
-  renderGrpSetting(); renderDmCenterPage();
+  renderGrpSetting(); renderGrpManage(); renderGrpMembers(); renderDmCenterPage();
 }
 async function grpPromote(gid, uid){
   if(!needBind('设置群管理员')) return;
@@ -6720,7 +6854,7 @@ async function grpPromote(gid, uid){
   if(g.admins.indexOf(uid) < 0) g.admins.push(uid);
   try { await persistGroups(); toastMsg('已设为群管理员'); } catch(e){ toastMsg('保存失败'); return; }
   logAct('group_admin_add', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 设为管理员');
-  renderGrpSetting();
+  renderGrpSetting(); renderGrpManage(); renderGrpMembers();
 }
 async function grpDemote(gid, uid){
   if(!needBind('设置群管理员')) return;
@@ -6730,7 +6864,7 @@ async function grpDemote(gid, uid){
   g.admins = (g.admins||[]).filter(x=>x!==uid);
   try { await persistGroups(); toastMsg('已取消管理员'); } catch(e){ toastMsg('保存失败'); return; }
   logAct('group_admin_del', '群 ' + gid, ((ACCOUNTS[uid]||{}).name||uid) + ' 取消管理员');
-  renderGrpSetting();
+  renderGrpSetting(); renderGrpManage(); renderGrpMembers();
 }
 
 function rpEsc(s){ return String(s==null?'':s).replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
