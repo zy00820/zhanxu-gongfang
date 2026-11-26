@@ -1031,25 +1031,6 @@ option{background:#fff;color:#1f2937}
       <div class="stat" onclick="openCheckinLottery()" style="cursor:pointer"><div class="num" id="statLottery">抽奖</div><div class="label">签到抽奖</div></div>
     </div>
 
-    <!-- 首页模块入口：积分商城、活动中心、开发者中心同一行 -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
-      <div onclick="openShopPage()" style="aspect-ratio:1;border-radius:16px;background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:10px">
-        <div style="font-size:24px;color:#fbbf24">◆</div>
-        <div style="font-size:13px;font-weight:600;color:#111827">积分商城</div>
-        <div style="font-size:10px;color:#6b7280;text-align:center;line-height:1.4">积分兑换</div>
-      </div>
-      <div onclick="openActivityPage()" style="aspect-ratio:1;border-radius:16px;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:10px">
-        <div style="font-size:24px;color:#2563eb">◔</div>
-        <div style="font-size:13px;font-weight:600;color:#111827">活动中心</div>
-        <div style="font-size:10px;color:#6b7280;text-align:center;line-height:1.4">报名参与</div>
-      </div>
-      <div onclick="openDevCenter()" style="aspect-ratio:1;border-radius:16px;background:rgba(167,139,250,0.10);border:1px solid rgba(167,139,250,0.28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:10px">
-        <div style="font-size:24px;color:#a78bfa">‹›</div>
-        <div style="font-size:13px;font-weight:600;color:#111827">开发者中心</div>
-        <div style="font-size:10px;color:#6b7280;text-align:center;line-height:1.4">应用发布</div>
-      </div>
-    </div>
-
     </div>
 
     <!-- 积分商城（独立整页） -->
@@ -1593,13 +1574,21 @@ option{background:#fff;color:#1f2937}
           <button onclick="openProfile()" style="flex:1;padding:11px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;border-radius:10px;font-size:13px;cursor:pointer">个人信息</button>
         </div>
       </div>
-      <div class="card" onclick="openDevCenter()" style="cursor:pointer;margin-bottom:14px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-size:15px;font-weight:600;color:#111827;margin-bottom:4px">开发者中心</div>
-            <div style="font-size:12px;color:#6b7280">API 文档 / 表盘 SDK / 应用发布</div>
-          </div>
-          <span style="font-size:11px;color:#6b7280">›</span>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+        <div onclick="openShopPage()" style="aspect-ratio:1;border-radius:16px;background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:10px">
+          <div style="font-size:22px;color:#fbbf24">◆</div>
+          <div style="font-size:12px;font-weight:600;color:#111827">积分商城</div>
+          <div style="font-size:10px;color:#6b7280;text-align:center;line-height:1.4">积分兑换</div>
+        </div>
+        <div onclick="openActivityPage()" style="aspect-ratio:1;border-radius:16px;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:10px">
+          <div style="font-size:22px;color:#2563eb">◔</div>
+          <div style="font-size:12px;font-weight:600;color:#111827">活动中心</div>
+          <div style="font-size:10px;color:#6b7280;text-align:center;line-height:1.4">报名参与</div>
+        </div>
+        <div onclick="openDevCenter()" style="aspect-ratio:1;border-radius:16px;background:rgba(167,139,250,0.10);border:1px solid rgba(167,139,250,0.28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:10px">
+          <div style="font-size:22px;color:#a78bfa">‹›</div>
+          <div style="font-size:12px;font-weight:600;color:#111827">开发者中心</div>
+          <div style="font-size:10px;color:#6b7280;text-align:center;line-height:1.4">应用发布</div>
         </div>
       </div>
       <div class="card">
