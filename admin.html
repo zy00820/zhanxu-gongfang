@@ -978,14 +978,38 @@ option{background:#fff;color:#1f2937}
       <div class="stat" onclick="openCheckinLottery()" style="cursor:pointer"><div class="num" id="statLottery">抽奖</div><div class="label">签到抽奖</div></div>
     </div>
 
-    <!-- 积分商城 -->
-    <div class="card" style="margin-bottom:18px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <!-- 首页模块入口：积分商城、活动中心、开发者中心同一行 -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+      <div onclick="openShopPage()" style="aspect-ratio:1;border-radius:16px;background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:10px">
+        <div style="font-size:24px;color:#fbbf24">◆</div>
+        <div style="font-size:13px;font-weight:600;color:#111827">积分商城</div>
+        <div style="font-size:10px;color:#6b7280;text-align:center;line-height:1.4">积分兑换</div>
+      </div>
+      <div onclick="openActivityPage()" style="aspect-ratio:1;border-radius:16px;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:10px">
+        <div style="font-size:24px;color:#2563eb">◔</div>
+        <div style="font-size:13px;font-weight:600;color:#111827">活动中心</div>
+        <div style="font-size:10px;color:#6b7280;text-align:center;line-height:1.4">报名参与</div>
+      </div>
+      <div onclick="openDevCenter()" style="aspect-ratio:1;border-radius:16px;background:rgba(167,139,250,0.10);border:1px solid rgba(167,139,250,0.28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:10px">
+        <div style="font-size:24px;color:#a78bfa">‹›</div>
+        <div style="font-size:13px;font-weight:600;color:#111827">开发者中心</div>
+        <div style="font-size:10px;color:#6b7280;text-align:center;line-height:1.4">应用发布</div>
+      </div>
+    </div>
+
+    </div>
+
+    <!-- 积分商城（独立整页） -->
+    <div class="view" id="view-shop">
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <div>
           <div style="font-size:15px;font-weight:600;color:#111827">积分商城</div>
           <div style="font-size:12px;color:#6b7280;margin-top:3px">可用积分：<span id="shopCoin" style="color:#fbbf24;font-weight:600">0</span></div>
         </div>
-        <button id="btnAddShop" onclick="openShopForm()" style="display:none;padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#2563eb;font-size:12px;cursor:pointer">+ 添加商品</button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="btnAddShop" onclick="openShopForm()" style="display:none;padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#2563eb;font-size:12px;cursor:pointer">+ 添加商品</button>
+          <button onclick="closeModulePage()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
+        </div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px" id="shopTabs">
         <button onclick="shopTab('头像',this)" class="shop-tab active" data-cat="头像" style="flex:1;padding:8px;border-radius:9px;border:1px solid rgba(115,184,255,0.35);background:rgba(115,184,255,0.16);color:#2563eb;font-size:13px;cursor:pointer">头像</button>
@@ -995,18 +1019,19 @@ option{background:#fff;color:#1f2937}
       <div id="shopList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">加载中…</div></div>
     </div>
 
-    <!-- 活动中心（超管布置，活动与报名数据存仓库） -->
-    <div class="card" style="margin-bottom:18px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:15px;font-weight:600;color:#111827">活动中心</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:11px;color:#6b7280" id="actHint">由超管布置</span>
+    <!-- 活动中心（独立整页） -->
+    <div class="view" id="view-activity">
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#111827">活动中心</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:3px">报名参与官方活动</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
           <button id="btnAddAct" onclick="openActForm()" style="display:none;padding:6px 12px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.32);color:#2563eb;font-size:12px;cursor:pointer">+ 布置活动</button>
+          <button onclick="closeModulePage()" style="padding:7px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#6b7280;font-size:12px;cursor:pointer">返回</button>
         </div>
       </div>
       <div id="activityList"><div style="text-align:center;color:#6b7280;font-size:13px;padding:20px">加载中…</div></div>
-    </div>
-
     </div>
 
 
@@ -2620,12 +2645,52 @@ async function loadDevItems(force){
   return devCache;
 }
 let _devReturnView = 'staffSvc';
+let _moduleReturnView = 'post';
+function currentModuleReturnView(){
+  const active = document.querySelector('.view.active');
+  if(!active) return 'staffSvc';
+  const id = active.id.replace('view-', '');
+  return ['shop','activity','dev'].includes(id) ? _moduleReturnView : id;
+}
+function openModulePage(viewId, refresh){
+  const me = myUid();
+  if(!me){ toastMsg('请先登录'); return; }
+  _moduleReturnView = currentModuleReturnView();
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  const v = document.getElementById(viewId);
+  if(v) v.classList.add('active');
+  const dash = document.getElementById('homeDash');
+  if(dash) dash.style.display = 'none';
+  const st = document.getElementById('subtabs');
+  if(st) st.style.display = 'none';
+  if(typeof refresh === 'function'){ try { refresh(); } catch(e){} }
+  window.scrollTo(0,0);
+}
+function closeModulePage(){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  let rv = _moduleReturnView || 'post';
+  const rvTab = document.querySelector('.tab[data-view="' + rv + '"]');
+  if(rvTab && rvTab.style.display === 'none') rv = 'post';
+  const t = document.querySelector('.tab[data-view="' + rv + '"]');
+  if(t) t.classList.add('active');
+  const v = document.getElementById('view-' + rv);
+  if(v) v.classList.add('active');
+  const dash = document.getElementById('homeDash');
+  if(dash) dash.style.display = rv === 'post' ? 'block' : 'none';
+  const st = document.getElementById('subtabs');
+  if(st) st.style.display = rv === 'staffSvc' ? 'flex' : 'none';
+  window.scrollTo(0,0);
+}
+function openShopPage(){ openModulePage('view-shop', ()=>renderShop(true)); }
+function openActivityPage(){ openModulePage('view-activity', ()=>renderActivities()); }
 async function openDevCenter(){
   const me = myUid();
   if(!me){ toastMsg('请先登录'); return; }
   await loadDevAuth();
-  const active = document.querySelector('.view.active');
-  if(active && active.id === 'view-me') _devReturnView = 'me'; else _devReturnView = 'staffSvc';
+  _moduleReturnView = currentModuleReturnView();
+  _devReturnView = _moduleReturnView;
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   const v = document.getElementById('view-dev');
@@ -2642,20 +2707,7 @@ async function openDevCenter(){
 }
 function closeDevCenter(){
   currentDevView = false;
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
-  let rv = _devReturnView || 'staffSvc';
-  const rvTab = document.querySelector('.tab[data-view="' + rv + '"]');
-  if(rvTab && rvTab.style.display === 'none') rv = 'post';
-  const t = document.querySelector('.tab[data-view="' + rv + '"]');
-  if(t) t.classList.add('active');
-  const v = document.getElementById('view-' + rv);
-  if(v) v.classList.add('active');
-  const dash = document.getElementById('homeDash');
-  if(dash) dash.style.display = rv === 'post' ? 'block' : 'none';
-  const st = document.getElementById('subtabs');
-  if(st) st.style.display = rv === 'staffSvc' ? 'flex' : 'none';
-  window.scrollTo(0,0);
+  closeModulePage();
 }
 function devStatusColor(s){
   if(s === '已通过') return '#34d399';
