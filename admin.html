@@ -1629,6 +1629,17 @@ option{background:#fff;color:#1f2937}
     <div id="checkinLotteryBody" style="flex:1;overflow-y:auto;padding:18px 16px"></div>
   </div>
 </div>
+<div id="adRewardMask" style="display:none;position:fixed;inset:0;z-index:260;background:rgba(4,6,12,0.72);backdrop-filter:blur(16px)">
+  <div style="position:absolute;inset:0;max-width:420px;margin:auto;padding:20px;display:flex;align-items:center">
+    <div class="card" style="width:100%;padding:24px;text-align:center;background:#fff;border-color:#eef1f5">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:12px">广告演示位</div>
+      <div id="adRewardTimer" style="font-size:34px;font-weight:700;color:#2563eb;margin:16px 0">5</div>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:20px">看完倒计时后，可领取一次抽奖机会</div>
+      <button id="adRewardClaim" onclick="claimAdReward()" disabled style="width:100%;padding:12px;background:rgba(255,255,255,0.06);color:#6b7280;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:default">广告观看中…</button>
+      <button onclick="closeAdLottery()" style="width:100%;margin-top:10px;padding:11px;background:#f3f4f6;border:1px solid #e5e7eb;color:#6b7280;border-radius:12px;font-size:13px;cursor:pointer">取消</button>
+    </div>
+  </div>
+</div>
 <div id="postDetailMask" style="display:none;position:fixed;inset:0;z-index:220;background:rgba(4,6,12,0.6);backdrop-filter:blur(16px)">
   <div style="position:absolute;inset:0;max-width:600px;margin:0 auto;display:flex;flex-direction:column;background:rgba(14,19,29,0.96);backdrop-filter:blur(30px) saturate(180%)">
     <div style="display:flex;align-items:center;gap:10px;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08)">
@@ -5282,6 +5293,15 @@ const LOTTERY_POOL = [
   { label: '30 金币', coin: 30, exp: 0 },
   { label: '10 经验', coin: 0, exp: 10 }
 ];
+const AD_LOTTERY_MAX = 30;
+const AD_LOTTERY_SECONDS = 5;
+const AD_LOTTERY_POOL = [
+  { label: '2 金币', coin: 2, exp: 0 },
+  { label: '3 金币', coin: 3, exp: 0 },
+  { label: '5 金币', coin: 5, exp: 0 },
+  { label: '8 金币', coin: 8, exp: 0 },
+  { label: '5 经验', coin: 0, exp: 5 }
+];
 async function openCheckinLottery(){
   document.getElementById('checkinLotteryMask').style.display = 'block';
   await renderCheckinLottery();
@@ -5303,13 +5323,17 @@ async function renderCheckinLottery(){
   const uid = myUid();
   const all = await loadLotteryRecords();
   const today = todayStr();
-  const mine = all.filter(x => String(x.uid) === String(uid) && x.type === 'lottery');
-  const drawn = mine.some(x => x.date === today);
+  const mine = all.filter(x => String(x.uid) === String(uid) && (x.type === 'lottery' || x.type === 'lottery_ad'));
+  const freeMine = mine.filter(x => x.type === 'lottery');
+  const adMine = mine.filter(x => x.type === 'lottery_ad');
+  const drawn = freeMine.some(x => x.date === today);
+  const adTodayCount = adMine.filter(x => x.date === today).length;
+  const adLeft = Math.max(0, AD_LOTTERY_MAX - adTodayCount);
   const poolHtml = LOTTERY_POOL.map(p =>
     '<div style="padding:12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);text-align:center;font-size:13px;color:#1f2937">'+p.label+'</div>').join('');
   const history = mine.slice().sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,10);
   const histHtml = history.length
-    ? history.map(x => '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px"><span style="color:#4b5563">'+String(x.label||'奖励')+'</span><span style="color:#6b7280">'+String(x.date||'')+'</span></div>').join('')
+    ? history.map(x => '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px"><span style="color:#4b5563">'+(x.type === 'lottery_ad' ? '广告 · ' : '')+String(x.label||'奖励')+'</span><span style="color:#6b7280">'+String(x.date||'')+'</span></div>').join('')
     : '<div style="font-size:12px;color:#6b7280;padding:10px 0">暂无抽奖记录</div>';
   const stats = getUserStats(uid);
   const signBtn = stats.checkedIn ? '已签到' : '签到';
@@ -5317,15 +5341,23 @@ async function renderCheckinLottery(){
     '<div><div style="font-size:14px;font-weight:600;color:#111827;margin-bottom:4px">每日签到</div>'+
     '<div style="font-size:12px;color:#6b7280">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">'+(stats.days||0)+'</span> 天</div></div>'+
     '<button id="btnSign" onclick="doCheckin()" style="padding:10px 20px;background:linear-gradient(135deg,#2563eb,#2563eb);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">'+signBtn+'</button></div>';
+  const adCard = '<div class="card" style="margin-bottom:16px;padding:16px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:14px;font-weight:600;color:#111827">看广告抽奖</div><div style="font-size:12px;color:#6b7280">今日剩余 <span style="color:#fbbf24;font-weight:600">'+adLeft+'</span> / '+AD_LOTTERY_MAX+' 次</div></div>'+
+    '<div style="font-size:12px;color:#6b7280;margin-bottom:14px">看完一段广告即可抽一次，奖励金币或经验</div>'+
+    (adLeft > 0
+      ? '<button onclick="openAdLottery()" style="width:100%;padding:12px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">看广告并抽奖</button>'
+      : '<button disabled style="width:100%;padding:12px;background:rgba(255,255,255,0.06);color:#6b7280;border:none;border-radius:12px;font-size:14px;cursor:default">今日广告抽奖已达上限</button>')+
+  '</div>';
   box.innerHTML =
     signCard+
-    '<div style="text-align:center;margin-bottom:16px"><div style="font-size:13px;color:#6b7280">每日可抽奖一次，奖励金币或经验</div></div>'+
+    '<div style="text-align:center;margin-bottom:16px"><div style="font-size:13px;color:#6b7280">每日免费抽奖一次；看广告额外抽奖，每天上限 '+AD_LOTTERY_MAX+' 次</div></div>'+
     '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">'+poolHtml+'</div>'+
     '<div style="text-align:center;margin-bottom:18px">'+
       (drawn
         ? '<div style="font-size:13px;color:#fbbf24">今日已抽奖，明天再来</div>'
         : '<button onclick="drawCheckinLottery()" style="padding:12px 30px;background:linear-gradient(135deg,#2563eb,#2563eb);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">立即抽奖</button>')+
     '</div>'+
+    adCard+
     '<div style="font-size:13px;color:#1f2937;margin-bottom:8px">我的抽奖记录</div>'+histHtml;
 }
 async function drawCheckinLottery(){
@@ -5354,6 +5386,74 @@ async function drawCheckinLottery(){
   await syncCheckin(uid);
   renderShop();
   toastMsg('抽奖成功：' + win.label);
+  renderCheckinLottery();
+}
+let adRewardTimer = null;
+async function openAdLottery(){
+  const uid = myUid();
+  if(!uid){ toastMsg('请先登录'); return; }
+  const all = await loadLotteryRecords();
+  const today = todayStr();
+  const count = all.filter(x => String(x.uid) === String(uid) && x.type === 'lottery_ad' && x.date === today).length;
+  if(count >= AD_LOTTERY_MAX){ toastMsg('今日广告抽奖已达上限'); return; }
+  document.getElementById('adRewardMask').style.display = 'block';
+  const claim = document.getElementById('adRewardClaim');
+  const timer = document.getElementById('adRewardTimer');
+  claim.disabled = true;
+  claim.style.cursor = 'default';
+  claim.style.background = 'rgba(255,255,255,0.06)';
+  claim.style.color = '#6b7280';
+  claim.textContent = '广告观看中…';
+  let left = AD_LOTTERY_SECONDS;
+  timer.textContent = left;
+  if(adRewardTimer) clearInterval(adRewardTimer);
+  adRewardTimer = setInterval(() => {
+    left -= 1;
+    timer.textContent = Math.max(0, left);
+    if(left <= 0){
+      clearInterval(adRewardTimer);
+      adRewardTimer = null;
+      claim.disabled = false;
+      claim.style.cursor = 'pointer';
+      claim.style.background = 'linear-gradient(135deg,#f59e0b,#fbbf24)';
+      claim.style.color = '#fff';
+      claim.textContent = '领取奖励并抽奖';
+    }
+  }, 1000);
+}
+function closeAdLottery(){
+  if(adRewardTimer){ clearInterval(adRewardTimer); adRewardTimer = null; }
+  document.getElementById('adRewardMask').style.display = 'none';
+}
+async function claimAdReward(){
+  closeAdLottery();
+  await drawAdLottery();
+}
+async function drawAdLottery(){
+  const uid = myUid();
+  if(!uid){ toastMsg('请先登录'); return; }
+  const today = todayStr();
+  const all = await loadLotteryRecords();
+  const count = all.filter(x => String(x.uid) === String(uid) && x.type === 'lottery_ad' && x.date === today).length;
+  if(count >= AD_LOTTERY_MAX){ toastMsg('今日广告抽奖已达上限'); return; }
+  const win = AD_LOTTERY_POOL[Math.floor(Math.random() * AD_LOTTERY_POOL.length)];
+  const acc = ACCOUNTS[uid] || {};
+  const rec = {
+    uid: uid, name: acc.name || uid, date: today, type: 'lottery_ad', source: 'ad',
+    label: win.label, coin: win.coin, exp: win.exp,
+    time: today + ' ' + new Date().toTimeString().slice(0,5), ts: Date.now()
+  };
+  try {
+    await ghAppendRecord(GH_CHECKIN_PATH, rec, 'zx_checkin_all');
+  } catch(e){
+    let local = [];
+    try { local = JSON.parse(localStorage.getItem('zx_checkin_all')||'[]'); } catch(x){ local = []; }
+    local.push(rec);
+    localStorage.setItem('zx_checkin_all', JSON.stringify(local));
+  }
+  await syncCheckin(uid);
+  renderShop();
+  toastMsg('广告抽奖成功：' + win.label);
   renderCheckinLottery();
 }
 async function doCheckin(){
