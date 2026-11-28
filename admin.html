@@ -5389,6 +5389,22 @@ async function drawCheckinLottery(){
   renderCheckinLottery();
 }
 let adRewardTimer = null;
+let adNativePending = false;
+window.HQRewardAd = {
+  onReward(){
+    adNativePending = false;
+    closeAdLottery();
+    drawAdLottery();
+  },
+  onClose(granted){
+    adNativePending = false;
+    closeAdLottery();
+    if(!granted){ toastMsg('未看完广告，未获得抽奖机会'); renderCheckinLottery(); }
+  }
+};
+function hasNativeRewardAd(){
+  return !!(window.RewardAdBridge && typeof window.RewardAdBridge.showRewardAd === 'function');
+}
 async function openAdLottery(){
   const uid = myUid();
   if(!uid){ toastMsg('请先登录'); return; }
@@ -5396,6 +5412,28 @@ async function openAdLottery(){
   const today = todayStr();
   const count = all.filter(x => String(x.uid) === String(uid) && x.type === 'lottery_ad' && x.date === today).length;
   if(count >= AD_LOTTERY_MAX){ toastMsg('今日广告抽奖已达上限'); return; }
+  if(hasNativeRewardAd()){
+    adNativePending = true;
+    document.getElementById('adRewardMask').style.display = 'block';
+    const claim = document.getElementById('adRewardClaim');
+    const timer = document.getElementById('adRewardTimer');
+    timer.textContent = 'AD';
+    claim.disabled = true;
+    claim.style.cursor = 'default';
+    claim.style.background = 'rgba(255,255,255,0.06)';
+    claim.style.color = '#6b7280';
+    claim.textContent = '真实广告加载中…';
+    try { window.RewardAdBridge.showRewardAd(); }
+    catch(e){
+      adNativePending = false;
+      closeAdLottery();
+      toastMsg('广告拉起失败，请稍后再试');
+    }
+    return;
+  }
+  startDemoAdLottery();
+}
+function startDemoAdLottery(){
   document.getElementById('adRewardMask').style.display = 'block';
   const claim = document.getElementById('adRewardClaim');
   const timer = document.getElementById('adRewardTimer');
@@ -5423,6 +5461,7 @@ async function openAdLottery(){
 }
 function closeAdLottery(){
   if(adRewardTimer){ clearInterval(adRewardTimer); adRewardTimer = null; }
+  adNativePending = false;
   document.getElementById('adRewardMask').style.display = 'none';
 }
 async function claimAdReward(){
