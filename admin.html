@@ -1086,6 +1086,7 @@ option{background:#fff;color:#1f2937}
       <div class="subtab" data-view="staffSvc" data-sub="ticket">公单处理</div>
       <div class="subtab" data-view="staffSvc" data-sub="dev">开发者管理</div>
       <div class="subtab" data-view="staffSvc" data-sub="log" id="subtabLog" style="display:none">运行日志</div>
+      <div class="subtab" data-view="staffSvc" data-sub="bizbot" id="subtabBizbot" style="display:none">商机线索</div>
       <div class="subtab" data-view="users" data-sub="userList">用户列表</div>
       <div class="subtab" data-view="users" data-sub="staffList">管理员</div>
       <div class="subtab" data-view="users" data-sub="userAnn">用户公告</div>
@@ -1205,6 +1206,20 @@ option{background:#fff;color:#1f2937}
         </div>
       </div>
       <div class="card"><div id="auditList"></div></div>
+    </div>
+
+    <!-- BizBot 商机线索（仅超管） -->
+    <div id="sub-bizbot" style="display:none">
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#111827">商机线索</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:3px">BizBot 同步的高意向客户，仅超级管理员可见</div>
+          </div>
+          <button onclick="renderBizbotLeads(true)" style="padding:8px 13px;border-radius:8px;background:rgba(115,184,255,0.14);border:1px solid rgba(115,184,255,0.35);color:#2563eb;font-size:12px;cursor:pointer">刷新</button>
+        </div>
+        <div id="bizbotLeadList"></div>
+      </div>
     </div>
     </div><!-- /view-staffSvc -->
 
@@ -1936,6 +1951,8 @@ async function showApp(u){
   if(staffTabEl) staffTabEl.style.display = isStaff ? '' : 'none';
   const logSub = document.getElementById('subtabLog');
   if(logSub) logSub.style.display = currentIsSuper ? '' : 'none';
+  const bizSub = document.getElementById('subtabBizbot');
+  if(bizSub) bizSub.style.display = currentIsSuper ? '' : 'none';
   if(!isStaff){
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
@@ -2426,11 +2443,12 @@ document.querySelectorAll('.subtab').forEach(s=>{
     s.classList.add('active');
     const v = s.dataset.view;
     if(v==='staffSvc'){
-      ['ann','staff','ticket','dev','log'].forEach(k=>{
+      ['ann','staff','ticket','dev','log','bizbot'].forEach(k=>{
         const el = document.getElementById('sub-'+k);
         if(el) el.style.display = k===s.dataset.sub ? 'block' : 'none';
       });
       if(s.dataset.sub === 'log') renderAudit();
+      if(s.dataset.sub === 'bizbot') renderBizbotLeads();
       if(s.dataset.sub === 'ann') renderActivities();
       if(s.dataset.sub === 'dev') renderDevManage();
       if(s.dataset.sub === 'ticketSubmit') renderMyTickets();
@@ -7572,6 +7590,8 @@ async function syncRoleFromBackend(){
     if(staffTabEl) staffTabEl.style.display = (lv === '用户') ? 'none' : '';
     const logSub = document.getElementById('subtabLog');
     if(logSub) logSub.style.display = currentIsSuper ? '' : 'none';
+    const bizSub = document.getElementById('subtabBizbot');
+    if(bizSub) bizSub.style.display = currentIsSuper ? '' : 'none';
     return true;
   }
 
@@ -7727,6 +7747,85 @@ async function renderAudit(force){
       (dt?('<div style="font-size:11px;color:#9ca3af;margin-top:2px;line-height:1.6">'+dt+'</div>'):'')+
     '</div>';
   }).join('');
+}
+
+/* ===== BizBot 商机线索（仅超管） ===== */
+let _bizbotCache = [], _bizbotLoaded = false;
+const BIZBOT_STAGE_LABEL = { new:'新线索', contacted:'已沟通', positive:'高意向', handled:'已成交', lost:'无效' };
+const BIZBOT_STAGE_COLOR = { new:'#6b7280', contacted:'#2563eb', positive:'#34d399', handled:'#a78bfa', lost:'#f87171' };
+const BIZBOT_STATUS_LABEL = { new:'待跟进', processing:'跟进中', handled:'已成交', lost:'无效线索' };
+
+async function loadBizbotLeads(force){
+  if(_bizbotLoaded && !force) return _bizbotCache;
+  if(!SB.client || !SB.session) return [];
+  const r = await SB.client.rpc('admin_list_bizbot_leads');
+  if(r.error){ _bizbotCache = []; return []; }
+  _bizbotCache = r.data || [];
+  _bizbotLoaded = true;
+  return _bizbotCache;
+}
+async function renderBizbotLeads(force){
+  const box = document.getElementById('bizbotLeadList');
+  if(!box) return;
+  if(!currentIsSuper){
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:22px">仅超级管理员可查看商机线索</div>';
+    return;
+  }
+  if(!SB.session){
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:22px">需要先绑定后端账号并登录，才能读取云端线索</div>';
+    return;
+  }
+  box.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:13px;padding:18px">加载中…</div>';
+  let list = [];
+  try { list = await loadBizbotLeads(force); } catch(e){ list = []; }
+  if(!list.length){
+    box.innerHTML = '<div style="text-align:center;color:#6b7280;font-size:13px;padding:22px">暂无 BizBot 同步的线索</div>';
+    return;
+  }
+  box.innerHTML = list.map(r=>{
+    const name = String(r.customer_name || r.contact || r.external_id || '未知线索').replace(/</g,'&lt;');
+    const contact = String(r.contact || '').replace(/</g,'&lt;');
+    const company = String(r.company || '').replace(/</g,'&lt;');
+    const channel = String(r.channel || 'email').replace(/</g,'&lt;');
+    const stage = BIZBOT_STAGE_LABEL[r.intent_stage] || r.intent_stage || '新线索';
+    const stageColor = BIZBOT_STAGE_COLOR[r.intent_stage] || '#6b7280';
+    const status = BIZBOT_STATUS_LABEL[r.status] || r.status || '待跟进';
+    const score = r.score == null ? '' : Number(r.score).toFixed(1);
+    const summary = String(r.summary || '').replace(/</g,'&lt;');
+    const lastMsg = String(r.last_message || '').replace(/</g,'&lt;');
+    const source = String(r.source_url || '').replace(/</g,'&lt;');
+    const time = auditTime(r.last_synced_at || r.updated_at || r.created_at);
+    const btn = (st,label,color,bg,bd)=>'<button onclick="setBizbotStatus('+r.id+',\''+st+'\')" style="padding:5px 10px;background:'+bg+';border:1px solid '+bd+';color:'+color+';border-radius:7px;font-size:11px;cursor:pointer">'+label+'</button>';
+    const actions = (r.status !== 'processing' ? btn('processing','跟进中','#2563eb','rgba(37,99,235,0.10)','rgba(37,99,235,0.30)') : '')
+      + (r.status !== 'handled' ? btn('handled','已成交','#a78bfa','rgba(167,139,250,0.12)','rgba(167,139,250,0.32)') : '')
+      + (r.status !== 'lost' ? btn('lost','无效','#f87171','rgba(248,113,113,0.10)','rgba(248,113,113,0.30)') : '');
+    return '<div style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">'+
+      '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">'+
+        '<div style="min-width:0;font-size:14px;color:#1f2937;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+name+'</div>'+
+        '<div style="display:flex;gap:6px;flex-shrink:0;align-items:center">'+
+          '<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:'+stageColor+'1a;color:'+stageColor+'">'+stage+'</span>'+
+          '<span style="font-size:11px;color:#6b7280">'+status+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div style="font-size:12px;color:#6b7280;margin-top:5px;line-height:1.7">'+
+        (contact ? '联系方式：'+contact+'<br>' : '')+
+        (company ? '公司：'+company+'<br>' : '')+
+        '渠道：'+channel+(score ? ' · 意向分 '+score : '')+' · '+time+
+      '</div>'+
+      (summary ? '<div style="font-size:12px;color:#4b5563;margin-top:5px;line-height:1.7">'+summary+'</div>' : '')+
+      (lastMsg ? '<div style="font-size:11px;color:#9ca3af;margin-top:3px;line-height:1.6">最近沟通：'+lastMsg+'</div>' : '')+
+      (source ? '<div style="font-size:11px;color:#9ca3af;margin-top:3px;word-break:break-all">来源：'+source+'</div>' : '')+
+      '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">'+actions+'</div>'+
+    '</div>';
+  }).join('');
+}
+async function setBizbotStatus(id, status){
+  if(!currentIsSuper){ toastMsg('仅超级管理员可跟进线索'); return; }
+  const r = await SB.client.rpc('admin_set_bizbot_lead_status', { p_id: id, p_status: status });
+  if(r.error){ toastMsg('更新失败：' + (r.error.message || '请稍后重试')); return; }
+  logAct('bizbot_lead_status', String(id), '线索状态更新为 ' + (BIZBOT_STATUS_LABEL[status] || status));
+  toastMsg('线索状态已更新');
+  renderBizbotLeads(true);
 }
 
 /* ===== 自助绑定后端账号：旧体系账号 → 云端登录身份 ===== */
