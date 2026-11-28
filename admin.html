@@ -5342,15 +5342,13 @@ async function renderCheckinLottery(){
     '<div style="font-size:12px;color:#6b7280">连续签到 <span id="signDays" style="color:#fbbf24;font-weight:600">'+(stats.days||0)+'</span> 天</div></div>'+
     '<button id="btnSign" onclick="doCheckin()" style="padding:10px 20px;background:linear-gradient(135deg,#2563eb,#2563eb);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">'+signBtn+'</button></div>';
   const adCard = '<div class="card" style="margin-bottom:16px;padding:16px">'+
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:14px;font-weight:600;color:#111827">看广告抽奖</div><div style="font-size:12px;color:#6b7280">今日剩余 <span style="color:#fbbf24;font-weight:600">'+adLeft+'</span> / '+AD_LOTTERY_MAX+' 次</div></div>'+
-    '<div style="font-size:12px;color:#6b7280;margin-bottom:14px">看完一段广告即可抽一次，奖励金币或经验</div>'+
-    (adLeft > 0
-      ? '<button onclick="openAdLottery()" style="width:100%;padding:12px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer">看广告并抽奖</button>'
-      : '<button disabled style="width:100%;padding:12px;background:rgba(255,255,255,0.06);color:#6b7280;border:none;border-radius:12px;font-size:14px;cursor:default">今日广告抽奖已达上限</button>')+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:14px;font-weight:600;color:#111827">看广告抽奖</div><div style="font-size:12px;color:#6b7280">维护中</div></div>'+
+    '<div style="font-size:12px;color:#6b7280;margin-bottom:14px">广告位正在维护，暂不参与抽奖，恢复后另行通知</div>'+
+    '<button disabled style="width:100%;padding:12px;background:rgba(255,255,255,0.06);color:#6b7280;border:none;border-radius:12px;font-size:14px;cursor:default">维护中</button>'+
   '</div>';
   box.innerHTML =
     signCard+
-    '<div style="text-align:center;margin-bottom:16px"><div style="font-size:13px;color:#6b7280">每日免费抽奖一次；看广告额外抽奖，每天上限 '+AD_LOTTERY_MAX+' 次</div></div>'+
+    '<div style="text-align:center;margin-bottom:16px"><div style="font-size:13px;color:#6b7280">每日免费抽奖一次；广告抽奖功能维护中</div></div>'+
     '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">'+poolHtml+'</div>'+
     '<div style="text-align:center;margin-bottom:18px">'+
       (drawn
@@ -5406,32 +5404,8 @@ function hasNativeRewardAd(){
   return !!(window.RewardAdBridge && typeof window.RewardAdBridge.showRewardAd === 'function');
 }
 async function openAdLottery(){
-  const uid = myUid();
-  if(!uid){ toastMsg('请先登录'); return; }
-  const all = await loadLotteryRecords();
-  const today = todayStr();
-  const count = all.filter(x => String(x.uid) === String(uid) && x.type === 'lottery_ad' && x.date === today).length;
-  if(count >= AD_LOTTERY_MAX){ toastMsg('今日广告抽奖已达上限'); return; }
-  if(hasNativeRewardAd()){
-    adNativePending = true;
-    document.getElementById('adRewardMask').style.display = 'block';
-    const claim = document.getElementById('adRewardClaim');
-    const timer = document.getElementById('adRewardTimer');
-    timer.textContent = 'AD';
-    claim.disabled = true;
-    claim.style.cursor = 'default';
-    claim.style.background = 'rgba(255,255,255,0.06)';
-    claim.style.color = '#6b7280';
-    claim.textContent = '真实广告加载中…';
-    try { window.RewardAdBridge.showRewardAd(); }
-    catch(e){
-      adNativePending = false;
-      closeAdLottery();
-      toastMsg('广告拉起失败，请稍后再试');
-    }
-    return;
-  }
-  startDemoAdLottery();
+  toastMsg('广告抽奖维护中，暂不可用');
+  return;
 }
 function startDemoAdLottery(){
   document.getElementById('adRewardMask').style.display = 'block';
